@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:bearscout/pages/auth/login_page.dart';
 import 'package:bearscout/pages/auth/signup_page.dart';
 import 'package:bearscout/pages/main_view.dart';
-import 'package:bearscout/pages/team/team_page.dart';
 import 'package:bearscout/pages/auth/welcome_page.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';

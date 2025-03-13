@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
-import 'login_page.dart';
-
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -18,14 +16,17 @@ class WelcomePage extends StatelessWidget {
             SvgPicture.asset(
               'lib/assets/scuffed_logo.svg',
               height: 128,
+
               colorFilter: const ColorFilter.mode(
                 Colors.amber,
                 BlendMode.srcATop,
               ),
             ),
             const SizedBox(height: 24),
-            const Text('Welcome to Bearscout!', 
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text(
+              'Welcome to Bearscout!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 6),
             const Text('Let\'s get started!'),
             const SizedBox(height: 24),
