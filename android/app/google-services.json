@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447116138743",
+    "project_id": "bearscout-2046",
+    "storage_bucket": "bearscout-2046.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447116138743:android:7fb1c821cefdb5a44d5bf2",
+        "android_client_info": {
+          "package_name": "org.tahomarobotics.scouting.bearscout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAARlXM0-_zr0fnDhqYOcCD3AdgGyonWno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
