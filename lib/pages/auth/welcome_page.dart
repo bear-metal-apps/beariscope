@@ -24,7 +24,7 @@ class WelcomePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Welcome to Bearscout!',
+              'Welcome to Bear Scout!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
@@ -41,7 +41,7 @@ class WelcomePage extends StatelessWidget {
               onPressed: () {
                 context.go('/welcome/login');
               },
-              child: const Text('Log In'),
+              child: const Text('I already have an account'),
             ),
           ],
         ),

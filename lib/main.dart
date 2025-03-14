@@ -8,6 +8,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -35,8 +36,27 @@ Future<void> main() async {
     return true;
   };
 
-  // Get SharedPreferences here
   final sharedPreferences = await SharedPreferences.getInstance();
+
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.setConfigSettings(
+    RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(hours: 1),
+    ),
+  );
+  await remoteConfig.setDefaults(const {
+    'available_teams': '{"teams":[{"name":"Bear Metal","number":2046}]}',
+  });
+
+  await remoteConfig
+      .fetchAndActivate()
+      .then((value) {
+        logger.i('Remote config fetched and activated: $value');
+      })
+      .catchError((error) {
+        logger.e('Error fetching remote config: $error');
+      });
 
   FirebaseAuth.instance.authStateChanges().listen((User? user) async {
     if (user == null) {
