@@ -1,13 +1,14 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:bearscout/custom_fab.dart';
+import 'package:bearscout/dialogs/profile_dialog.dart';
+import 'package:bearscout/pages/data/data_page.dart';
 import 'package:bearscout/pages/home/home_page.dart';
 import 'package:bearscout/pages/scout/scout_page.dart';
-import 'package:bearscout/pages/piclkist/picklist_page.dart';
 import 'package:bearscout/pages/team/team_page.dart';
-import 'package:bearscout/dialogs/profile_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class MainView extends StatefulWidget {
   const MainView({super.key});
@@ -21,12 +22,15 @@ class _MainViewState extends State<MainView> {
   static final List<Widget> _pages = [
     const HomePage(),
     const ScoutPage(),
-    const PicklistPage(),
+    const DataPage(),
     const TeamPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.sizeOf(context).width;
+    double screenHeight = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -41,7 +45,7 @@ class _MainViewState extends State<MainView> {
               ),
             ),
             const SizedBox(width: 12),
-            const Text('Bearscout'),
+            const Text('Bear Scout'),
           ],
         ),
         actionsPadding: const EdgeInsets.only(right: 16),
@@ -56,7 +60,6 @@ class _MainViewState extends State<MainView> {
             icon: const Icon(Symbols.notifications_rounded, fill: 1.0),
             onPressed: () {
               HapticFeedback.lightImpact();
-              FirebaseCrashlytics.instance.crash();
             },
           ),
           Builder(
@@ -66,10 +69,11 @@ class _MainViewState extends State<MainView> {
                 child: GestureDetector(
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileDialog(),
-                      ),
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return const ProfileDialog();
+                      },
                     );
                   },
                   child: CircleAvatar(
@@ -88,12 +92,9 @@ class _MainViewState extends State<MainView> {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Column(
-            children: [
-              Expanded(child: _pages[_selectedIndex]),
-              NavigationBar(
+      bottomNavigationBar:
+          !(screenWidth > 600)
+              ? NavigationBar(
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: (int index) {
                   HapticFeedback.lightImpact();
@@ -120,11 +121,11 @@ class _MainViewState extends State<MainView> {
                   ),
                   NavigationDestination(
                     icon: Icon(
-                      Symbols.ballot_rounded,
+                      Symbols.chart_data_rounded,
                       weight: 600,
                       fill: _selectedIndex == 2 ? 1.0 : 0.0,
                     ),
-                    label: 'Picklist',
+                    label: 'Data',
                   ),
                   NavigationDestination(
                     icon: Icon(
@@ -135,11 +136,75 @@ class _MainViewState extends State<MainView> {
                     label: 'Team',
                   ),
                 ],
+              )
+              : null,
+      body: Row(
+        children: [
+          if (screenWidth > 600)
+            NavigationRail(
+              leading: Row(
+                children: [
+                  CustomFab(
+                    direction: SpeedDialDirection.down,
+                    switchLabelPosition: true,
+                    elevation: 0.0,
+                  ).build(context),
+                ],
               ),
-            ],
-          );
-        },
+              groupAlignment: -1.0,
+              labelType: NavigationRailLabelType.all,
+              destinations: <NavigationRailDestination>[
+                NavigationRailDestination(
+                  icon: Icon(
+                    Symbols.home_rounded,
+                    weight: 600,
+                    fill: _selectedIndex == 0 ? 1.0 : 0.0,
+                  ),
+                  label: Text('Home'),
+                  padding: EdgeInsets.only(top: 10, bottom: 6),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(
+                    Symbols.explore_rounded,
+                    weight: 600,
+                    fill: _selectedIndex == 1 ? 1.0 : 0.0,
+                  ),
+                  label: Text('Scout'),
+                  padding: EdgeInsets.symmetric(vertical: 6.0),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(
+                    Symbols.chart_data_rounded,
+                    weight: 600,
+                    fill: _selectedIndex == 2 ? 1.0 : 0.0,
+                  ),
+                  label: Text('Data'),
+                  padding: EdgeInsets.symmetric(vertical: 6.0),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(
+                    Symbols.group_rounded,
+                    weight: 600,
+                    fill: _selectedIndex == 3 ? 1.0 : 0.0,
+                  ),
+                  label: const Text('Team'),
+                  padding: EdgeInsets.symmetric(vertical: 6.0),
+                ),
+              ],
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+          // if (screenWidth > 600) VerticalDivider(),
+          Expanded(child: Center(child: _pages[_selectedIndex])),
+        ],
       ),
+      floatingActionButton:
+          !(screenWidth > 600) ? CustomFab().build(context) : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
