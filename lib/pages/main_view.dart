@@ -30,6 +30,11 @@ class _MainViewState extends State<MainView> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.sizeOf(context).width;
     double screenHeight = MediaQuery.sizeOf(context).height;
+    
+    bool showNavigationRail() {
+      return screenWidth > 600 && screenHeight > 440;
+    }
+
 
     return Scaffold(
       appBar: AppBar(
@@ -93,7 +98,7 @@ class _MainViewState extends State<MainView> {
         ],
       ),
       bottomNavigationBar:
-          !(screenWidth > 600)
+          !(showNavigationRail())
               ? NavigationBar(
                 selectedIndex: _selectedIndex,
                 onDestinationSelected: (int index) {
@@ -140,7 +145,7 @@ class _MainViewState extends State<MainView> {
               : null,
       body: Row(
         children: [
-          if (screenWidth > 600)
+          if (showNavigationRail())
             NavigationRail(
               leading: Row(
                 children: [
@@ -193,17 +198,18 @@ class _MainViewState extends State<MainView> {
               ],
               selectedIndex: _selectedIndex,
               onDestinationSelected: (int index) {
+                HapticFeedback.lightImpact();
                 setState(() {
                   _selectedIndex = index;
                 });
               },
             ),
-          // if (screenWidth > 600) VerticalDivider(),
+          // if (showNavigationRail()) VerticalDivider(),
           Expanded(child: Center(child: _pages[_selectedIndex])),
         ],
       ),
       floatingActionButton:
-          !(screenWidth > 600) ? CustomFab().build(context) : null,
+          !(showNavigationRail()) ? CustomFab().build(context) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

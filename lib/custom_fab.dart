@@ -34,6 +34,9 @@ class CustomFab {
       onOpen: () {
         HapticFeedback.mediumImpact();
       },
+      onClose: () {
+        HapticFeedback.mediumImpact();
+      },
       children: [
         SpeedDialChild(
           label: 'Match Schedule',
