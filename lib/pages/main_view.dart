@@ -33,10 +33,6 @@ class _MainViewState extends State<MainView> {
     double screenWidth = MediaQuery.sizeOf(context).width;
     double screenHeight = MediaQuery.sizeOf(context).height;
 
-    var coolVar = 0;
-
-    coolVar = "1";
-
     bool showNavigationRail() {
       return screenWidth > 600 && screenHeight > 440;
     }
