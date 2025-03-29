@@ -26,15 +26,20 @@ class _MainViewState extends State<MainView> {
     const TeamPage(),
   ];
 
+  bool _isFabOpen = false;
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.sizeOf(context).width;
     double screenHeight = MediaQuery.sizeOf(context).height;
-    
+
+    var coolVar = 0;
+
+    coolVar = "1";
+
     bool showNavigationRail() {
       return screenWidth > 600 && screenHeight > 440;
     }
-
 
     return Scaffold(
       appBar: AppBar(
@@ -143,6 +148,7 @@ class _MainViewState extends State<MainView> {
                 ],
               )
               : null,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
       body: Row(
         children: [
           if (showNavigationRail())
@@ -153,6 +159,12 @@ class _MainViewState extends State<MainView> {
                     direction: SpeedDialDirection.down,
                     switchLabelPosition: true,
                     elevation: 0.0,
+                    isOpenOnStart: _isFabOpen,
+                    onToggle: (bool isOpen) {
+                      setState(() {
+                        _isFabOpen = isOpen;
+                      });
+                    },
                   ).build(context),
                 ],
               ),
@@ -209,7 +221,16 @@ class _MainViewState extends State<MainView> {
         ],
       ),
       floatingActionButton:
-          !(showNavigationRail()) ? CustomFab().build(context) : null,
+          !(showNavigationRail())
+              ? CustomFab(
+                isOpenOnStart: _isFabOpen,
+                onToggle: (bool isOpen) {
+                  setState(() {
+                    _isFabOpen = isOpen;
+                  });
+                },
+              ).build(context)
+              : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
