@@ -1,3 +1,4 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:bearscout/pages/auth/login_page.dart';
 import 'package:bearscout/pages/auth/register_team_page.dart';
 import 'package:bearscout/pages/auth/team_selection_page.dart';
@@ -11,6 +12,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Client client = Client();
+  client
+      .setEndpoint('https://nyc.cloud.appwrite.io/v1')
+      .setProject('bear-scout')
+      .setSelfSigned(
+        status: true,
+      ); // For self signed certificates, only use for development;
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
