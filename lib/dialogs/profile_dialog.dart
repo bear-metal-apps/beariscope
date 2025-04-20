@@ -56,7 +56,9 @@ class ProfileDialog extends StatelessWidget {
                           content: Text('Signed out successfully'),
                         ),
                       );
-                      context.go('/welcome');
+                      if (context.mounted) {
+                        context.go('/welcome');
+                      }
                     })
                     .catchError((error) {
                       ScaffoldMessenger.of(context).showSnackBar(
