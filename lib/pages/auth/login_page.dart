@@ -131,35 +131,39 @@ class _LoginPageState extends State<LoginPage> {
                               password: password,
                             );
 
-                        context.read<SharedPreferences>().setBool(
-                          'isLoggedIn',
-                          true,
-                        );
+                        if (context.mounted) {
+                          context.read<SharedPreferences>().setBool(
+                            'isLoggedIn',
+                            true,
+                          );
 
-                        // Dismiss loading indicator and go home
-                        Navigator.of(context).pop();
-                        context.go('/home');
+                          // Dismiss loading indicator and go home
+                          Navigator.of(context).pop();
+                          context.go('/home');
+                        }
                       } catch (e) {
-                        Navigator.of(context).pop();
-                        if (e.toString().contains('email')) {
-                          setState(() {
-                            invalidEmail = true;
-                          });
-                        } else if (e.toString().contains('password')) {
-                          setState(() {
-                            invalidPassword = true;
-                          });
-                        } else if (e.toString().contains(
-                          'user_invalid_credentials',
-                        )) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Account does not exist')),
-                          );
-                        } else {
-                          // show error message
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: ${e.toString()}')),
-                          );
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                          if (e.toString().contains('email')) {
+                            setState(() {
+                              invalidEmail = true;
+                            });
+                          } else if (e.toString().contains('password')) {
+                            setState(() {
+                              invalidPassword = true;
+                            });
+                          } else if (e.toString().contains(
+                            'user_invalid_credentials',
+                          )) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Account does not exist')),
+                            );
+                          } else {
+                            // Show error message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${e.toString()}')),
+                            );
+                          }
                         }
                       }
                     }

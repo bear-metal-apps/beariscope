@@ -52,7 +52,6 @@ class _RegisterTeamPageState extends State<RegisterTeamPage> {
                 final String teamNumber = _teamNumberController.text;
 
                 // Simulate successful registration
-                print('Team Registered: $teamName, Number: $teamNumber');
                 context.go('/welcome/signup/user_details');
               },
               child: const Text('Register Team'),

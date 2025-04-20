@@ -196,40 +196,43 @@ class _SignupPageState extends State<SignupPage> {
                               password: password,
                             );
 
-                        // Dismiss loading indicator
-                        Navigator.of(context).pop();
+                        if (context.mounted) {
+                          // Dismiss loading indicator
+                          Navigator.of(context).pop();
 
-                        // Navigate to next screen
-                        context.go('/welcome/signup/select_team');
+                          // Navigate to next screen
+                          context.go('/welcome/signup/select_team');
+                        }
                       } catch (e) {
-                        // Dismiss loading indicator
-                        Navigator.of(context).pop();
+                        if (context.mounted) {
+                          // Dismiss loading indicator
+                          Navigator.of(context).pop();
 
-                        // Handle specific errors
-                        if (e.toString().contains('weak-password')) {
-                          setState(() {
-                            weakPassword = true;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Password is too weak'),
-                            ),
-                          );
-                        } else if (e.toString().contains(
-                          'email-already-in-use',
-                        )) {
-                          setState(() {
-                            emailAlreadyInUse = true;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Email is already in use'),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: ${e.toString()}')),
-                          );
+                          if (e.toString().contains('weak-password')) {
+                            setState(() {
+                              weakPassword = true;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Password is too weak'),
+                              ),
+                            );
+                          } else if (e.toString().contains(
+                            'email-already-in-use',
+                          )) {
+                            setState(() {
+                              emailAlreadyInUse = true;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Email is already in use'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${e.toString()}')),
+                            );
+                          }
                         }
                       }
                     }

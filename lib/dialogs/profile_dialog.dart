@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' as Models;
+import 'package:appwrite/models.dart' as models;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class ProfileDialog extends StatelessWidget {
 
     return AlertDialog(
       title: const Text('Account Details'),
-      content: FutureBuilder<Models.User>(
+      content: FutureBuilder<models.User>(
         future: account.get(),
         builder: (context, snapshot) {
           if (!isLoggedIn) {
@@ -42,30 +42,33 @@ class ProfileDialog extends StatelessWidget {
       actions: [
         isLoggedIn
             ? TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                account
-                    .deleteSession(sessionId: 'current')
-                    .then((_) {
-                      context.read<SharedPreferences>().setBool(
-                        'isLoggedIn',
-                        false,
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Signed out successfully'),
-                        ),
-                      );
-                      if (context.mounted) {
-                        context.go('/welcome');
-                      }
-                    })
-                    .catchError((error) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error signing out: $error')),
-                      );
-                    });
+                try {
+                  await account.deleteSession(sessionId: 'current');
+
+                  if (context.mounted) {
+                    context.read<SharedPreferences>().setBool(
+                      'isLoggedIn',
+                      false,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Signed out successfully')),
+                    );
+
+                    context.go('/welcome');
+                  }
+                } catch (error) {
+                  // Only show error if context is still mounted
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error signing out: $error')),
+                    );
+                  }
+                }
               },
+
               child: const Text('Sign Out'),
             )
             : TextButton(
