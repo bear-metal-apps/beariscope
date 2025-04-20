@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -66,98 +67,118 @@ class _SignupPageState extends State<SignupPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 0),
-                TextFormField(
-                  controller: _nameController,
-                  focusNode: _nameFocusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                    constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
+                AutofillGroup(
+                  child: Column(
+                    spacing: 12,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        focusNode: _nameFocusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                          constraints: BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                        ),
+                        autofillHints: [AutofillHints.name],
+                        keyboardType: TextInputType.name,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Name required';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(_emailFocusNode);
+                        },
+                      ),
+                      TextFormField(
+                        controller: _emailController,
+                        focusNode: _emailFocusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          constraints: BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: [AutofillHints.email],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email Required';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_passwordFocusNode);
+                        },
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          constraints: BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                        ),
+                        obscureText: true,
+                        autofillHints: [AutofillHints.newPassword],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password required';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_confirmPasswordFocusNode);
+                        },
+                      ),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        focusNode: _confirmPasswordFocusNode,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: const OutlineInputBorder(),
+                          constraints: const BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                          errorText:
+                              (_passwordController.text !=
+                                          _confirmPasswordController.text) &&
+                                      _confirmPasswordController.text != ''
+                                  ? 'Passwords do not match'
+                                  : null,
+                        ),
+                        obscureText: true,
+                        autofillHints: [AutofillHints.newPassword],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Confirm password required';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  autofillHints: [AutofillHints.name],
-                  keyboardType: TextInputType.name,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Name required';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_emailFocusNode);
-                  },
                 ),
-                TextFormField(
-                  controller: _emailController,
-                  focusNode: _emailFocusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: [AutofillHints.email],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email Required';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_passwordFocusNode);
-                  },
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  focusNode: _passwordFocusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
-                  ),
-                  obscureText: true,
-                  autofillHints: [AutofillHints.newPassword],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password required';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(
-                      context,
-                    ).requestFocus(_confirmPasswordFocusNode);
-                  },
-                ),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  focusNode: _confirmPasswordFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    border: const OutlineInputBorder(),
-                    constraints: const BoxConstraints(
-                      minWidth: 200,
-                      maxWidth: 300,
-                    ),
-                    errorText:
-                        (_passwordController.text !=
-                                    _confirmPasswordController.text) &&
-                                _confirmPasswordController.text != ''
-                            ? 'Passwords do not match'
-                            : null,
-                  ),
-                  obscureText: true,
-                  autofillHints: [AutofillHints.newPassword],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Confirm password required';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 0),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
@@ -197,6 +218,9 @@ class _SignupPageState extends State<SignupPage> {
                             );
 
                         if (context.mounted) {
+                          // Finalize autofill to prompt password saving
+                          TextInput.finishAutofillContext();
+
                           // Dismiss loading indicator
                           Navigator.of(context).pop();
 
