@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,50 +60,66 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 0),
-                TextFormField(
-                  controller: _emailController,
-                  focusNode: _nameFocusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
+                AutofillGroup(
+                  child: Column(
+                    spacing: 12,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        focusNode: _nameFocusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          constraints: BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: [AutofillHints.email],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Email Required';
+                          }
+                          if (invalidEmail) {
+                            return 'Invalid email';
+                          }
+                          return null;
+                        },
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(
+                            context,
+                          ).requestFocus(_passwordFocusNode);
+                        },
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          constraints: BoxConstraints(
+                            minWidth: 200,
+                            maxWidth: 300,
+                          ),
+                        ),
+                        obscureText: true,
+                        autofillHints: [AutofillHints.password],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password required';
+                          }
+                          if (invalidPassword) {
+                            return 'Invalid password';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: [AutofillHints.email],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email Required';
-                    }
-                    if (invalidEmail) {
-                      return 'Invalid email';
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_passwordFocusNode);
-                  },
                 ),
-                TextFormField(
-                  controller: _passwordController,
-                  focusNode: _passwordFocusNode,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
-                  ),
-                  obscureText: true,
-                  autofillHints: [AutofillHints.password],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password required';
-                    }
-                    if (invalidPassword) {
-                      return 'Invalid password';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 0),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
@@ -136,6 +153,8 @@ class _LoginPageState extends State<LoginPage> {
                             'isLoggedIn',
                             true,
                           );
+
+                          TextInput.finishAutofillContext();
 
                           // Dismiss loading indicator and go home
                           Navigator.of(context).pop();
