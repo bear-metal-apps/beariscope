@@ -1,9 +1,11 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 
 class UserDetailsPage extends StatefulWidget {
-  const UserDetailsPage({super.key});
+  final Client client;
+
+  const UserDetailsPage({super.key, required this.client});
 
   @override
   State<UserDetailsPage> createState() => _UserDetailsPageState();
@@ -11,11 +13,15 @@ class UserDetailsPage extends StatefulWidget {
 
 class _UserDetailsPageState extends State<UserDetailsPage> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -32,8 +38,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void dispose() {
     _emailController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _nameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -41,15 +46,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
 
   void _updateErrorText() {
     setState(() {});
-  }
-
-  Future<void> _signUp() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final String email = _emailController.text;
-      final String name = _firstNameController.text;
-      final String password = _passwordController.text;
-      final String confirmPassword = _confirmPasswordController.text;
-    }
   }
 
   @override
@@ -65,46 +61,25 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               spacing: 12,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minWidth: 200,
-                    maxWidth: 300,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          var uri = Uri.parse('https://flutter.dev');
-                          if (!await launchUrl(
-                            uri,
-                            mode: LaunchMode.externalApplication,
-                          )) {
-                            throw 'Could not launch $uri';
-                          }
-                        },
-                        label: Text('Add your team'),
-                        icon: const Icon(Symbols.add_circle_rounded),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 0),
                 TextFormField(
-                  controller: _firstNameController,
+                  controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Name',
                     border: OutlineInputBorder(),
                     constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
                   ),
+                  autofillHints: [AutofillHints.name],
+                  keyboardType: TextInputType.name,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Name required';
                     }
                     return null;
                   },
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_emailFocusNode);
+                  },
                 ),
-                const SizedBox(height: 0),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -112,14 +87,18 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     border: OutlineInputBorder(),
                     constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
                   ),
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: [AutofillHints.email],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Email Required';
                     }
                     return null;
                   },
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                  },
                 ),
-                const SizedBox(height: 0),
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
@@ -128,11 +107,17 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     constraints: BoxConstraints(minWidth: 200, maxWidth: 300),
                   ),
                   obscureText: true,
+                  autofillHints: [AutofillHints.newPassword],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Password required';
                     }
                     return null;
+                  },
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(
+                      context,
+                    ).requestFocus(_confirmPasswordFocusNode);
                   },
                 ),
                 TextFormField(
@@ -152,6 +137,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                             : null,
                   ),
                   obscureText: true,
+                  autofillHints: [AutofillHints.newPassword],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Confirm password required';
@@ -164,7 +150,75 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: _signUp,
+                  onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      setState(() {
+                        weakPassword = false;
+                        emailAlreadyInUse = false;
+                      });
+
+                      // Show loading indicator
+                      final loadingOverlay = showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder:
+                            (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                      );
+
+                      try {
+                        final String email = _emailController.text;
+                        final String name = _nameController.text;
+                        final String password = _passwordController.text;
+
+                        final Account account = Account(widget.client);
+
+                        final user = await account.create(
+                          userId: ID.unique(),
+                          email: email,
+                          password: password,
+                          name: name,
+                        );
+
+                        // Dismiss loading indicator
+                        Navigator.of(context).pop();
+
+                        // Navigate to next screen
+                        context.go('/welcome/signup/select_team');
+                      } catch (e) {
+                        // Dismiss loading indicator
+                        Navigator.of(context).pop();
+
+                        // Handle specific errors
+                        if (e.toString().contains('weak-password')) {
+                          setState(() {
+                            weakPassword = true;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Password is too weak'),
+                            ),
+                          );
+                        } else if (e.toString().contains(
+                          'email-already-in-use',
+                        )) {
+                          setState(() {
+                            emailAlreadyInUse = true;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Email is already in use'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error: ${e.toString()}')),
+                          );
+                        }
+                      }
+                    }
+                  },
                   child: const Text('Sign Up'),
                 ),
               ],

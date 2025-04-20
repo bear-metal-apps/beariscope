@@ -17,11 +17,17 @@ Future<void> main() async {
   client
       .setEndpoint('https://nyc.cloud.appwrite.io/v1')
       .setProject('bear-scout')
-      .setSelfSigned(
-        status: true,
-      ); // For self signed certificates, only use for development;
+      .setSelfSigned(status: true); // only use for development
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+  final account = Account(client);
+  try {
+    final user = await account.get();
+    sharedPreferences.setBool('isLoggedIn', true);
+  } catch (e) {
+    sharedPreferences.setBool('isLoggedIn', false);
+  }
 
   runApp(
     Provider<SharedPreferences>.value(
@@ -52,7 +58,7 @@ class MyApp extends StatefulWidget {
           GoRoute(
             path: 'signup',
             builder: (BuildContext context, GoRouterState state) {
-              return const TeamSelectionPage();
+              return UserDetailsPage(client: Client());
             },
             routes: [
               GoRoute(
@@ -62,9 +68,9 @@ class MyApp extends StatefulWidget {
                 },
               ),
               GoRoute(
-                path: 'user_details',
+                path: 'select_team',
                 builder: (BuildContext context, GoRouterState state) {
-                  return const UserDetailsPage();
+                  return const TeamSelectionPage();
                 },
               ),
             ],

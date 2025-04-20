@@ -10,17 +10,12 @@ class RegisterTeamPage extends StatefulWidget {
 
 class _RegisterTeamPageState extends State<RegisterTeamPage> {
   final TextEditingController _teamNameController = TextEditingController();
-  final TextEditingController _teamEmailController = TextEditingController();
-  final TextEditingController _teamPasswordController = TextEditingController();
-  final TextEditingController _teamConfirmPasswordController =
-      TextEditingController();
+  final TextEditingController _teamNumberController = TextEditingController();
 
   @override
   void dispose() {
     _teamNameController.dispose();
-    _teamEmailController.dispose();
-    _teamPasswordController.dispose();
-    _teamConfirmPasswordController.dispose();
+    _teamNumberController.dispose();
     super.dispose();
   }
 
@@ -32,11 +27,38 @@ class _RegisterTeamPageState extends State<RegisterTeamPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Sorry, external team registration is not available yet.',
+            TextField(
+              controller: _teamNameController,
+              decoration: const InputDecoration(
+                labelText: 'Team Name',
+                border: OutlineInputBorder(),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _teamNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Team Number',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
             FilledButton(
+              onPressed: () {
+                // Handle team registration logic here
+                // For example, you can send the data to your backend or save it locally
+                final String teamName = _teamNameController.text;
+                final String teamNumber = _teamNumberController.text;
+
+                // Simulate successful registration
+                print('Team Registered: $teamName, Number: $teamNumber');
+                context.go('/welcome/signup/user_details');
+              },
+              child: const Text('Register Team'),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton(
               onPressed: () {
                 context.go('/welcome/signup');
               },

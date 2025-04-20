@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -23,12 +22,17 @@ class _TeamSelectionPageState extends State<TeamSelectionPage> {
       body: Center(
         child: Column(
           spacing: 12,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             OutlinedButton.icon(
               onPressed: () {},
               label: const Text('Scan Team Code'),
               icon: const Icon(Symbols.qr_code_scanner_rounded),
+            ),
+            OutlinedButton.icon(
+              onPressed: () {},
+              label: const Text('Enter Team Code'),
+              icon: const Icon(Symbols.text_fields_rounded),
             ),
             OutlinedButton.icon(
               onPressed: () {
