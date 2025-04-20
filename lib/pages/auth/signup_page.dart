@@ -1,17 +1,16 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-class UserDetailsPage extends StatefulWidget {
-  final Client client;
-
-  const UserDetailsPage({super.key, required this.client});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
 
   @override
-  State<UserDetailsPage> createState() => _UserDetailsPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _UserDetailsPageState extends State<UserDetailsPage> {
+class _SignupPageState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -45,11 +44,16 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   void _updateErrorText() {
-    setState(() {});
+    setState(() {
+      weakPassword = false;
+      emailAlreadyInUse = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final client = context.read<Client>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
@@ -61,8 +65,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               spacing: 12,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
+                const SizedBox(height: 0),
                 TextFormField(
                   controller: _nameController,
+                  focusNode: _nameFocusNode,
                   decoration: const InputDecoration(
                     labelText: 'Name',
                     border: OutlineInputBorder(),
@@ -82,6 +88,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
                 TextFormField(
                   controller: _emailController,
+                  focusNode: _emailFocusNode,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -101,6 +108,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
                 TextFormField(
                   controller: _passwordController,
+                  focusNode: _passwordFocusNode,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
@@ -122,6 +130,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                 ),
                 TextFormField(
                   controller: _confirmPasswordController,
+                  focusNode: _confirmPasswordFocusNode,
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     border: const OutlineInputBorder(),
@@ -172,7 +181,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         final String name = _nameController.text;
                         final String password = _passwordController.text;
 
-                        final Account account = Account(widget.client);
+                        final Account account = Account(client);
 
                         final user = await account.create(
                           userId: ID.unique(),
@@ -180,6 +189,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                           password: password,
                           name: name,
                         );
+
+                        final session = await account
+                            .createEmailPasswordSession(
+                              email: email,
+                              password: password,
+                            );
 
                         // Dismiss loading indicator
                         Navigator.of(context).pop();

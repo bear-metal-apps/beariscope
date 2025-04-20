@@ -1,8 +1,8 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:bearscout/pages/auth/login_page.dart';
 import 'package:bearscout/pages/auth/register_team_page.dart';
+import 'package:bearscout/pages/auth/signup_page.dart';
 import 'package:bearscout/pages/auth/team_selection_page.dart';
-import 'package:bearscout/pages/auth/user_details_page.dart';
 import 'package:bearscout/pages/auth/welcome_page.dart';
 import 'package:bearscout/pages/main_view.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +30,11 @@ Future<void> main() async {
   }
 
   runApp(
-    Provider<SharedPreferences>.value(
-      value: sharedPreferences,
+    MultiProvider(
+      providers: [
+        Provider<SharedPreferences>.value(value: sharedPreferences),
+        Provider<Client>.value(value: client),
+      ],
       child: const MyApp(),
     ),
   );
@@ -58,7 +61,7 @@ class MyApp extends StatefulWidget {
           GoRoute(
             path: 'signup',
             builder: (BuildContext context, GoRouterState state) {
-              return UserDetailsPage(client: Client());
+              return SignupPage();
             },
             routes: [
               GoRoute(
