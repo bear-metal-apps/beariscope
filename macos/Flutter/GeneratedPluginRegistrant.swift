@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import desktop_webview_window
 import device_info_plus
 import file_picker
 import flutter_web_auth_2
@@ -15,6 +16,7 @@ import url_launcher_macos
 import window_to_front
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  DesktopWebviewWindowPlugin.register(with: registry.registrar(forPlugin: "DesktopWebviewWindowPlugin"))
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FlutterWebAuth2Plugin.register(with: registry.registrar(forPlugin: "FlutterWebAuth2Plugin"))

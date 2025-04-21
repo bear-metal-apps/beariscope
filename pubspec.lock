@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  desktop_webview_window:
+    dependency: transitive
+    description:
+      name: desktop_webview_window
+      sha256: "57cf20d81689d5cbb1adfd0017e96b669398a669d927906073b0e42fc64111c0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.3"
   device_info_plus:
     dependency: transitive
     description:
@@ -220,21 +228,21 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_web_auth_2:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: flutter_web_auth_2
-      sha256: "4d3d2fd3d26bf1a26b3beafd4b4b899c0ffe10dc99af25abc58ffe24e991133c"
+      sha256: "4dd1adb156c5696f50f3c8b1c22569969f220f7457a01517355ccce8c4968d61"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.2"
+    version: "5.0.0-alpha.2"
   flutter_web_auth_2_platform_interface:
     dependency: transitive
     description:
       name: flutter_web_auth_2_platform_interface
-      sha256: e8669e262005a8354389ba2971f0fc1c36188481234ff50d013aaf993f30f739
+      sha256: "45927587ebb2364cd273675ec95f6f67b81725754b416cef2b65cdc63fd3e853"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "5.0.0-alpha.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -252,10 +260,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: f02fd7d2a4dc512fec615529824fdd217fecb3a3d3de68360293a551f21634b3
+      sha256: "4cdfcc6a178632d1dbb7a728f8e84a1466211354704b9cdc03eee661d3277732"
       url: "https://pub.dev"
     source: hosted
-    version: "14.8.1"
+    version: "15.0.0"
   http:
     dependency: transitive
     description:
