@@ -14,7 +14,7 @@ class ScoutNavigator extends StatelessWidget {
           case '/scout':
             builder = (BuildContext _) => const ScoutPage();
             break;
-        // Add additional nested routes here if needed.
+          // Add additional nested routes here if needed.
           default:
             builder = (BuildContext _) => const ScoutPage();
         }

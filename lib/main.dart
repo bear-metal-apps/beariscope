@@ -1,6 +1,6 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:bearscout/pages/auth/login_page.dart';
 import 'package:bearscout/pages/auth/register_team_page.dart';
+import 'package:bearscout/pages/auth/sign_in_page.dart';
 import 'package:bearscout/pages/auth/signup_page.dart';
 import 'package:bearscout/pages/auth/team_selection_page.dart';
 import 'package:bearscout/pages/auth/welcome_page.dart';
@@ -53,9 +53,9 @@ class MyApp extends StatefulWidget {
         },
         routes: [
           GoRoute(
-            path: 'login',
+            path: 'signin',
             builder: (BuildContext context, GoRouterState state) {
-              return const LoginPage();
+              return const SignInPage();
             },
           ),
           GoRoute(

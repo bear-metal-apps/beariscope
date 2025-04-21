@@ -27,51 +27,58 @@ class WelcomePage extends StatelessWidget {
               'Welcome to Bear Scout!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.go('/welcome/signup');
-              },
-              label: const Text('Create Account'),
-              icon: const Icon(Symbols.person_add_rounded),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {
-                context.go('/welcome/login');
-              },
-              label: const Text('Log In'),
-              icon: const Icon(Symbols.person_rounded),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Guest Mode'),
-                      content: const Text(
-                        'Guest Mode lets you try Bear Scout without using an account. Data will not be saved or synced to the cloud.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Back'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            context.go('/home');
-                          },
-                          child: const Text('Continue'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              label: const Text('Guest Mode'),
-              icon: const Icon(Symbols.eyeglasses_rounded),
+            IntrinsicWidth(
+              child: Column(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () {
+                      context.go('/welcome/signup');
+                    },
+                    label: const Text('Create Account'),
+                    icon: const Icon(Symbols.person_add_rounded),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      context.go('/welcome/signin');
+                    },
+                    label: const Text('Sign In'),
+                    icon: const Icon(Symbols.person_rounded),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('Guest Mode'),
+                            content: const Text(
+                              'Guest Mode lets you try Bear Scout without using an account. Data will not be saved or synced to the cloud.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Back'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  context.go('/home');
+                                },
+                                child: const Text('Continue'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    label: const Text('Guest Mode'),
+                    icon: const Icon(Symbols.eyeglasses_rounded),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

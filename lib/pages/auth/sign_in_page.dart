@@ -4,26 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_icons/simple_icons.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
 
-  final FocusNode _nameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
-  final FocusNode _confirmPasswordFocusNode = FocusNode();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -35,20 +31,15 @@ class _SignupPageState extends State<SignupPage> {
   void initState() {
     super.initState();
     _passwordController.addListener(_clearErrors);
-    _confirmPasswordController.addListener(_clearErrors);
     _emailController.addListener(_clearErrors);
   }
 
   @override
   void dispose() {
     _emailController.dispose();
-    _nameController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _nameFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
-    _confirmPasswordFocusNode.dispose();
     super.dispose();
   }
 
@@ -59,7 +50,7 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
-  Future<void> _signup() async {
+  Future<void> _signIn() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() {
@@ -72,38 +63,28 @@ class _SignupPageState extends State<SignupPage> {
       final client = context.read<Client>();
       final account = Account(client);
 
-      final String email = _emailController.text;
-      final String name = _nameController.text;
-      final String password = _passwordController.text;
-
-      final user = await account.create(
-        userId: ID.unique(),
-        email: email,
-        password: password,
-        name: name,
-      );
-
       await account.createEmailPasswordSession(
-        email: email,
-        password: password,
+        email: _emailController.text,
+        password: _passwordController.text,
       );
-
-      // await account.createVerification(
-      //   url: 'https://cloud.appwrite.io/verify',
-      // );
 
       if (!mounted) return;
 
+      await context.read<SharedPreferences>().setBool('isSignedIn', true);
       TextInput.finishAutofillContext();
-      context.go('/welcome/signup/select_team');
+      context.go('/home');
     } catch (e) {
       if (!mounted) return;
 
       final error = e.toString();
-      if (error.contains('weak-password')) {
-        setState(() => _passwordError = 'Password is too weak');
-      } else if (error.contains('email-already-in-use')) {
-        setState(() => _emailError = 'Email is already in use');
+      if (error.contains('email')) {
+        setState(() => _emailError = 'Invalid email');
+      } else if (error.contains('password')) {
+        setState(() => _passwordError = 'Invalid password');
+      } else if (error.contains('user_invalid_credentials')) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(('Account does not exist'))));
       } else {
         ScaffoldMessenger.of(
           context,
@@ -119,7 +100,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
+      appBar: AppBar(title: const Text('Sign In')),
       body: Center(
         heightFactor: 1.0,
         child: SingleChildScrollView(
@@ -136,7 +117,7 @@ class _SignupPageState extends State<SignupPage> {
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    label: const Text('Sign up with Apple'),
+                    label: const Text('Sign in with Apple'),
                     icon: const Icon(SimpleIcons.apple),
                   ),
                 ),
@@ -149,7 +130,7 @@ class _SignupPageState extends State<SignupPage> {
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    label: const Text('Sign up with Google'),
+                    label: const Text('Sign in with Google'),
                     icon: const Icon(SimpleIcons.google),
                   ),
                 ),
@@ -162,7 +143,7 @@ class _SignupPageState extends State<SignupPage> {
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    label: const Text('Sign up with GitHub'),
+                    label: const Text('Sign in with GitHub'),
                     icon: const Icon(SimpleIcons.github),
                   ),
                 ),
@@ -173,31 +154,6 @@ class _SignupPageState extends State<SignupPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      TextFormField(
-                        controller: _nameController,
-                        focusNode: _nameFocusNode,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                          border: OutlineInputBorder(),
-                          constraints: BoxConstraints(
-                            minWidth: 200,
-                            maxWidth: 300,
-                          ),
-                        ),
-                        autofillHints: const [AutofillHints.name],
-                        keyboardType: TextInputType.name,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Name required';
-                          }
-                          return null;
-                        },
-                        onFieldSubmitted: (_) {
-                          FocusScope.of(context).requestFocus(_emailFocusNode);
-                        },
-                        enabled: !_isLoading,
-                      ),
-                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _emailController,
                         focusNode: _emailFocusNode,
@@ -239,47 +195,10 @@ class _SignupPageState extends State<SignupPage> {
                           errorText: _passwordError,
                         ),
                         obscureText: true,
-                        autofillHints: const [AutofillHints.newPassword],
+                        autofillHints: const [AutofillHints.password],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Password required';
-                          }
-                          return null;
-                        },
-                        onFieldSubmitted: (_) {
-                          FocusScope.of(
-                            context,
-                          ).requestFocus(_confirmPasswordFocusNode);
-                        },
-                        enabled: !_isLoading,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        focusNode: _confirmPasswordFocusNode,
-                        textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          border: const OutlineInputBorder(),
-                          constraints: const BoxConstraints(
-                            minWidth: 200,
-                            maxWidth: 300,
-                          ),
-                          errorText:
-                              (_passwordController.text !=
-                                          _confirmPasswordController.text) &&
-                                      _confirmPasswordController.text.isNotEmpty
-                                  ? 'Passwords do not match'
-                                  : null,
-                        ),
-                        obscureText: true,
-                        autofillHints: const [AutofillHints.newPassword],
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Confirm password required';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
                           }
                           return null;
                         },
@@ -290,7 +209,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
-                  onPressed: _isLoading ? null : _signup,
+                  onPressed: _isLoading ? null : _signIn,
                   child:
                       _isLoading
                           ? const SizedBox(
@@ -298,7 +217,7 @@ class _SignupPageState extends State<SignupPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                          : const Text('Sign Up'),
+                          : const Text('Sign In'),
                 ),
               ],
             ),

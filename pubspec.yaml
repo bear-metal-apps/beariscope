@@ -24,6 +24,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   appwrite: ^15.0.1
   file_picker: ^10.1.2
+  simple_icons: ^14.6.1
   
 dependency_overrides:
   flutter_web_auth_2: 5.0.0-alpha.2
