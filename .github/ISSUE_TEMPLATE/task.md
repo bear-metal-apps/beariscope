@@ -1,7 +1,7 @@
 ---
 name: Task
 about: Track a general task or work item
-title: "[Task]: "
+title: ""
 labels: task
 assignees: ''
 ---
