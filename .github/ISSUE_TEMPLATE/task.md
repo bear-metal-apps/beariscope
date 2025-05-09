@@ -1,12 +1,12 @@
 ---
 name: Task
-about: Track a general task or work item
-title: "[Task]: "
+about: Track a task or item in the project
+title: ""
 labels: task
 assignees: ''
 ---
 
-## Task Description
+## Description
 
 Describe the task that needs to be completed.
 

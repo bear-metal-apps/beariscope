@@ -1,7 +1,7 @@
 ---
 name: Bug Report
-about: Report a bug or issue with the application
-title: "[Bug]: "
+about: Report a bug or issue with Beariscope
+title: ""
 labels: bug
 assignees: ''
 ---
