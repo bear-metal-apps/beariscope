@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = bearscout
+PRODUCT_NAME = Beariscope
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = org.tahomarobotics.scouting.bearscout
+PRODUCT_BUNDLE_IDENTIFIER = org.tahomarobotics.scouting.beariscope
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 org.tahomarobotics.scouting. All rights reserved.

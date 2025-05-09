@@ -1,9 +1,10 @@
-import 'package:bearscout/custom_fab.dart';
-import 'package:bearscout/dialogs/profile_dialog.dart';
-import 'package:bearscout/pages/data/data_page.dart';
-import 'package:bearscout/pages/home/home_page.dart';
-import 'package:bearscout/pages/scout/scout_page.dart';
-import 'package:bearscout/pages/team/team_page.dart';
+import 'package:beariscope/custom_fab.dart';
+import 'package:beariscope/dialogs/profile_dialog.dart';
+import 'package:beariscope/pages/data/data_page.dart';
+import 'package:beariscope/pages/home/home_page.dart';
+import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/team/team_page.dart';
+import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -51,7 +52,7 @@ class _MainViewState extends State<MainView> {
               ),
             ),
             const SizedBox(width: 12),
-            const Text('Bear Scout'),
+            const Text('Beariscope'),
           ],
         ),
         actionsPadding: const EdgeInsets.only(right: 16),
@@ -82,16 +83,7 @@ class _MainViewState extends State<MainView> {
                       },
                     );
                   },
-                  child: CircleAvatar(
-                    backgroundColor: Colors.amber,
-                    radius: 16,
-                    child: CircleAvatar(
-                      radius: 14,
-                      backgroundImage: const NetworkImage(
-                        'https://picsum.photos/200',
-                      ),
-                    ),
-                  ),
+                  child: ProfilePicture(),
                 ),
               );
             },

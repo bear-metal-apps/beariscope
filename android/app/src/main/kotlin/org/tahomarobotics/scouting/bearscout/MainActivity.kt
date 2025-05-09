@@ -1,4 +1,4 @@
-package org.tahomarobotics.scouting.bearscout
+package org.tahomarobotics.scouting.beariscope
 
 import io.flutter.embedding.android.FlutterActivity
 

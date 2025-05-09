@@ -1,5 +1,5 @@
-import 'package:appwrite/appwrite.dart';
-import 'package:bearscout/widgets/text_divider.dart';
+import 'package:beariscope/providers/auth_provider.dart';
+import 'package:beariscope/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -69,46 +69,43 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      final client = context.read<Client>();
-      final account = Account(client);
+      final authProvider = context.read<AuthProvider>();
 
       final String email = _emailController.text;
       final String name = _nameController.text;
       final String password = _passwordController.text;
 
-      final user = await account.create(
-        userId: ID.unique(),
+      final success = await authProvider.signUp(
         email: email,
         password: password,
         name: name,
       );
 
-      await account.createEmailPasswordSession(
-        email: email,
-        password: password,
-      );
-
-      // await account.createVerification(
-      //   url: 'https://cloud.appwrite.io/verify',
-      // );
-
       if (!mounted) return;
 
-      TextInput.finishAutofillContext();
-      context.go('/welcome/signup/select_team');
+      if (success) {
+        TextInput.finishAutofillContext();
+        context.go('/welcome/signup/select_team');
+      } else if (authProvider.error != null) {
+        final error = authProvider.error!;
+        if (error.contains('weak-password') ||
+            error.contains('password-too-short')) {
+          setState(() => _passwordError = 'Password is too weak');
+        } else if (error.contains('email-already-in-use') ||
+            error.contains('user_already_exists')) {
+          setState(() => _emailError = 'Email is already in use');
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $error')));
+        }
+      }
     } catch (e) {
       if (!mounted) return;
 
-      final error = e.toString();
-      if (error.contains('weak-password')) {
-        setState(() => _passwordError = 'Password is too weak');
-      } else if (error.contains('email-already-in-use')) {
-        setState(() => _emailError = 'Email is already in use');
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $error')));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unexpected error: $e')));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

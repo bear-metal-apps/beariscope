@@ -24,7 +24,7 @@ class WelcomePage extends StatelessWidget {
               ),
             ),
             const Text(
-              'Welcome to Bear Scout!',
+              'Welcome to Beariscope!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             IntrinsicWidth(
@@ -54,7 +54,7 @@ class WelcomePage extends StatelessWidget {
                           return AlertDialog(
                             title: const Text('Guest Mode'),
                             content: const Text(
-                              'Guest Mode lets you try Bear Scout without using an account. Data will not be saved or synced to the cloud.',
+                              'Guest Mode lets you try Beariscope without using an account. Data will not be saved or synced to the cloud.',
                             ),
                             actions: [
                               TextButton(

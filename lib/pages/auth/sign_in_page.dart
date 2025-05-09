@@ -1,10 +1,9 @@
-import 'package:appwrite/appwrite.dart';
-import 'package:bearscout/widgets/text_divider.dart';
+import 'package:beariscope/providers/auth_provider.dart';
+import 'package:beariscope/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_icons/simple_icons.dart';
 
 class SignInPage extends StatefulWidget {
@@ -60,36 +59,46 @@ class _SignInPageState extends State<SignInPage> {
     });
 
     try {
-      final client = context.read<Client>();
-      final account = Account(client);
+      final authProvider = context.read<AuthProvider>();
 
-      await account.createEmailPasswordSession(
+      final success = await authProvider.signIn(
         email: _emailController.text,
         password: _passwordController.text,
       );
 
       if (!mounted) return;
 
-      await context.read<SharedPreferences>().setBool('isSignedIn', true);
-      TextInput.finishAutofillContext();
-      context.go('/home');
+      if (success) {
+        TextInput.finishAutofillContext();
+        context.go('/home');
+      } else if (authProvider.error != null) {
+        final error = authProvider.error!;
+        if (error.contains('user_invalid_credentials')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Incorrect email or password')),
+          );
+        } else if (error.contains('password')) {
+          setState(() => _passwordError = 'Invalid password');
+        } else if (error.contains('email')) {
+          setState(() => _emailError = 'Invalid email');
+        } else if (error.contains('general_rate_limit_exceeded')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Rate limit hit, please try again later'),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $error')));
+        }
+      }
     } catch (e) {
       if (!mounted) return;
 
-      final error = e.toString();
-      if (error.contains('email')) {
-        setState(() => _emailError = 'Invalid email');
-      } else if (error.contains('password')) {
-        setState(() => _passwordError = 'Invalid password');
-      } else if (error.contains('user_invalid_credentials')) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(('Account does not exist'))));
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $error')));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unexpected error: $e')));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

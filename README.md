@@ -1,4 +1,4 @@
-# bearscout
+# beariscope
 
 The ultimate FRC scouting app developed by Bear Metal, team 2046
 

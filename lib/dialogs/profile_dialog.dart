@@ -1,74 +1,81 @@
-import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' as models;
+import 'package:beariscope/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/profile_picture.dart';
 
 class ProfileDialog extends StatelessWidget {
   const ProfileDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final client = context.read<Client>();
-    final account = Account(client);
-
-    final isLoggedIn =
-        context.read<SharedPreferences>().getBool('isLoggedIn') ?? false;
+    final authProvider = context.watch<AuthProvider>();
+    final isAuthenticated = authProvider.isAuthenticated;
 
     return AlertDialog(
-      title: const Text('Account Details'),
-      content: FutureBuilder<models.User>(
-        future: account.get(),
-        builder: (context, snapshot) {
-          if (!isLoggedIn) {
+      content: Builder(
+        builder: (context) {
+          if (!isAuthenticated) {
             return const Text('Sign in to view your account details.');
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Column(
+          } else if (authProvider.isLoading) {
+            return Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [CircularProgressIndicator()],
+              children: [
+                ProfilePicture(size: 32, ring: false),
+                const SizedBox(height: 8),
+                const CircularProgressIndicator(),
+              ],
             );
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return Text('Name: ${user.name}\nEmail: ${user.email}');
+          } else if (authProvider.error != null) {
+            return Text('Error: ${authProvider.error}');
+          } else if (authProvider.user != null) {
+            final user = authProvider.user!;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ProfilePicture(size: 32, ring: false),
+                const SizedBox(height: 8),
+                Text(
+                  user.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+              ],
+            );
           } else {
             return const Text('No user data available');
           }
         },
       ),
       actions: [
-        isLoggedIn
+        isAuthenticated
             ? TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                try {
-                  await account.deleteSession(sessionId: 'current');
+                final success = await authProvider.signOut();
 
-                  if (context.mounted) {
-                    context.read<SharedPreferences>().setBool(
-                      'isLoggedIn',
-                      false,
-                    );
-
+                if (context.mounted) {
+                  if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Signed out successfully')),
                     );
-
                     context.go('/welcome');
-                  }
-                } catch (error) {
-                  // Only show error if context is still mounted
-                  if (context.mounted) {
+                  } else if (authProvider.error != null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error signing out: $error')),
+                      SnackBar(
+                        content: Text(
+                          'Error signing out: ${authProvider.error}',
+                        ),
+                      ),
                     );
                   }
                 }
               },
-
               child: const Text('Sign Out'),
             )
             : TextButton(
