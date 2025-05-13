@@ -124,19 +124,14 @@ class _MyAppState extends State<MyApp> {
         // Don't redirect while loading
         if (isLoading) return null;
 
-        // If at root path, redirect based on auth state
+        // If at root path, redirect based on if authed
         if (state.matchedLocation == '/') {
           return isAuthenticated ? '/home' : '/welcome';
         }
 
-        // If authenticated but on welcome pages, go to home
+        // If authenticated but on welcome pages, go to home screen
         if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
           return '/home';
-        }
-
-        // If not authenticated but trying to access protected routes
-        if (!isAuthenticated && state.matchedLocation.startsWith('/home')) {
-          return '/welcome';
         }
 
         return null;

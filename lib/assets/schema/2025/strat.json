@@ -1,0 +1,36 @@
+{
+  "$schema": "/lib/assets/schema/data_schema.json",
+  "metadata": [
+    {
+      "id": "match_number",
+      "display_name": "Match Number",
+      "type": "integer"
+    },
+    {
+      "id": "event_key",
+      "display_name": "Event Key",
+      "type": "string"
+    },
+    {
+      "id": "is_red_alliance",
+      "display_name": "Red Alliance",
+      "type": "boolean"
+    },
+    {
+      "id": "human_net_scored",
+      "display_name": "Human Scored",
+      "type": "integer"
+    },
+    {
+      "id": "human_net_missed",
+      "display_name": "Human Missed",
+      "type": "integer"
+    }
+  ],
+  "auto": [
+  ],
+  "tele": [
+  ],
+  "endgame": [
+  ]
+}

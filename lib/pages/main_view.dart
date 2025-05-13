@@ -1,9 +1,8 @@
 import 'package:beariscope/custom_fab.dart';
-import 'package:beariscope/dialogs/profile_dialog.dart';
 import 'package:beariscope/pages/data/data_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/scout/scout_page.dart';
-import 'package:beariscope/pages/team/team_page.dart';
+import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +23,7 @@ class _MainViewState extends State<MainView> {
     const HomePage(),
     const ScoutPage(),
     const DataPage(),
-    const TeamPage(),
+    const UserPage(),
   ];
 
   bool _isFabOpen = false;
@@ -69,25 +68,6 @@ class _MainViewState extends State<MainView> {
               HapticFeedback.lightImpact();
             },
           ),
-          Builder(
-            builder: (context) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.lightImpact();
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const ProfileDialog();
-                      },
-                    );
-                  },
-                  child: ProfilePicture(),
-                ),
-              );
-            },
-          ),
         ],
       ),
       bottomNavigationBar:
@@ -126,12 +106,8 @@ class _MainViewState extends State<MainView> {
                     label: 'Data',
                   ),
                   NavigationDestination(
-                    icon: Icon(
-                      Symbols.group_rounded,
-                      weight: 600,
-                      fill: _selectedIndex == 3 ? 1.0 : 0.0,
-                    ),
-                    label: 'Team',
+                    icon: ProfilePicture(ring: false, size: 12),
+                    label: 'You',
                   ),
                 ],
               )
@@ -187,12 +163,8 @@ class _MainViewState extends State<MainView> {
                   padding: EdgeInsets.symmetric(vertical: 6.0),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(
-                    Symbols.group_rounded,
-                    weight: 600,
-                    fill: _selectedIndex == 3 ? 1.0 : 0.0,
-                  ),
-                  label: const Text('Team'),
+                  icon: ProfilePicture(ring: false, size: 12),
+                  label: const Text('You'),
                   padding: EdgeInsets.symmetric(vertical: 6.0),
                 ),
               ],

@@ -1,0 +1,201 @@
+{
+  "$schema": "/lib/assets/schema/data_schema.json",
+  "metadata": [
+    {
+      "id": "match_number",
+      "display_name": "Match Number",
+      "type": "integer"
+    },
+    {
+      "id": "event_key",
+      "display_name": "Event Key",
+      "type": "string"
+    },
+    {
+      "id": "is_red_alliance",
+      "display_name": "Is Red Alliance",
+      "type": "boolean"
+    },
+    {
+      "id": "start_position",
+      "display_name": "Start Position",
+      "type": "integer",
+      "enum": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "notes",
+      "display_name": "Notes",
+      "type": "string"
+    }
+  ],
+  "auto": [
+    {
+      "id": "stopped",
+      "display_name": "Stopped",
+      "type": "boolean"
+    },
+    {
+      "id": "collected_algae",
+      "display_name": "Collected Algae",
+      "type": "integer"
+    },
+    {
+      "id": "reef_removed_algae",
+      "display_name": "Removed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "processed_algae",
+      "display_name": "Processed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "collected_coral",
+      "display_name": "Collected Coral",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_placed",
+      "display_name": "L1 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_missed",
+      "display_name": "L1 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_placed",
+      "display_name": "L2 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_missed",
+      "display_name": "L2 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_placed",
+      "display_name": "L3 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_missed",
+      "display_name": "L3 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_placed",
+      "display_name": "L4 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_missed",
+      "display_name": "L4 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "net_scored",
+      "display_name": "Net Scored",
+      "type": "integer"
+    },
+    {
+      "id": "net_missed",
+      "display_name": "Net Missed",
+      "type": "integer"
+    }
+  ],
+  "tele": [
+    {
+      "id": "lost_comms",
+      "display_name": "Lost Comms",
+      "type": "boolean"
+    },
+    {
+      "id": "played_defense",
+      "display_name": "Played Defense",
+      "type": "boolean"
+    },
+    {
+      "id": "reef_removed_algae",
+      "display_name": "Removed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "processed_algae",
+      "display_name": "Processed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "collected_coral",
+      "display_name": "Collected Coral",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_placed",
+      "display_name": "L1 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_missed",
+      "display_name": "L1 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_placed",
+      "display_name": "L2 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_missed",
+      "display_name": "L2 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_placed",
+      "display_name": "L3 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_missed",
+      "display_name": "L3 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_placed",
+      "display_name": "L4 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_missed",
+      "display_name": "L4 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "net_scored",
+      "display_name": "Net Scored",
+      "type": "integer"
+    },
+    {
+      "id": "net_missed",
+      "display_name": "Net Missed",
+      "type": "integer"
+    }
+  ],
+  "endgame": [
+    {
+      "id": "cage",
+      "display_name": "Cage",
+      "type": "string",
+      "enum": [
+        "park",
+        "shallow",
+        "deep"
+      ]
+    }
+  ]
+}
