@@ -45,8 +45,8 @@ class _MainViewState extends State<MainView> {
             SvgPicture.asset(
               'lib/assets/scuffed_logo.svg',
               width: 28,
-              colorFilter: const ColorFilter.mode(
-                Colors.amber,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
                 BlendMode.srcATop,
               ),
             ),

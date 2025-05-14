@@ -9,7 +9,6 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text('Welcome')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -18,8 +17,8 @@ class WelcomePage extends StatelessWidget {
             SvgPicture.asset(
               'lib/assets/scuffed_logo.svg',
               height: 128,
-              colorFilter: const ColorFilter.mode(
-                Colors.amber,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
                 BlendMode.srcATop,
               ),
             ),

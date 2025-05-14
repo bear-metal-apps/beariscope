@@ -15,17 +15,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Appwrite client
+  // Start Appwrite
   Client client = Client();
   client
       .setEndpoint('https://nyc.cloud.appwrite.io/v1')
       .setProject('bear-scout')
       .setSelfSigned(status: true); // only use for development
 
-  // Initialize services
   final authService = AuthService(client: client);
 
-  // Initialize shared preferences (kept for backward compatibility)
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
   runApp(
@@ -63,8 +61,7 @@ class _MyAppState extends State<MyApp> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     return GoRouter(
-      refreshListenable:
-          authProvider, // This makes router listen to AuthProvider changes
+      refreshListenable: authProvider,
       initialLocation: '/',
       routes: <RouteBase>[
         GoRoute(
@@ -110,7 +107,7 @@ class _MyAppState extends State<MyApp> {
         GoRoute(
           path: '/',
           builder: (BuildContext context, GoRouterState state) {
-            // Show a loading indicator while auth state is determined
+            // Load while auth state is determined
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
@@ -129,7 +126,7 @@ class _MyAppState extends State<MyApp> {
           return isAuthenticated ? '/home' : '/welcome';
         }
 
-        // If authenticated but on welcome pages, go to home screen
+        // If authed but on welcome pages, go to home screen
         if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
           return '/home';
         }
@@ -146,7 +143,7 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.light,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.orange.shade400,
+          seedColor: Colors.lightBlue,
           brightness: Brightness.light,
         ),
         iconTheme: const IconThemeData(fill: 0.0, weight: 600),
@@ -155,7 +152,7 @@ class _MyAppState extends State<MyApp> {
         brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.amber,
+          seedColor: Colors.lightBlue,
           brightness: Brightness.dark,
         ),
         iconTheme: const IconThemeData(fill: 0.0, weight: 600),
