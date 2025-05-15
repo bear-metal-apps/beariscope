@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:beariscope/pages/auth/register_team_page.dart';
 import 'package:beariscope/pages/auth/sign_in_page.dart';
@@ -11,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:window_size/window_size.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +28,11 @@ Future<void> main() async {
   final authService = AuthService(client: client);
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowMinSize(const Size(500, 600));
+    setWindowMaxSize(Size.infinite);
+  }
 
   runApp(
     MultiProvider(

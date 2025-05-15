@@ -40,6 +40,10 @@ class _MainViewState extends State<MainView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
+        backgroundColor:
+            showNavigationRail()
+                ? Theme.of(context).colorScheme.surfaceContainer
+                : null,
         title: Row(
           children: [
             SvgPicture.asset(
@@ -58,15 +62,11 @@ class _MainViewState extends State<MainView> {
         actions: [
           IconButton(
             icon: const Icon(Symbols.cloud_done_rounded, fill: 1.0),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Symbols.notifications_rounded, fill: 1.0),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -82,32 +82,66 @@ class _MainViewState extends State<MainView> {
                 },
                 destinations: [
                   NavigationDestination(
-                    icon: Icon(
-                      Symbols.home_rounded,
-                      weight: 600,
-                      fill: _selectedIndex == 0 ? 1.0 : 0.0,
+                    icon: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: _selectedIndex == 0 ? 0.0 : 1.0,
+                        end: _selectedIndex == 0 ? 1.0 : 0.0,
+                      ),
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.fastOutSlowIn,
+                      builder: (context, value, child) {
+                        return Icon(
+                          Symbols.home_rounded,
+                          weight: 600,
+                          fill: value,
+                        );
+                      },
                     ),
                     label: 'Home',
+                    tooltip: "",
                   ),
                   NavigationDestination(
-                    icon: Icon(
-                      Symbols.explore_rounded,
-                      weight: 600,
-                      fill: _selectedIndex == 1 ? 1.0 : 0.0,
+                    icon: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: _selectedIndex == 1 ? 0.0 : 1.0,
+                        end: _selectedIndex == 1 ? 1.0 : 0.0,
+                      ),
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.fastOutSlowIn,
+                      builder: (context, value, child) {
+                        return Icon(
+                          Symbols.explore_rounded,
+                          weight: 600,
+                          fill: value,
+                        );
+                      },
                     ),
                     label: 'Scout',
+                    tooltip: "",
                   ),
                   NavigationDestination(
-                    icon: Icon(
-                      Symbols.chart_data_rounded,
-                      weight: 600,
-                      fill: _selectedIndex == 2 ? 1.0 : 0.0,
+                    icon: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: _selectedIndex == 2 ? 0.0 : 1.0,
+                        end: _selectedIndex == 2 ? 1.0 : 0.0,
+                      ),
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.fastOutSlowIn,
+                      builder: (context, value, child) {
+                        return Icon(
+                          Symbols.chart_data_rounded,
+                          weight: 600,
+                          fill: value,
+                        );
+                      },
                     ),
                     label: 'Data',
+                    tooltip: "",
                   ),
                   NavigationDestination(
                     icon: ProfilePicture(ring: false, size: 12),
                     label: 'You',
+                    tooltip: "",
                   ),
                 ],
               )
@@ -117,47 +151,74 @@ class _MainViewState extends State<MainView> {
         children: [
           if (showNavigationRail())
             NavigationRail(
-              leading: Row(
-                children: [
-                  CustomFab(
-                    direction: SpeedDialDirection.down,
-                    switchLabelPosition: true,
-                    elevation: 0.0,
-                    isOpenOnStart: _isFabOpen,
-                    onToggle: (bool isOpen) {
-                      setState(() {
-                        _isFabOpen = isOpen;
-                      });
-                    },
-                  ).build(context),
-                ],
-              ),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+              leading: CustomFab(
+                direction: SpeedDialDirection.down,
+                switchLabelPosition: true,
+                elevation: 0.0,
+                isOpenOnStart: _isFabOpen,
+                onToggle: (bool isOpen) {
+                  setState(() {
+                    _isFabOpen = isOpen;
+                  });
+                },
+              ).build(context),
               groupAlignment: -1.0,
               labelType: NavigationRailLabelType.all,
               destinations: <NavigationRailDestination>[
                 NavigationRailDestination(
-                  icon: Icon(
-                    Symbols.home_rounded,
-                    weight: 600,
-                    fill: _selectedIndex == 0 ? 1.0 : 0.0,
+                  icon: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: _selectedIndex == 0 ? 0.0 : 1.0,
+                      end: _selectedIndex == 0 ? 1.0 : 0.0,
+                    ),
+                    duration: const Duration(milliseconds: 100),
+                    curve: Curves.fastOutSlowIn,
+                    builder: (context, value, child) {
+                      return Icon(
+                        Symbols.home_rounded,
+                        weight: 600,
+                        fill: value,
+                      );
+                    },
                   ),
                   label: Text('Home'),
                   padding: EdgeInsets.only(top: 10, bottom: 6),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(
-                    Symbols.explore_rounded,
-                    weight: 600,
-                    fill: _selectedIndex == 1 ? 1.0 : 0.0,
+                  icon: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: _selectedIndex == 1 ? 0.0 : 1.0,
+                      end: _selectedIndex == 1 ? 1.0 : 0.0,
+                    ),
+                    duration: const Duration(milliseconds: 100),
+                    curve: Curves.fastOutSlowIn,
+                    builder: (context, value, child) {
+                      return Icon(
+                        Symbols.explore_rounded,
+                        weight: 600,
+                        fill: value,
+                      );
+                    },
                   ),
                   label: Text('Scout'),
                   padding: EdgeInsets.symmetric(vertical: 6.0),
                 ),
                 NavigationRailDestination(
-                  icon: Icon(
-                    Symbols.chart_data_rounded,
-                    weight: 600,
-                    fill: _selectedIndex == 2 ? 1.0 : 0.0,
+                  icon: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: _selectedIndex == 2 ? 0.0 : 1.0,
+                      end: _selectedIndex == 2 ? 1.0 : 0.0,
+                    ),
+                    duration: const Duration(milliseconds: 100),
+                    curve: Curves.fastOutSlowIn,
+                    builder: (context, value, child) {
+                      return Icon(
+                        Symbols.chart_data_rounded,
+                        weight: 600,
+                        fill: value,
+                      );
+                    },
                   ),
                   label: Text('Data'),
                   padding: EdgeInsets.symmetric(vertical: 6.0),
