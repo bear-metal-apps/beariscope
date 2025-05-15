@@ -10,6 +10,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+import '../utils/platform_utils.dart';
+
 class MainView extends StatefulWidget {
   const MainView({super.key});
 
@@ -30,23 +32,27 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final screenHeight = MediaQuery.sizeOf(context).height;
-    final bool useNavigationRail = screenWidth > 600 && screenHeight >= 500;
-
     return Scaffold(
-      appBar: !useNavigationRail ? _buildAppBar() : null,
-      bottomNavigationBar: !useNavigationRail ? _buildNavBar() : null,
+      appBar: !PlatformUtils.useDesktopUI(context) ? _buildAppBar() : null,
+      bottomNavigationBar:
+          !PlatformUtils.useDesktopUI(context) ? _buildNavBar() : null,
       body: Row(
         children: [
-          if (useNavigationRail) _buildNavRail(),
+          if (PlatformUtils.useDesktopUI(context)) _buildNavRail(),
           Expanded(child: Center(child: _pages[_selectedIndex])),
         ],
       ),
-      floatingActionButton:
-          !useNavigationRail ? _buildFloatingActionButton() : null,
+      floatingActionButton: AnimatedOpacity(
+        opacity: !PlatformUtils.useDesktopUI(context) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 0),
+        child:
+            !PlatformUtils.useDesktopUI(context)
+                ? _buildFloatingActionButton()
+                : const SizedBox.shrink(),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
+      // Use immediate animator to remove default animations
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
   }
 
@@ -68,6 +74,7 @@ class _MainViewState extends State<MainView> {
           const Text('Beariscope'),
         ],
       ),
+
       actionsPadding: const EdgeInsets.only(right: 16),
       actions: [
         IconButton(

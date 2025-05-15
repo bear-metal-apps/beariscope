@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:appwrite/appwrite.dart';
 import 'package:beariscope/pages/auth/register_team_page.dart';
 import 'package:beariscope/pages/auth/sign_in_page.dart';
@@ -9,6 +7,7 @@ import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/providers/auth_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
+import 'package:beariscope/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -29,8 +28,8 @@ Future<void> main() async {
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowMinSize(const Size(500, 625));
+  if (PlatformUtils.isDesktop()) {
+    setWindowMinSize(const Size(450, 640));
     setWindowMaxSize(Size.infinite);
   }
 

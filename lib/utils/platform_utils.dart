@@ -16,10 +16,9 @@ class PlatformUtils {
     return kIsWeb;
   }
 
-  static bool isTablet(BuildContext context) {
-    if (isMobile()) {
-      return MediaQuery.of(context).size.shortestSide >= 600;
-    }
-    return false;
+  static bool useDesktopUI(BuildContext context) {
+    return isDesktop() &&
+        MediaQuery.sizeOf(context).width >= 600 &&
+        MediaQuery.sizeOf(context).height >= 510;
   }
 }
