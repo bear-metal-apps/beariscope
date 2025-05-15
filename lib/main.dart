@@ -30,7 +30,7 @@ Future<void> main() async {
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowMinSize(const Size(500, 600));
+    setWindowMinSize(const Size(500, 625));
     setWindowMaxSize(Size.infinite);
   }
 

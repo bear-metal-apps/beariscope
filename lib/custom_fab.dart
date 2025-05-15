@@ -43,7 +43,7 @@ class CustomFab {
       foregroundColor: Theme.of(context).colorScheme.onSecondary,
       elevation: elevation,
       overlayColor: Colors.black,
-      overlayOpacity: 0.25,
+      overlayOpacity: 0.0,
 
       // Animation
       animationCurve: Curves.fastOutSlowIn,
@@ -66,7 +66,7 @@ class CustomFab {
       children: [
         SpeedDialChild(
           label: 'Match Schedule',
-          child: const Icon(Symbols.event_note_rounded),
+          child: const Icon(Symbols.event_note_rounded, fill: 1.0),
           backgroundColor: Theme.of(context).colorScheme.tertiary,
           labelBackgroundColor: Theme.of(context).colorScheme.tertiary,
           foregroundColor: Theme.of(context).colorScheme.onTertiary,
@@ -77,7 +77,7 @@ class CustomFab {
         ),
         SpeedDialChild(
           label: 'Shift Schedule',
-          child: const Icon(Symbols.event_rounded),
+          child: const Icon(Symbols.event_rounded, fill: 1.0),
           backgroundColor: Theme.of(context).colorScheme.tertiary,
           labelBackgroundColor: Theme.of(context).colorScheme.tertiary,
           foregroundColor: Theme.of(context).colorScheme.onTertiary,
@@ -88,7 +88,7 @@ class CustomFab {
         ),
         SpeedDialChild(
           label: 'Picklist',
-          child: const Icon(Symbols.format_list_numbered_rounded),
+          child: const Icon(Symbols.format_list_numbered_rounded, fill: 1.0),
           backgroundColor: Theme.of(context).colorScheme.tertiary,
           labelBackgroundColor: Theme.of(context).colorScheme.tertiary,
           foregroundColor: Theme.of(context).colorScheme.onTertiary,
@@ -99,7 +99,7 @@ class CustomFab {
         ),
         SpeedDialChild(
           label: 'From Spreadsheet',
-          child: const Icon(Symbols.table_rounded),
+          child: const Icon(Symbols.table_rounded, fill: 1.0),
           backgroundColor: Theme.of(context).colorScheme.tertiary,
           labelBackgroundColor: Theme.of(context).colorScheme.tertiary,
           foregroundColor: Theme.of(context).colorScheme.onTertiary,
@@ -115,7 +115,7 @@ class CustomFab {
         ),
         SpeedDialChild(
           label: 'From JSON',
-          child: const Icon(Symbols.file_json_rounded),
+          child: const Icon(Symbols.file_json_rounded, fill: 1.0),
           backgroundColor: Theme.of(context).colorScheme.tertiary,
           labelBackgroundColor: Theme.of(context).colorScheme.tertiary,
           foregroundColor: Theme.of(context).colorScheme.onTertiary,
