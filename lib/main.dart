@@ -8,13 +8,12 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/providers/auth_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
 import 'package:beariscope/utils/platform_utils.dart';
+import 'package:beariscope/utils/window_size_stub.dart'
+    if (dart.library.io) 'package:window_size/window_size.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:window_size/window_size.dart'
-    if (dart.library.html) 'package:beariscope/utils/window_size_stub.dart'
-    if (dart.library.io) 'package:beariscope/utils/window_size_stub.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
