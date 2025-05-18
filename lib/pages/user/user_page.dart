@@ -11,7 +11,7 @@ class UserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final isAuthenticated = authProvider.isAuthenticated;
+    final isAuthenticated = authProvider.isAuthed;
 
     return Builder(
       builder: (context) {

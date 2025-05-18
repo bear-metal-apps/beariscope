@@ -116,7 +116,7 @@ class _MyAppState extends State<MyApp> {
         GoRoute(
           path: '/',
           builder: (BuildContext context, GoRouterState state) {
-            // Load while auth state is determined
+            // Loading screen shown while getting auth state
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
@@ -124,7 +124,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       redirect: (context, state) {
-        final isAuthenticated = authProvider.isAuthenticated;
+        final isAuthenticated = authProvider.isAuthed;
         final isLoading = authProvider.isLoading;
 
         // Don't redirect while loading
