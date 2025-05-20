@@ -294,7 +294,7 @@ class _SignupPageState extends State<SignupPage> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           )
                           : const Text('Sign Up'),

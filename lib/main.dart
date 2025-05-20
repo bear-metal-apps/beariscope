@@ -11,7 +11,9 @@ import 'package:beariscope/pages/user/join_team_page.dart';
 import 'package:beariscope/pages/user/settings_page.dart';
 import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/providers/auth_provider.dart';
+import 'package:beariscope/providers/team_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
+import 'package:beariscope/services/team_service.dart';
 import 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
     if (dart.library.io) 'package:window_size/window_size.dart';
@@ -31,6 +33,7 @@ Future<void> main() async {
       .setSelfSigned(status: true); // only use for development
 
   final authService = AuthService(client: client);
+  final teamService = TeamService(client: client);
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -47,7 +50,11 @@ Future<void> main() async {
         Provider<Client>.value(value: client),
         Provider<AuthService>(create: (_) => authService),
         ChangeNotifierProvider<AuthProvider>(
-          create: (context) => AuthProvider(authService: authService),
+          create: (_) => AuthProvider(authService: authService),
+        ),
+        Provider<TeamService>(create: (_) => teamService),
+        ChangeNotifierProvider<TeamProvider>(
+          create: (_) => TeamProvider(teamService: teamService),
         ),
       ],
       child: const MyApp(),
@@ -103,26 +110,26 @@ class _MyAppState extends State<MyApp> {
           routes: [
             GoRoute(
               path: '/home',
-              builder: (BuildContext context, GoRouterState state) {
-                return const HomePage();
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const HomePage());
               },
             ),
             GoRoute(
               path: '/scout',
-              builder: (BuildContext context, GoRouterState state) {
-                return const ScoutPage();
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const ScoutPage());
               },
             ),
             GoRoute(
               path: '/data',
-              builder: (BuildContext context, GoRouterState state) {
-                return const DataPage();
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const DataPage());
               },
             ),
             GoRoute(
               path: '/you',
-              builder: (BuildContext context, GoRouterState state) {
-                return const UserPage();
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const UserPage());
               },
               routes: [
                 GoRoute(
@@ -169,10 +176,10 @@ class _MyAppState extends State<MyApp> {
           return isAuthenticated ? '/home' : '/welcome';
         }
 
-        // // If authed but on welcome pages, go to home screen
-        // if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
-        //   return '/home';
-        // }
+        // If authed but on welcome pages, go to home screen
+        if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
+          return '/home';
+        }
 
         return null;
       },

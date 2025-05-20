@@ -153,19 +153,6 @@ class _MainViewState extends State<MainView> {
       ],
       selectedIndex: _selectedIndex,
       onDestinationSelected: _handleNavigation,
-      trailing: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: const Icon(Symbols.cloud_done_rounded, fill: 1.0),
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 

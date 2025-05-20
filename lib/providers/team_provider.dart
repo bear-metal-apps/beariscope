@@ -119,4 +119,37 @@ class TeamProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  Future<bool> leaveTeam() async {
+    _setLoading(true);
+
+    try {
+      if (_currentTeam != null) {
+        models.MembershipList memberships = await _teamService.getMemberships(
+          _currentTeam!.$id,
+        );
+
+        // Get the current user ID from the team service
+        String currentUserId = await _teamService.getCurrentUserId();
+
+        String membershipId =
+            memberships.memberships
+                .firstWhere((membership) => membership.userId == currentUserId)
+                .$id;
+
+        await _teamService.leaveTeam(_currentTeam!.$id, membershipId);
+        _currentTeam = null;
+        return true;
+      } else {
+        debugPrint('No team to leave');
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('Failed to leave team: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
 }

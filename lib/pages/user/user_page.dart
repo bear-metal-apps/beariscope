@@ -1,4 +1,5 @@
 import 'package:beariscope/providers/auth_provider.dart';
+import 'package:beariscope/providers/team_provider.dart';
 import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:beariscope/widgets/tileable_card.dart';
 import 'package:beariscope/widgets/tileable_card_view.dart';
@@ -33,22 +34,25 @@ class UserPage extends StatelessWidget {
           ),
         ],
       ),
+
       body:
           !isAuthenticated
-              ? Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Sign in to view your account details.'),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: () {
-                      context.go('/welcome');
-                    },
-                    icon: const Icon(Symbols.logout_rounded),
-                    label: const Text('Exit Guest Mode'),
-                  ),
-                ],
+              ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Sign in to view your account details.'),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () {
+                        context.go('/welcome');
+                      },
+                      icon: const Icon(Symbols.logout_rounded),
+                      label: const Text('Exit Guest Mode'),
+                    ),
+                  ],
+                ),
               )
               : TileableCardView(children: cards),
     );
@@ -74,24 +78,39 @@ class UserPage extends StatelessWidget {
                 ),
                 FilledButton.icon(
                   onPressed: () async {
-                    final success = await authProvider.signOut();
-
-                    if (context.mounted) {
-                      if (success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Signed out successfully'),
-                          ),
-                        );
+                    final bool confirmed =
+                        await showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: const Text('Sign Out'),
+                                content: const Text(
+                                  'Are you sure you want to sign out?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.of(context).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      foregroundColor:
+                                          Theme.of(context).colorScheme.error,
+                                    ),
+                                    child: const Text('Sign Out'),
+                                  ),
+                                ],
+                              ),
+                        ) ??
+                        false;
+                    if (confirmed && context.mounted) {
+                      await authProvider.signOut();
+                      if (context.mounted) {
                         context.go('/welcome');
-                      } else if (authProvider.error != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Error signing out: ${authProvider.error}',
-                            ),
-                          ),
-                        );
                       }
                     }
                   },
@@ -106,7 +125,7 @@ class UserPage extends StatelessWidget {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           )
                           : Text('Sign Out'),
@@ -122,29 +141,131 @@ class UserPage extends StatelessWidget {
   }
 
   Widget _buildTeamCard(BuildContext context) {
-    return TileableCard(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('You aren\'t on a team yet'),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () {
-              context.go('/you/join_team');
-            },
-            icon: const Icon(Symbols.person_add_rounded),
-            label: const Text('Join Team'),
+    final teamProvider = context.watch<TeamProvider>();
+
+    if (teamProvider.isLoading) {
+      return TileableCard(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [const CircularProgressIndicator()],
           ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {
-              context.go('/you/create_team');
-            },
-            icon: const Icon(Symbols.group_add_rounded),
-            label: const Text('Create Team'),
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    }
+
+    if (teamProvider.hasTeam) {
+      return TileableCard(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 24,
+              child: Image.network(
+                'https://www.thebluealliance.com/avatar/2025/frc${teamProvider.teamNumber}.png',
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (context, _, __) {
+                  return Icon(
+                    Symbols.group_rounded,
+                    size: 24,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              teamProvider.teamName,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text('Team ${teamProvider.teamNumber}'),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () {
+                context.go('/team/${teamProvider.currentTeam?.$id}');
+              },
+              icon: const Icon(Symbols.group_rounded),
+              label: const Text('Manage Team'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final bool confirmed =
+                    await showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Leave Team'),
+                            content: const Text(
+                              'Are you sure you want to leave this team?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.error,
+                                ),
+                                child: const Text('Leave'),
+                              ),
+                            ],
+                          ),
+                    ) ??
+                    false;
+                if (confirmed && context.mounted) {
+                  await teamProvider.leaveTeam();
+                }
+              },
+              icon: const Icon(Symbols.group_remove_rounded),
+              label: const Text('Leave Team'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return TileableCard(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'You aren\'t on a team yet',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Join an existing team or create a new one',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: () {
+                context.go('/you/join_team');
+              },
+              icon: const Icon(Symbols.person_add_rounded),
+              label: const Text('Join Team'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                context.go('/you/create_team');
+              },
+              icon: const Icon(Symbols.group_add_rounded),
+              label: const Text('Create Team'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

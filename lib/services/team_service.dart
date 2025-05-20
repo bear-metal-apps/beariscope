@@ -39,8 +39,22 @@ class TeamService {
     }
   }
 
+  Future<String> getCurrentUserId() async {
+    final account = Account(client);
+    final user = await account.get();
+    return user.$id;
+  }
+
+  Future<models.MembershipList> getMemberships(String teamId) async {
+    return await teams.listMemberships(teamId: teamId);
+  }
+
   // Scary!
   Future<void> deleteTeam(String teamId) async {
     await teams.delete(teamId: teamId);
+  }
+
+  Future<void> leaveTeam(String teamId, membershipID) async {
+    await teams.deleteMembership(teamId: teamId, membershipId: membershipID);
   }
 }
