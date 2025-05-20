@@ -35,7 +35,6 @@ class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: !PlatformUtils.useDesktopUI(context) ? _buildAppBar() : null,
       bottomNavigationBar:
           !PlatformUtils.useDesktopUI(context) ? _buildNavBar() : null,
       body: Row(
@@ -55,35 +54,6 @@ class _MainViewState extends State<MainView> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       // Use immediate animator to remove default animations
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-    );
-  }
-
-  AppBar? _buildAppBar() {
-    return AppBar(
-      centerTitle: false,
-      backgroundColor: null,
-      title: Row(
-        children: [
-          SvgPicture.asset(
-            'lib/assets/scuffed_logo.svg',
-            width: 28,
-            colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.primary,
-              BlendMode.srcATop,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Text('Beariscope'),
-        ],
-      ),
-
-      actionsPadding: const EdgeInsets.only(right: 16),
-      actions: [
-        IconButton(
-          icon: const Icon(Symbols.cloud_done_rounded, fill: 1.0),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 

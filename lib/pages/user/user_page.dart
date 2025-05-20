@@ -20,9 +20,20 @@ class UserPage extends StatelessWidget {
       _buildTeamCard(context),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child:
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Your Account'),
+        actionsPadding: const EdgeInsets.only(right: 16),
+        actions: [
+          IconButton(
+            icon: const Icon(Symbols.settings_rounded),
+            onPressed: () {
+              context.go('/you/settings');
+            },
+          ),
+        ],
+      ),
+      body:
           !isAuthenticated
               ? Column(
                 mainAxisSize: MainAxisSize.max,
@@ -115,7 +126,7 @@ class UserPage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('You aren\'t on a team yet.'),
+          const Text('You aren\'t on a team yet'),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: () {

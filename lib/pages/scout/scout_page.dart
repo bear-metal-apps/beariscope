@@ -5,6 +5,9 @@ class ScoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Scout Page'));
+    return Scaffold(
+      appBar: AppBar(title: const Text('Scout')),
+      body: const Center(child: Text('Scout Page')),
+    );
   }
 }

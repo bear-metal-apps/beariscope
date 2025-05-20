@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class CreateTeamPage extends StatefulWidget {
   const CreateTeamPage({super.key});
@@ -32,6 +31,7 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
               decoration: const InputDecoration(
                 labelText: 'Team Name',
                 border: OutlineInputBorder(),
+                constraints: BoxConstraints(maxWidth: 300),
               ),
             ),
             const SizedBox(height: 16),
@@ -40,28 +40,17 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
               decoration: const InputDecoration(
                 labelText: 'Team Number',
                 border: OutlineInputBorder(),
+                constraints: BoxConstraints(maxWidth: 300),
               ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () {
-                // Handle team registration logic here
-                // For example, you can send the data to your backend or save it locally
                 final String teamName = _teamNameController.text;
                 final String teamNumber = _teamNumberController.text;
-
-                // Simulate successful registration
-                context.go('/welcome/signup/user_details');
               },
               child: const Text('Register Team'),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () {
-                context.go('/welcome/signup');
-              },
-              child: const Text('Back'),
             ),
           ],
         ),

@@ -10,23 +10,21 @@ class TileableCardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final crossAxisCount = max(1, constraints.maxWidth ~/ 300);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = max(1, constraints.maxWidth ~/ 300);
 
-          return MasonryGridView.count(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            itemCount: children.length,
-            itemBuilder: (context, index) {
-              return children[index];
-            },
-          );
-        },
-      ),
+        return MasonryGridView.count(
+          crossAxisCount: crossAxisCount,
+          padding: const EdgeInsets.all(16.0),
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          itemCount: children.length,
+          itemBuilder: (context, index) {
+            return children[index];
+          },
+        );
+      },
     );
   }
 }

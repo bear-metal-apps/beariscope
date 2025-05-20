@@ -7,7 +7,8 @@ import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout/scout_page.dart';
 import 'package:beariscope/pages/user/create_team_page.dart';
-import 'package:beariscope/pages/user/select_team_page.dart';
+import 'package:beariscope/pages/user/join_team_page.dart';
+import 'package:beariscope/pages/user/settings_page.dart';
 import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/providers/auth_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
@@ -134,6 +135,12 @@ class _MyAppState extends State<MyApp> {
                   path: 'create_team',
                   builder: (BuildContext context, GoRouterState state) {
                     return const CreateTeamPage();
+                  },
+                ),
+                GoRoute(
+                  path: 'settings',
+                  builder: (BuildContext context, GoRouterState state) {
+                    return const SettingsPage();
                   },
                 ),
               ],
