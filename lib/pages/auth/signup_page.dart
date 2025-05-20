@@ -85,7 +85,7 @@ class _SignupPageState extends State<SignupPage> {
 
       if (success) {
         TextInput.finishAutofillContext();
-        context.go('/welcome/signup/select_team');
+        context.go('/home');
       } else if (authProvider.error != null) {
         final error = authProvider.error!;
         if (error.contains('weak-password') ||
@@ -117,13 +117,12 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sign Up')),
-      body: Center(
-        heightFactor: 1.0,
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Center(
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   width: 300,
@@ -290,10 +289,13 @@ class _SignupPageState extends State<SignupPage> {
                   onPressed: _isLoading ? null : _signup,
                   child:
                       _isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           )
                           : const Text('Sign Up'),
                 ),

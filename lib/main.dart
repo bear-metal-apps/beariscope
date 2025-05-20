@@ -1,10 +1,14 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:beariscope/pages/auth/register_team_page.dart';
 import 'package:beariscope/pages/auth/sign_in_page.dart';
 import 'package:beariscope/pages/auth/signup_page.dart';
-import 'package:beariscope/pages/auth/team_selection_page.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
+import 'package:beariscope/pages/data/data_page.dart';
+import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/user/create_team_page.dart';
+import 'package:beariscope/pages/user/select_team_page.dart';
+import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/providers/auth_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
 import 'package:beariscope/utils/platform_utils.dart';
@@ -90,28 +94,51 @@ class _MyAppState extends State<MyApp> {
               builder: (BuildContext context, GoRouterState state) {
                 return SignupPage();
               },
+            ),
+          ],
+        ),
+        ShellRoute(
+          builder: (context, state, child) => MainView(child: child),
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (BuildContext context, GoRouterState state) {
+                return const HomePage();
+              },
+            ),
+            GoRoute(
+              path: '/scout',
+              builder: (BuildContext context, GoRouterState state) {
+                return const ScoutPage();
+              },
+            ),
+            GoRoute(
+              path: '/data',
+              builder: (BuildContext context, GoRouterState state) {
+                return const DataPage();
+              },
+            ),
+            GoRoute(
+              path: '/you',
+              builder: (BuildContext context, GoRouterState state) {
+                return const UserPage();
+              },
               routes: [
                 GoRoute(
-                  path: 'register_team',
+                  path: 'join_team',
                   builder: (BuildContext context, GoRouterState state) {
-                    return const RegisterTeamPage();
+                    return const JoinTeamPage();
                   },
                 ),
                 GoRoute(
-                  path: 'select_team',
+                  path: 'create_team',
                   builder: (BuildContext context, GoRouterState state) {
-                    return const TeamSelectionPage();
+                    return const CreateTeamPage();
                   },
                 ),
               ],
             ),
           ],
-        ),
-        GoRoute(
-          path: '/home',
-          builder: (BuildContext context, GoRouterState state) {
-            return const MainView();
-          },
         ),
         GoRoute(
           path: '/',
@@ -135,10 +162,10 @@ class _MyAppState extends State<MyApp> {
           return isAuthenticated ? '/home' : '/welcome';
         }
 
-        // If authed but on welcome pages, go to home screen
-        if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
-          return '/home';
-        }
+        // // If authed but on welcome pages, go to home screen
+        // if (isAuthenticated && state.matchedLocation.startsWith('/welcome')) {
+        //   return '/home';
+        // }
 
         return null;
       },

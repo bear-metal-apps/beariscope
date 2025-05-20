@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class RegisterTeamPage extends StatefulWidget {
-  const RegisterTeamPage({super.key});
+class CreateTeamPage extends StatefulWidget {
+  const CreateTeamPage({super.key});
 
   @override
-  State<RegisterTeamPage> createState() => _RegisterTeamPageState();
+  State<CreateTeamPage> createState() => _CreateTeamPageState();
 }
 
-class _RegisterTeamPageState extends State<RegisterTeamPage> {
+class _CreateTeamPageState extends State<CreateTeamPage> {
   final TextEditingController _teamNameController = TextEditingController();
   final TextEditingController _teamNumberController = TextEditingController();
 
@@ -22,7 +22,7 @@ class _RegisterTeamPageState extends State<RegisterTeamPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register Team')),
+      appBar: AppBar(title: const Text('Create Team')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

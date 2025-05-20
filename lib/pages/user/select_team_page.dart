@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class TeamSelectionPage extends StatefulWidget {
-  const TeamSelectionPage({super.key});
+class JoinTeamPage extends StatefulWidget {
+  const JoinTeamPage({super.key});
 
   @override
-  State<TeamSelectionPage> createState() => _TeamSelectionPageState();
+  State<JoinTeamPage> createState() => _JoinTeamPageState();
 }
 
-class _TeamSelectionPageState extends State<TeamSelectionPage> {
+class _JoinTeamPageState extends State<JoinTeamPage> {
   @override
   void initState() {
     super.initState();
