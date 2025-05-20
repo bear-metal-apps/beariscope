@@ -161,7 +161,7 @@ class UserPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
-              radius: 24,
+              radius: 28,
               child: Image.network(
                 'https://www.thebluealliance.com/avatar/2025/frc${teamProvider.teamNumber}.png',
                 width: 32,
@@ -186,49 +186,10 @@ class UserPage extends StatelessWidget {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: () {
-                context.go('/team/${teamProvider.currentTeam?.$id}');
+                context.go('/you/manage_team/${teamProvider.currentTeam?.$id}');
               },
               icon: const Icon(Symbols.group_rounded),
               label: const Text('Manage Team'),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () async {
-                final bool confirmed =
-                    await showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Leave Team'),
-                            content: const Text(
-                              'Are you sure you want to leave this team?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(context).pop(false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(true);
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.error,
-                                ),
-                                child: const Text('Leave'),
-                              ),
-                            ],
-                          ),
-                    ) ??
-                    false;
-                if (confirmed && context.mounted) {
-                  await teamProvider.leaveTeam();
-                }
-              },
-              icon: const Icon(Symbols.group_remove_rounded),
-              label: const Text('Leave Team'),
             ),
           ],
         ),

@@ -22,7 +22,7 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_launcher_icons: ^0.14.3
   flutter_speed_dial: ^7.0.0
-  appwrite: ^16.0.0
+  appwrite: ^15.0.0
   file_picker: ^10.1.2
   simple_icons: ^14.6.1
   percent_indicator: ^4.2.5
