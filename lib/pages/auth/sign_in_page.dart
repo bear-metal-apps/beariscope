@@ -110,13 +110,12 @@ class _SignInPageState extends State<SignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sign In')),
-      body: Center(
-        heightFactor: 1.0,
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Center(
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                   width: 300,
@@ -221,10 +220,13 @@ class _SignInPageState extends State<SignInPage> {
                   onPressed: _isLoading ? null : _signIn,
                   child:
                       _isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           )
                           : const Text('Sign In'),
                 ),

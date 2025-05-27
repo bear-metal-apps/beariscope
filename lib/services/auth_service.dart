@@ -8,7 +8,6 @@ class AuthService {
 
   AuthService({required this.client}) : account = Account(client);
 
-  // Check if user is logged in
   Future<models.User?> getCurrentUser() async {
     try {
       final user = await account.get();
@@ -18,18 +17,14 @@ class AuthService {
     }
   }
 
-  // Sign in
-  Future<models.Session> createSession({
-    required String email,
-    required String password,
-  }) async {
-    return await account.createEmailPasswordSession(
-      email: email,
-      password: password,
-    );
+  Future<models.Session?> getSession() async {
+    try {
+      return await account.getSession(sessionId: 'current');
+    } catch (e) {
+      return null;
+    }
   }
 
-  // Sign up
   Future<models.User> createUser({
     required String email,
     required String password,
@@ -43,21 +38,27 @@ class AuthService {
     );
   }
 
-  // Sign up and sign in
+  Future<models.Session> signIn({
+    required String email,
+    required String password,
+  }) async {
+    return await account.createEmailPasswordSession(
+      email: email,
+      password: password,
+    );
+  }
+
   Future<(models.User, models.Session)> signUp({
     required String email,
     required String password,
     required String name,
   }) async {
     final user = await createUser(email: email, password: password, name: name);
-
-    final session = await createSession(email: email, password: password);
-
+    final session = await signIn(email: email, password: password);
     return (user, session);
   }
 
-  // Sign out
-  Future<void> deleteSession() async {
+  Future<void> signOut() async {
     try {
       await account.deleteSession(sessionId: 'current');
     } catch (e) {
@@ -65,15 +66,6 @@ class AuthService {
         print('Error signing out: $e');
       }
       rethrow;
-    }
-  }
-
-  // Get current session
-  Future<models.Session?> getSession() async {
-    try {
-      return await account.getSession(sessionId: 'current');
-    } catch (e) {
-      return null;
     }
   }
 }

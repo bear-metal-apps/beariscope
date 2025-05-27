@@ -31,8 +31,9 @@ class _ProfilePictureState extends State<ProfilePicture> {
   }
 
   void _loadAvatar() {
-    _avatarFuture =
-        Avatars(Provider.of<Client>(context, listen: false)).getInitials();
+    _avatarFuture = Avatars(
+      Provider.of<Client>(context, listen: false),
+    ).getInitials(height: 192);
   }
 
   @override

@@ -1,45 +1,46 @@
 import 'package:beariscope/custom_fab.dart';
-import 'package:beariscope/pages/data/data_page.dart';
-import 'package:beariscope/pages/home/home_page.dart';
-import 'package:beariscope/pages/scout/scout_page.dart';
-import 'package:beariscope/pages/user/user_page.dart';
+import 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-import '../utils/platform_utils.dart';
-
 class MainView extends StatefulWidget {
-  const MainView({super.key});
+  final Widget child;
+
+  const MainView({super.key, required this.child});
 
   @override
   State<MainView> createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> {
-  int _selectedIndex = 0;
-  static final List<Widget> _pages = [
-    const HomePage(),
-    const ScoutPage(),
-    const DataPage(),
-    const UserPage(),
-  ];
+  static const List<String> _routes = ['/home', '/scout', '/data', '/you'];
+
+  int get _selectedIndex {
+    final String location = GoRouterState.of(context).uri.toString();
+    for (int i = 0; i < _routes.length; i++) {
+      if (location.startsWith(_routes[i])) {
+        return i;
+      }
+    }
+    return 0; // Default is home
+  }
 
   bool _isFabOpen = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: !PlatformUtils.useDesktopUI(context) ? _buildAppBar() : null,
       bottomNavigationBar:
           !PlatformUtils.useDesktopUI(context) ? _buildNavBar() : null,
       body: Row(
         children: [
           if (PlatformUtils.useDesktopUI(context)) _buildNavRail(),
-          Expanded(child: Center(child: _pages[_selectedIndex])),
+          Expanded(child: Center(child: widget.child)),
         ],
       ),
       floatingActionButton: AnimatedOpacity(
@@ -53,35 +54,6 @@ class _MainViewState extends State<MainView> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       // Use immediate animator to remove default animations
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-    );
-  }
-
-  AppBar? _buildAppBar() {
-    return AppBar(
-      centerTitle: false,
-      backgroundColor: null,
-      title: Row(
-        children: [
-          SvgPicture.asset(
-            'lib/assets/scuffed_logo.svg',
-            width: 28,
-            colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.primary,
-              BlendMode.srcATop,
-            ),
-          ),
-          const SizedBox(width: 12),
-          const Text('Beariscope'),
-        ],
-      ),
-
-      actionsPadding: const EdgeInsets.only(right: 16),
-      actions: [
-        IconButton(
-          icon: const Icon(Symbols.cloud_done_rounded, fill: 1.0),
-          onPressed: () {},
-        ),
-      ],
     );
   }
 
@@ -181,19 +153,6 @@ class _MainViewState extends State<MainView> {
       ],
       selectedIndex: _selectedIndex,
       onDestinationSelected: _handleNavigation,
-      trailing: Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: const Icon(Symbols.cloud_done_rounded, fill: 1.0),
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
     );
   }
 
@@ -233,8 +192,6 @@ class _MainViewState extends State<MainView> {
 
   void _handleNavigation(int index) {
     HapticFeedback.lightImpact();
-    setState(() {
-      _selectedIndex = index;
-    });
+    context.go(_routes[index]);
   }
 }

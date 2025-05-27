@@ -1,12 +1,20 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:beariscope/pages/auth/register_team_page.dart';
 import 'package:beariscope/pages/auth/sign_in_page.dart';
 import 'package:beariscope/pages/auth/signup_page.dart';
-import 'package:beariscope/pages/auth/team_selection_page.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
+import 'package:beariscope/pages/data/data_page.dart';
+import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/user/create_team_page.dart';
+import 'package:beariscope/pages/user/join_team_page.dart';
+import 'package:beariscope/pages/user/manage_team_page.dart';
+import 'package:beariscope/pages/user/settings_page.dart';
+import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/providers/auth_provider.dart';
+import 'package:beariscope/providers/team_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
+import 'package:beariscope/services/team_service.dart';
 import 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
     if (dart.library.io) 'package:window_size/window_size.dart';
@@ -26,6 +34,7 @@ Future<void> main() async {
       .setSelfSigned(status: true); // only use for development
 
   final authService = AuthService(client: client);
+  final teamService = TeamService(client: client);
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -42,7 +51,11 @@ Future<void> main() async {
         Provider<Client>.value(value: client),
         Provider<AuthService>(create: (_) => authService),
         ChangeNotifierProvider<AuthProvider>(
-          create: (context) => AuthProvider(authService: authService),
+          create: (_) => AuthProvider(authService: authService),
+        ),
+        Provider<TeamService>(create: (_) => teamService),
+        ChangeNotifierProvider<TeamProvider>(
+          create: (_) => TeamProvider(teamService: teamService),
         ),
       ],
       child: const MyApp(),
@@ -90,17 +103,62 @@ class _MyAppState extends State<MyApp> {
               builder: (BuildContext context, GoRouterState state) {
                 return SignupPage();
               },
+            ),
+          ],
+        ),
+        ShellRoute(
+          builder: (context, state, child) => MainView(child: child),
+          routes: [
+            GoRoute(
+              path: '/home',
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const HomePage());
+              },
+            ),
+            GoRoute(
+              path: '/scout',
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const ScoutPage());
+              },
+            ),
+            GoRoute(
+              path: '/data',
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const DataPage());
+              },
+            ),
+            GoRoute(
+              path: '/you',
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                return NoTransitionPage(child: const UserPage());
+              },
               routes: [
                 GoRoute(
-                  path: 'register_team',
+                  path: 'join_team',
                   builder: (BuildContext context, GoRouterState state) {
-                    return const RegisterTeamPage();
+                    return const JoinTeamPage();
                   },
                 ),
                 GoRoute(
-                  path: 'select_team',
+                  path: 'create_team',
                   builder: (BuildContext context, GoRouterState state) {
-                    return const TeamSelectionPage();
+                    return const CreateTeamPage();
+                  },
+                ),
+                GoRoute(
+                  path: 'manage_team/:teamId',
+                  builder: (BuildContext context, GoRouterState state) {
+                    final teamId = state.pathParameters['teamId']!;
+                    if (teamId.isEmpty) {
+                      return const Center(child: Text('Team ID is empty'));
+                    }
+                    return ManageTeamPage(teamId: teamId);
+                  },
+                ),
+                GoRoute(
+                  path: 'settings',
+                  builder: (BuildContext context, GoRouterState state) {
+                    return const SettingsPage();
                   },
                 ),
               ],
@@ -108,15 +166,9 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
         GoRoute(
-          path: '/home',
-          builder: (BuildContext context, GoRouterState state) {
-            return const MainView();
-          },
-        ),
-        GoRoute(
           path: '/',
           builder: (BuildContext context, GoRouterState state) {
-            // Load while auth state is determined
+            // Loading screen shown while getting auth state
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
@@ -124,7 +176,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       redirect: (context, state) {
-        final isAuthenticated = authProvider.isAuthenticated;
+        final isAuthenticated = authProvider.isAuthed;
         final isLoading = authProvider.isLoading;
 
         // Don't redirect while loading
