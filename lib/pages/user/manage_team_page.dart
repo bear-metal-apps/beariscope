@@ -1,5 +1,6 @@
 import 'package:beariscope/providers/team_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
@@ -61,6 +62,40 @@ class ManageTeamPage extends StatelessWidget {
               },
               icon: const Icon(Symbols.group_remove_rounded),
               label: const Text('Leave Team'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () async {
+                String joinCode = await teamProvider.createJoinCode() ?? '';
+
+                if (!context.mounted) return;
+                if (joinCode.isNotEmpty) {
+                  await showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Join Code'),
+                          content: Text('Join code: $joinCode'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: joinCode),
+                                );
+                              },
+                              child: const Text('Copy'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                  );
+                }
+              },
+              icon: const Icon(Symbols.qr_code_2_rounded),
+              label: const Text('Create Join Code'),
             ),
           ],
         ),

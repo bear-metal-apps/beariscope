@@ -18,6 +18,17 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _teamNameController.addListener(() {
+      setState(() {});
+    });
+    _teamNumberController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
   void dispose() {
     _teamNameController.dispose();
     _teamNumberController.dispose();
@@ -83,7 +94,6 @@ class _CreateTeamPageState extends State<CreateTeamPage> {
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                FilteringTextInputFormatter.singleLineFormatter,
                 LengthLimitingTextInputFormatter(5),
               ],
             ),

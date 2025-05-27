@@ -232,4 +232,36 @@ class TeamProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  /// Creates a join code for the current user's team.
+  Future<String?> createJoinCode() async {
+    _setLoading(true);
+
+    try {
+      String joinCode = await _teamService.createJoinCode(_currentTeam!.$id);
+      return joinCode;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint(e.toString());
+      return null;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Uses a join code to add the current user to a team.
+  Future<bool> useJoinCode(String joinCode) async {
+    _setLoading(true);
+
+    try {
+      await _teamService.useJoinCode(joinCode);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      debugPrint(e.toString());
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
 }
