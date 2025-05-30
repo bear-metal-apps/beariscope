@@ -29,8 +29,8 @@ Future<void> main() async {
   // Start Appwrite
   Client client = Client();
   client
-      .setEndpoint('https://nyc.cloud.appwrite.io/v1')
-      .setProject('bear-scout')
+      .setEndpoint('https://appwrite.bearmet.al/v1')
+      .setProject('68391727001966068b86')
       .setSelfSigned(status: true); // only use for development
 
   final authService = AuthService(client: client);
