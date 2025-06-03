@@ -10,13 +10,13 @@ class PlatformUtils {
   static bool isWeb() => true;
 
   static bool useDesktopUI(dynamic context) {
-    // Use desktop UI on web if the screen is wide enough
+    // Use desktop UI on web if the screen is wide and tall enough
     try {
-      final width =
-          context != null && context is BuildContext
-              ? MediaQuery.of(context).size.width
-              : 0;
-      return width >= 600;
+      if (context != null && context is BuildContext) {
+        return MediaQuery.of(context).size.width >= 600 &&
+            MediaQuery.of(context).size.height >= 400;
+      }
+      return false;
     } catch (_) {
       return false;
     }
