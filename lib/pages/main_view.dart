@@ -1,5 +1,6 @@
 import 'package:beariscope/custom_fab.dart';
-import 'package:beariscope/utils/platform_utils.dart';
+import 'package:beariscope/utils/platform_utils_stub.dart'
+    if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

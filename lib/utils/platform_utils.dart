@@ -17,8 +17,7 @@ class PlatformUtils {
   }
 
   static bool useDesktopUI(BuildContext context) {
-    return isDesktop() &&
-        MediaQuery.sizeOf(context).width >= 600 &&
-        MediaQuery.sizeOf(context).height >= 510;
+    final width = MediaQuery.of(context).size.width;
+    return isDesktop() || (!isMobile() && width >= 600);
   }
 }

@@ -15,10 +15,12 @@ import 'package:beariscope/providers/auth_provider.dart';
 import 'package:beariscope/providers/team_provider.dart';
 import 'package:beariscope/services/auth_service.dart';
 import 'package:beariscope/services/team_service.dart';
-import 'package:beariscope/utils/platform_utils.dart';
-import 'package:beariscope/utils/window_size_stub.dart'
-    if (dart.library.io) 'package:window_size/window_size.dart';
+import 'package:beariscope/utils/platform_utils_stub.dart' // if on web
+    if (dart.library.io) 'package:beariscope/utils/platform_utils.dart'; // if on desktop or mobile
+import 'package:beariscope/utils/window_size_stub.dart' // if on web/mobile
+    if (dart.library.io) 'package:window_size/window_size.dart'; // if on desktop
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +39,9 @@ Future<void> main() async {
   final teamService = TeamService(client: client);
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+  // Don't use hash-based urls for web
+  setUrlStrategy(PathUrlStrategy());
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(450, 640));
