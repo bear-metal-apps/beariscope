@@ -1,0 +1,66 @@
+name: Build Linux Binary
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  version:
+    uses: ./.github/workflows/version.yml
+
+  build:
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      FLUTTER_CHANNEL: stable
+      APP_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+      - name: Install dependencies
+        run: |
+          flutter pub get
+          sudo apt-get update -y
+          sudo apt-get install -y appstream libgtk-3-dev libwebkit2gtk-4.1-dev cmake clang ninja-build libcanberra-gtk-module libcanberra-gtk3-module
+      - name: Build Linux release
+        run: flutter build linux --release
+      - name: Build AppImage
+        uses: AppImageCrafters/build-appimage-action@v1
+        with:
+          recipe: AppImageBuilder.yml
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+      - name: Copy AppImage to artifacts
+        run: |
+          cp Beariscope-latest-x86_64.AppImage artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.AppImage
+          cp Beariscope-latest-x86_64.AppImage.zsync artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.AppImage.zsync
+      - name: Zip Linux build
+        run: |
+          tar -czvf artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.tar.gz -C build/linux/x64/release/bundle .
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: artifacts/
+          retention-days: 7
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.tar.gz
+            artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.AppImage
+            artifacts/beariscope-linux-${{ needs.version.outputs.version }}-x86-64.AppImage.zsync
+          draft: false
+          fail_on_unmatched_files: false
+          

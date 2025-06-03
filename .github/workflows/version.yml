@@ -1,0 +1,41 @@
+name: Extract Version
+
+# This reusable workflow extracts version information from pubspec.yaml
+# Other workflows can call this to get consistent versioning
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: "The application version without build number"
+        value: ${{ jobs.extract.outputs.version }}
+      build_number:
+        description: "The application build number"
+        value: ${{ jobs.extract.outputs.build_number }}
+      full_version:
+        description: "The full version string (version+build)"
+        value: ${{ jobs.extract.outputs.full_version }}
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      build_number: ${{ steps.get_version.outputs.build_number }}
+      full_version: ${{ steps.get_version.outputs.full_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | sed -E 's/version: +([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+).*/\1/')
+          BUILD=$(grep 'version:' pubspec.yaml | sed -E 's/version: +([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+).*/\2/')
+          FULL_VERSION=$(grep 'version:' pubspec.yaml | sed -E 's/version: +([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+).*/\1+\2/')
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD" >> $GITHUB_OUTPUT
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+          
+          echo "Extracted version: $VERSION"
+          echo "Extracted build number: $BUILD"
+          echo "Full version string: $FULL_VERSION"
