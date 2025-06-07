@@ -1,10 +1,10 @@
-import 'package:beariscope/providers/auth_provider.dart';
-import 'package:beariscope/providers/team_provider.dart';
-import 'package:beariscope/widgets/profile_picture.dart';
-import 'package:beariscope/widgets/tileable_card.dart';
-import 'package:beariscope/widgets/tileable_card_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/auth_provider.dart';
+import 'package:libkoala/providers/team_provider.dart';
+import 'package:libkoala/ui/widgets/profile_picture.dart';
+import 'package:libkoala/ui/widgets/tileable_card.dart';
+import 'package:libkoala/ui/widgets/tileable_card_view.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
@@ -167,7 +167,7 @@ class UserPage extends StatelessWidget {
                 width: 32,
                 height: 32,
                 fit: BoxFit.cover,
-                errorBuilder: (context, _, __) {
+                errorBuilder: (context, _, _) {
                   return Icon(
                     Symbols.group_rounded,
                     size: 24,

@@ -25,9 +25,7 @@
 </p>
 
 > [!IMPORTANT]
-> Beariscope is under active development! Exciting features are on the way—stay tuned for updates as we build toward the
-> first full release.
-
+> Beariscope is under active development! Exciting features are still on the way.
 ---
 
 Beariscope is a next-generation, gamified, and powerful scouting platform for FRC teams, designed and maintained by

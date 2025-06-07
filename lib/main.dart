@@ -1,6 +1,4 @@
 import 'package:appwrite/appwrite.dart';
-import 'package:beariscope/pages/auth/sign_in_page.dart';
-import 'package:beariscope/pages/auth/signup_page.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/data/data_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
@@ -11,10 +9,6 @@ import 'package:beariscope/pages/user/join_team_page.dart';
 import 'package:beariscope/pages/user/manage_team_page.dart';
 import 'package:beariscope/pages/user/settings_page.dart';
 import 'package:beariscope/pages/user/user_page.dart';
-import 'package:beariscope/providers/auth_provider.dart';
-import 'package:beariscope/providers/team_provider.dart';
-import 'package:beariscope/services/auth_service.dart';
-import 'package:beariscope/services/team_service.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart' // if on web
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart'; // if on desktop or mobile
 import 'package:beariscope/utils/window_size_stub.dart' // if on web/mobile
@@ -22,6 +16,8 @@ import 'package:beariscope/utils/window_size_stub.dart' // if on web/mobile
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/auth_provider.dart';
+import 'package:libkoala/providers/team_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,9 +30,6 @@ Future<void> main() async {
       .setEndpoint('https://appwrite.bearmet.al/v1')
       .setProject('68391727001966068b86')
       .setSelfSigned(status: true); // only use for development
-
-  final authService = AuthService(client: client);
-  final teamService = TeamService(client: client);
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -54,13 +47,11 @@ Future<void> main() async {
       providers: [
         Provider<SharedPreferences>.value(value: sharedPreferences),
         Provider<Client>.value(value: client),
-        Provider<AuthService>(create: (_) => authService),
         ChangeNotifierProvider<AuthProvider>(
-          create: (_) => AuthProvider(authService: authService),
+          create: (_) => AuthProvider(client: client),
         ),
-        Provider<TeamService>(create: (_) => teamService),
         ChangeNotifierProvider<TeamProvider>(
-          create: (_) => TeamProvider(teamService: teamService),
+          create: (_) => TeamProvider(client: client),
         ),
       ],
       child: const MyApp(),
@@ -96,20 +87,6 @@ class _MyAppState extends State<MyApp> {
           builder: (BuildContext context, GoRouterState state) {
             return const WelcomePage();
           },
-          routes: [
-            GoRoute(
-              path: 'signin',
-              builder: (BuildContext context, GoRouterState state) {
-                return const SignInPage();
-              },
-            ),
-            GoRoute(
-              path: 'signup',
-              builder: (BuildContext context, GoRouterState state) {
-                return SignupPage();
-              },
-            ),
-          ],
         ),
         ShellRoute(
           builder: (context, state, child) => MainView(child: child),

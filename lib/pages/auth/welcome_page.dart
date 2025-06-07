@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/ui/auth/sign_in_sheet.dart';
+import 'package:libkoala/ui/auth/sign_up_sheet.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -33,14 +35,14 @@ class WelcomePage extends StatelessWidget {
                 children: [
                   FilledButton.icon(
                     onPressed: () {
-                      context.go('/welcome/signup');
+                      showSignUpSheet(context);
                     },
                     label: const Text('Create Account'),
                     icon: const Icon(Symbols.person_add_rounded),
                   ),
                   OutlinedButton.icon(
                     onPressed: () {
-                      context.go('/welcome/signin');
+                      showSignInSheet(context);
                     },
                     label: const Text('Sign In'),
                     icon: const Icon(Symbols.person_rounded),

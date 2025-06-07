@@ -1,12 +1,12 @@
 import 'package:beariscope/custom_fab.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
-import 'package:beariscope/widgets/profile_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class MainView extends StatefulWidget {
