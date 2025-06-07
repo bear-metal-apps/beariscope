@@ -1,16 +1,54 @@
-# beariscope
+<h1 align="center">Beariscope</h1>
+<p align="center">
+  <b>The ultimate FRC scouting app</b>
+</p>
 
-The ultimate FRC scouting app developed by Bear Metal, team 2046
+<p align="center">
+  <a href="https://github.com/betterbearmetalcode/beariscope/actions/workflows/linux.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/betterbearmetalcode/beariscope/.github/workflows/linux.yml?label=Linux&logo=github" alt="Linux"/>
+  </a>
+  <a href="https://github.com/betterbearmetalcode/beariscope/actions/workflows/web.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/betterbearmetalcode/beariscope/.github/workflows/web.yml?label=Web&logo=github" alt="Web"/>
+  </a>
+  <a href="https://github.com/betterbearmetalcode/beariscope/actions/workflows/windows.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/betterbearmetalcode/beariscope/.github/workflows/windows.yml?label=Windows&logo=github" alt="Linux"/>
+  </a>
+  <a href="https://github.com/betterbearmetalcode/beariscope/releases">
+    <img src="https://img.shields.io/github/v/release/betterbearmetalcode/beariscope?label=Latest%20Release" alt="Release"/>
+  </a>
+  <a href="https://github.com/betterbearmetalcode/beariscope/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/betterbearmetalcode/beariscope?color=blue" alt="License"/>
+  </a>
+  <a href="https://flutter.dev/">
+    <img src="https://img.shields.io/badge/Built%20with-Flutter-02569B?logo=flutter" alt="Flutter"/>
+  </a>
+</p>
+
+> [!IMPORTANT]
+> Beariscope is under active development! Exciting features are on the way—stay tuned for updates as we build toward the
+> first full release.
+
+---
+
+Beariscope is a next-generation, gamified, and powerful scouting platform for FRC teams, designed and maintained by
+Bear Metal 2046. Fast, beautiful, and open source.
+
+## Features
+
+- Gamified scouting experience with XP, levels, and match wagers[^1]
+- Detailed analytics and insights[^1]
+- Easy data collection and transfer through the cloud[^1]
+- Fast, responsive, and cross-platform
+- Beautiful, intuitive, and customizable UI
+- Mobile and desktop support
+- Built with Flutter
+
+And the best part? It's open for all teams to use, modify, and contribute to!
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To get started with Beariscope, simply download the latest release from
+the [Releases](https://github.com/betterbearmetalcode/beariscope/releases) page. Then, register your team in the app and
+start scouting!
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[^1]: These features, like most, are currently in development and will be available in future releases.
