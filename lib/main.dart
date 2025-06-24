@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:beariscope/pages/auth/verify_email_page.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/data/data_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
@@ -18,6 +19,8 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/providers/team_provider.dart';
+import 'package:libkoala/ui/auth/sign_in_page.dart';
+import 'package:libkoala/ui/auth/sign_up_page.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,8 +31,7 @@ Future<void> main() async {
   Client client = Client();
   client
       .setEndpoint('https://appwrite.bearmet.al/v1')
-      .setProject('68391727001966068b86')
-      .setSelfSigned(status: true); // only use for development
+      .setProject('68391727001966068b86');
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -87,6 +89,24 @@ class _MyAppState extends State<MyApp> {
           builder: (BuildContext context, GoRouterState state) {
             return const WelcomePage();
           },
+          routes: [
+            GoRoute(
+              path: 'sign_in',
+              builder: (BuildContext context, GoRouterState state) {
+                return SignInPage(
+                  onSuccess: () => GoRouter.of(context).go('/home'),
+                );
+              },
+            ),
+            GoRoute(
+              path: 'sign_up',
+              builder: (BuildContext context, GoRouterState state) {
+                return SignUpPage(
+                  onSuccess: () => GoRouter.of(context).go('/home'),
+                );
+              },
+            ),
+          ],
         ),
         ShellRoute(
           builder: (context, state, child) => MainView(child: child),
@@ -146,6 +166,19 @@ class _MyAppState extends State<MyApp> {
               ],
             ),
           ],
+        ),
+        GoRoute(
+          path: '/verify_email',
+          builder: (context, state) {
+            final userId = state.uri.queryParameters['userId'] ?? '';
+            final secret = state.uri.queryParameters['secret'] ?? '';
+            final expire = state.uri.queryParameters['expire'] ?? '';
+            return VerifyEmailPage(
+              userId: userId,
+              secret: secret,
+              expire: expire,
+            );
+          },
         ),
         GoRoute(
           path: '/',

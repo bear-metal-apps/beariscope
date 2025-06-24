@@ -130,6 +130,16 @@ class UserPage extends StatelessWidget {
                           )
                           : Text('Sign Out'),
                 ),
+                const SizedBox(height: 8),
+                FilledButton.icon(
+                  onPressed: () {
+                    authProvider.account.createVerification(
+                      url: 'https://scout.bearmet.al/verify_email',
+                    );
+                  },
+                  icon: const Icon(Symbols.email_rounded),
+                  label: const Text('Resend Verification Email'),
+                ),
               ],
             );
           } else {
