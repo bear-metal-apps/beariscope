@@ -61,10 +61,10 @@ packages:
     dependency: transitive
     description:
       name: checked_yaml
-      sha256: feb6bed21949061731a7a75fc5d2aa727cf160b91af9a3e464c5e3a32e28b5ff
+      sha256: "959525d3162f249993882720d52b7e0c833978df229be20702b33d48d91de70f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.4"
   cli_util:
     dependency: transitive
     description:
@@ -268,10 +268,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "0b1e06223bee260dee31a171fb1153e306907563a0b0225e8c1733211911429a"
+      sha256: b453934c36e289cef06525734d1e676c1f91da9e22e2017d9dcab6ce0f999175
       url: "https://pub.dev"
     source: hosted
-    version: "15.1.2"
+    version: "15.1.3"
   http:
     dependency: transitive
     description:
@@ -333,7 +333,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "849e468e4b2312d619d2e38d79d68138d60abd7d"
+      resolved-ref: "6cdd8dd4f52c3c49e5a1483253e3874deaab5dc8"
       url: "https://github.com/betterbearmetalcode/libkoala.git"
     source: git
     version: "0.0.1"
