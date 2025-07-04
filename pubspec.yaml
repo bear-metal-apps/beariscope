@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   appwrite: ^17.0.0
+  awesome_emoji_picker: ^1.0.5
   cupertino_icons: ^1.0.8
   file_picker: ^10.1.2
   flutter:
@@ -22,7 +23,8 @@ dependencies:
     sdk: flutter
   go_router: ^15.0.0
   libkoala:
-    git: https://github.com/betterbearmetalcode/libkoala.git
+    #    git: https://github.com/betterbearmetalcode/libkoala.git
+    path: /home/jackj/Projects/Bear Metal/libkoala
   logger: ^2.5.0
   material_symbols_icons: ^4.2808.1
   path_provider: ^2.1.5

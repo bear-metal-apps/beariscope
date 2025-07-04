@@ -55,39 +55,39 @@ class _JoinTeamPageState extends State<JoinTeamPage> {
             const SizedBox(height: 16),
             FilledButton(
               onPressed:
-                  !_isLoading && _joinCodeController.text.isNotEmpty
-                      ? () {
+                  !_isLoading && _joinCodeController.text.length == 6
+                      ? () async {
                         setState(() {
                           _isLoading = true;
                         });
 
                         final String joinCode = _joinCodeController.text;
 
-                        teamProvider.useJoinCode(joinCode).then((_) {
-                          // Wait a moment because magic sauce
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            teamProvider
-                                .refreshCurrentTeam()
-                                .then((_) {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                  if (!mounted) return;
-                                  context.go('/you');
-                                })
-                                .catchError((error) {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                  if (!mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Error: ${error.toString()}',
-                                      ),
-                                    ),
-                                  );
-                                });
+                        bool success = await teamProvider.useJoinCode(joinCode);
+
+                        if (!success) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                teamProvider.error ??
+                                    'Failed to use Join Code.',
+                              ),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Wait a moment because magic sauce (appwrite needs to process)
+                        Future.delayed(const Duration(milliseconds: 500), () {
+                          teamProvider.refreshCurrentTeam().then((_) {
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            context.go('/you');
                           });
                         });
                       }

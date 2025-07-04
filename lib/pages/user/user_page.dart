@@ -1,8 +1,10 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/providers/team_provider.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
+import 'package:libkoala/ui/widgets/team_logo.dart';
 import 'package:libkoala/ui/widgets/tileable_card.dart';
 import 'package:libkoala/ui/widgets/tileable_card_view.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -68,7 +70,7 @@ class UserPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 16,
               children: [
-                ProfilePicture(size: 48, ring: false),
+                ProfilePicture(size: 48, client: context.read<Client>()),
                 Text(
                   user.name,
                   style: const TextStyle(
@@ -130,7 +132,6 @@ class UserPage extends StatelessWidget {
                           )
                           : Text('Sign Out'),
                 ),
-                const SizedBox(height: 8),
                 FilledButton.icon(
                   onPressed: () {
                     authProvider.account.createVerification(
@@ -170,21 +171,10 @@ class UserPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 28,
-              child: Image.network(
-                'https://www.thebluealliance.com/avatar/2025/frc${teamProvider.teamNumber}.png',
-                width: 32,
-                height: 32,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, _) {
-                  return Icon(
-                    Symbols.group_rounded,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  );
-                },
-              ),
+            TeamLogo(
+              teamNumber: teamProvider.teamNumber,
+              size: 48,
+              client: context.read<Client>(),
             ),
             const SizedBox(height: 4),
             Text(

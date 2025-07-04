@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
+  awesome_emoji_picker:
+    dependency: "direct main"
+    description:
+      name: awesome_emoji_picker
+      sha256: "72c5c7a4423901978de5a89b28a4ce749a70f50cff89473a8aec2df5c603d3d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   boolean_selector:
     dependency: transitive
     description:
@@ -331,11 +339,9 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "92a58b057b5f408f9e24bcfe1cc13ddcc83c7a05"
-      url: "https://github.com/betterbearmetalcode/libkoala.git"
-    source: git
+      path: "/home/jackj/Projects/Bear Metal/libkoala"
+      relative: false
+    source: path
     version: "0.0.1"
   lints:
     dependency: transitive
@@ -517,10 +523,10 @@ packages:
     dependency: transitive
     description:
       name: posix
-      sha256: f0d7856b6ca1887cfa6d1d394056a296ae33489db914e365e2044fdada449e62
+      sha256: "6323a5b0fa688b6a010df4905a56b00181479e6d10534cecfecede2aa55add61"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "6.0.3"
   provider:
     dependency: "direct main"
     description:

@@ -5,6 +5,7 @@ import 'package:beariscope/pages/data/data_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/user/create_team_onboarding.dart';
 import 'package:beariscope/pages/user/create_team_page.dart';
 import 'package:beariscope/pages/user/join_team_page.dart';
 import 'package:beariscope/pages/user/manage_team_page.dart';
@@ -146,6 +147,18 @@ class _MyAppState extends State<MyApp> {
                   builder: (BuildContext context, GoRouterState state) {
                     return const CreateTeamPage();
                   },
+                  routes: [
+                    GoRoute(
+                      path: 'onboarding/:teamId',
+                      builder: (BuildContext context, GoRouterState state) {
+                        final teamId = state.pathParameters['teamId']!;
+                        if (teamId.isEmpty) {
+                          return const Center(child: Text('Team ID is empty'));
+                        }
+                        return CreateTeamOnboarding(teamId: teamId);
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'manage_team/:teamId',
