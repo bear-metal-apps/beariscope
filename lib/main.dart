@@ -9,6 +9,7 @@ import 'package:beariscope/pages/user/create_team_page.dart';
 import 'package:beariscope/pages/user/join_team_page.dart';
 import 'package:beariscope/pages/user/manage_team_page.dart';
 import 'package:beariscope/pages/user/settings_page.dart';
+import 'package:beariscope/pages/user/ui_creator_page.dart';
 import 'package:beariscope/pages/user/user_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart' // if on web
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart'; // if on desktop or mobile
@@ -161,6 +162,12 @@ class _MyAppState extends State<MyApp> {
                   path: 'settings',
                   builder: (BuildContext context, GoRouterState state) {
                     return const SettingsPage();
+                  },
+                ),
+                GoRoute(
+                  path: 'ui_creator',
+                  builder: (BuildContext context, GoRouterState state) {
+                    return const UiCreatorPage();
                   },
                 ),
               ],
