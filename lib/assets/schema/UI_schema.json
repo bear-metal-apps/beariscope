@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Beariscope UI Schema",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/metaData"
+      }
+    },
+    "auto": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/uiComponent"
+      }
+    },
+    "tele": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/uiComponent"
+      }
+    },
+    "endgame": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/uiComponent"
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "auto",
+    "tele",
+    "endgame"
+  ],
+  "$defs": {
+    "metaData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "string",
+            "boolean"
+          ]
+        },
+        "enum": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "required": [
+        "id",
+        "display_name",
+        "type"
+      ]
+    },
+
+    "uiComponent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "points": {
+          "x1": {
+            "type": "integer"
+          },
+          "y1": {
+            "type": "integer"
+          },
+          "x2": {
+            "type": "integer"
+          },
+          "y2": {
+            "type": "integer"
+          }
+        },
+        "button_color_hex": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "string",
+            "boolean"
+          ]
+        },
+        "enum": {
+          "type": "array",
+          "items": {}
+        }
+      },
+      "required": [
+        "id",
+        "display_name",
+        "points",
+        "type"
+      ]
+    }
+  }
+}

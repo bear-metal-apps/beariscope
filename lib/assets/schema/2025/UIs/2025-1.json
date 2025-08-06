@@ -1,0 +1,196 @@
+{
+  "$schema": "/lib/assets/schema/UI_schema.json",
+  "metadata": [
+    {
+      "id": "button_opacity",
+      "display_name": "Button Opacity",
+      "type": "integer"
+    },
+    {
+      "id": "text_font",
+      "display_name": "Font",
+      "type": "string"
+    },
+    {
+      "id": "grid_x",
+      "display_name": "X Vertex Count",
+      "type": "integer"
+    },
+    {
+      "id": "grid_y",
+      "display_name": "Y Vertex Count",
+      "type": "integer"
+    },
+    {
+      "id": "scouting_type",
+      "display_name": "Scouting Type",
+      "type": "string"
+    }
+  ],
+  "auto": [
+    {
+      "id": "stopped",
+      "display_name": "Stopped",
+      "type": "boolean"
+    },
+    {
+      "id": "collected_algae",
+      "display_name": "Collected Algae",
+      "type": "integer"
+    },
+    {
+      "id": "reef_removed_algae",
+      "display_name": "Removed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "processed_algae",
+      "display_name": "Processed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "collected_coral",
+      "display_name": "Collected Coral",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_placed",
+      "display_name": "L1 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_missed",
+      "display_name": "L1 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_placed",
+      "display_name": "L2 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_missed",
+      "display_name": "L2 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_placed",
+      "display_name": "L3 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_missed",
+      "display_name": "L3 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_placed",
+      "display_name": "L4 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_missed",
+      "display_name": "L4 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "net_scored",
+      "display_name": "Net Scored",
+      "type": "integer"
+    },
+    {
+      "id": "net_missed",
+      "display_name": "Net Missed",
+      "type": "integer"
+    }
+  ],
+  "tele": [
+    {
+      "id": "lost_comms",
+      "display_name": "Lost Comms",
+      "type": "boolean"
+    },
+    {
+      "id": "played_defense",
+      "display_name": "Played Defense",
+      "type": "boolean"
+    },
+    {
+      "id": "reef_removed_algae",
+      "display_name": "Removed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "processed_algae",
+      "display_name": "Processed Algae",
+      "type": "integer"
+    },
+    {
+      "id": "collected_coral",
+      "display_name": "Collected Coral",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_placed",
+      "display_name": "L1 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_1_missed",
+      "display_name": "L1 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_placed",
+      "display_name": "L2 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_2_missed",
+      "display_name": "L2 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_placed",
+      "display_name": "L3 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_3_missed",
+      "display_name": "L3 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_placed",
+      "display_name": "L4 Placed",
+      "type": "integer"
+    },
+    {
+      "id": "reef_level_4_missed",
+      "display_name": "L4 Missed",
+      "type": "integer"
+    },
+    {
+      "id": "net_scored",
+      "display_name": "Net Scored",
+      "type": "integer"
+    },
+    {
+      "id": "net_missed",
+      "display_name": "Net Missed",
+      "type": "integer"
+    }
+  ],
+  "endgame": [
+    {
+      "id": "cage",
+      "display_name": "Cage",
+      "type": "string",
+      "enum": [
+        "park",
+        "shallow",
+        "deep"
+      ]
+    }
+  ]
+}
