@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/team_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:provider/provider.dart';
 
 class ManageTeamPage extends StatelessWidget {
   const ManageTeamPage({super.key, required this.teamId});
@@ -12,14 +8,14 @@ class ManageTeamPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final teamProvider = context.watch<TeamProvider>();
+    // final teamProvider = context.watch<TeamProvider>();
 
     return DefaultTabController(
       initialIndex: 0,
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Manage ${teamProvider.teamName}'),
+          title: Text('Manage [team name here]'),
           actionsPadding: const EdgeInsets.only(right: 16),
           actions: [
             PopupMenuButton<String>(
@@ -64,10 +60,10 @@ class ManageTeamPage extends StatelessWidget {
                       ) ??
                       false;
                   if (confirmed && context.mounted) {
-                    await teamProvider.leaveTeam();
-                    if (context.mounted) {
-                      context.go('/you');
-                    }
+                    // await teamProvider.leaveTeam();
+                    // if (context.mounted) {
+                    //   context.go('/you');
+                    // }
                   }
                 }
               },
@@ -86,8 +82,8 @@ class ManageTeamPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            _buildMembersTab(context, teamProvider),
-            _buildJoinCodesTab(context, teamProvider),
+            _buildMembersTab(context),
+            _buildJoinCodesTab(context),
             _buildRolesTab(context),
             _buildOnboardingTab(context),
             _buildSettingsTab(context),
@@ -97,45 +93,14 @@ class ManageTeamPage extends StatelessWidget {
     );
   }
 
-  Center _buildMembersTab(BuildContext context, TeamProvider teamProvider) {
+  Center _buildMembersTab(BuildContext context) {
     // Placeholder for members tab content
     return Center(child: Text('Members in $teamId'));
   }
 
-  Center _buildJoinCodesTab(BuildContext context, TeamProvider teamProvider) {
-    return Center(
-      child: OutlinedButton.icon(
-        onPressed: () async {
-          String joinCode = await teamProvider.createJoinCode() ?? '';
-
-          if (!context.mounted) return;
-          if (joinCode.isNotEmpty) {
-            await showDialog(
-              context: context,
-              builder:
-                  (context) => AlertDialog(
-                    title: const Text('Join Code'),
-                    content: Text('Join code: $joinCode'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: joinCode));
-                        },
-                        child: const Text('Copy'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-            );
-          }
-        },
-        icon: const Icon(Symbols.qr_code_2_rounded),
-        label: const Text('Create Join Code'),
-      ),
-    );
+  Center _buildJoinCodesTab(BuildContext context) {
+    // Placeholder for join codes tab content
+    return Center(child: Text('Join Codes for $teamId'));
   }
 
   Center _buildRolesTab(BuildContext context) {

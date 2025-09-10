@@ -1,28 +1,18 @@
-import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/auth_provider.dart';
-import 'package:libkoala/providers/team_provider.dart';
+import 'package:libkoala/providers/user_info_provider.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
-import 'package:libkoala/ui/widgets/team_logo.dart';
 import 'package:libkoala/ui/widgets/tileable_card.dart';
 import 'package:libkoala/ui/widgets/tileable_card_view.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:provider/provider.dart';
 
-class UserPage extends StatelessWidget {
+class UserPage extends ConsumerWidget {
   const UserPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final isAuthenticated = authProvider.isAuthed;
-
-    List<Widget> cards = [
-      _buildUserCard(context, authProvider),
-      _buildTeamCard(context),
-    ];
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Account'),
@@ -37,196 +27,74 @@ class UserPage extends StatelessWidget {
         ],
       ),
 
-      body:
-          !isAuthenticated
-              ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Sign in to view your account details.'),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: () {
-                        context.go('/welcome');
-                      },
-                      icon: const Icon(Symbols.logout_rounded),
-                      label: const Text('Exit Guest Mode'),
-                    ),
-                  ],
-                ),
-              )
-              : TileableCardView(children: cards),
+      body: TileableCardView(children: [_buildUserCard(context, ref)]),
     );
   }
 
-  Widget _buildUserCard(BuildContext context, AuthProvider authProvider) {
+  Widget _buildUserCard(BuildContext context, WidgetRef ref) {
+    final auth = ref.read(authProvider);
+    final userInfo = ref.watch(userInfoProvider);
+
     return TileableCard(
       child: Builder(
         builder: (context) {
-          if (authProvider.user != null) {
-            final user = authProvider.user!;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 16,
-              children: [
-                ProfilePicture(size: 48, client: context.read<Client>()),
-                Text(
-                  user.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              ProfilePicture(size: 48),
+              Text(
+                userInfo.value?.name ?? 'Unknown User',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                FilledButton.icon(
-                  onPressed: () async {
-                    final bool confirmed =
-                        await showDialog(
-                          context: context,
-                          builder:
-                              (context) => AlertDialog(
-                                title: const Text('Sign Out'),
-                                content: const Text(
-                                  'Are you sure you want to sign out?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed:
-                                        () => Navigator.of(context).pop(false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                    style: TextButton.styleFrom(
-                                      foregroundColor:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                    child: const Text('Sign Out'),
-                                  ),
-                                ],
+              ),
+              FilledButton.icon(
+                onPressed: () async {
+                  final bool confirmed =
+                      await showDialog(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: const Text('Sign Out'),
+                              content: const Text(
+                                'Are you sure you want to sign out?',
                               ),
-                        ) ??
-                        false;
-                    if (confirmed && context.mounted) {
-                      await authProvider.signOut();
-                      if (context.mounted) {
-                        context.go('/welcome');
-                      }
-                    }
-                  },
-                  icon:
-                      authProvider.isLoading
-                          ? null
-                          : Icon(Symbols.logout_rounded),
-                  label:
-                      authProvider.isLoading
-                          ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(context).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(true);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                  child: const Text('Sign Out'),
+                                ),
+                              ],
                             ),
-                          )
-                          : Text('Sign Out'),
-                ),
-                FilledButton.icon(
-                  onPressed: () {
-                    authProvider.account.createVerification(
-                      url: 'https://scout.bearmet.al/verify_email',
-                    );
-                  },
-                  icon: const Icon(Symbols.email_rounded),
-                  label: const Text('Resend Verification Email'),
-                ),
-              ],
-            );
-          } else {
-            return const Text('No user data available');
-          }
+                      ) ??
+                      false;
+                  if (confirmed && context.mounted) {
+                    await auth.logout();
+                    // if (context.mounted) {
+                    // context.go('/welcome');
+                    // }
+                  }
+                },
+                icon: Icon(Symbols.logout_rounded),
+                label: Text('Sign Out'),
+              ),
+            ],
+          );
         },
       ),
     );
-  }
-
-  Widget _buildTeamCard(BuildContext context) {
-    final teamProvider = context.watch<TeamProvider>();
-
-    if (teamProvider.isLoading) {
-      return TileableCard(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [const CircularProgressIndicator()],
-          ),
-        ),
-      );
-    }
-
-    if (teamProvider.hasTeam) {
-      return TileableCard(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TeamLogo(
-              teamNumber: teamProvider.teamNumber,
-              size: 48,
-              client: context.read<Client>(),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              teamProvider.teamName,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text('Team ${teamProvider.teamNumber}'),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.go('/you/manage_team/${teamProvider.currentTeam?.$id}');
-              },
-              icon: const Icon(Symbols.group_rounded),
-              label: const Text('Manage Team'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return TileableCard(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'You aren\'t on a team yet',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Join an existing team or create a new one',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.go('/you/join_team');
-              },
-              icon: const Icon(Symbols.person_add_rounded),
-              label: const Text('Join Team'),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () {
-                context.go('/you/create_team');
-              },
-              icon: const Icon(Symbols.group_add_rounded),
-              label: const Text('Create Team'),
-            ),
-          ],
-        ),
-      );
-    }
   }
 }

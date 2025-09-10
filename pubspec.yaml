@@ -9,13 +9,13 @@ environment:
   flutter: ^3.0.0
 
 dependencies:
-  appwrite: ^17.0.0
   awesome_emoji_picker: ^1.0.5
   cupertino_icons: ^1.0.8
   file_picker: ^10.1.2
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.14.3
+  flutter_riverpod: ^2.6.1
   flutter_speed_dial: ^7.0.0
   flutter_staggered_grid_view: ^0.7.0
   flutter_svg: ^2.0.17
@@ -23,13 +23,14 @@ dependencies:
     sdk: flutter
   go_router: ^15.0.0
   libkoala:
-    git: https://github.com/betterbearmetalcode/libkoala.git
-  #    path: /home/jackj/Projects/Bear Metal/libkoala
+#    git: https://github.com/betterbearmetalcode/libkoala.git
+    path: /home/jackj/Projects/Bear Metal/libkoala
   logger: ^2.5.0
   material_symbols_icons: ^4.2808.1
   path_provider: ^2.1.5
   percent_indicator: ^4.2.5
   provider: ^6.1.2
+  riverpod_annotation: ^2.6.1
   shared_preferences: ^2.5.2
   simple_icons: ^14.6.1
   url_launcher: ^6.3.1
@@ -42,6 +43,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  riverpod_generator: ^2.6.5
+  build_runner: ^2.5.4
+  custom_lint: ^0.7.6
+  riverpod_lint: ^2.6.5
 
 flutter:
   uses-material-design: true

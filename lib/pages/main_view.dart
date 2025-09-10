@@ -1,4 +1,3 @@
-import 'package:appwrite/appwrite.dart';
 import 'package:beariscope/custom_fab.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:provider/provider.dart';
 
 class MainView extends StatefulWidget {
   final Widget child;
@@ -69,7 +67,7 @@ class _MainViewState extends State<MainView> {
         _buildNavBarDestination(1, Symbols.explore_rounded, 'Scout'),
         _buildNavBarDestination(2, Symbols.chart_data_rounded, 'Data'),
         NavigationDestination(
-          icon: ProfilePicture(size: 12, client: context.read<Client>()),
+          icon: ProfilePicture(size: 12),
           label: 'You',
           tooltip: "",
         ),
@@ -149,7 +147,7 @@ class _MainViewState extends State<MainView> {
           const EdgeInsets.symmetric(vertical: 6.0),
         ),
         NavigationRailDestination(
-          icon: ProfilePicture(size: 12, client: context.read<Client>()),
+          icon: ProfilePicture(size: 12),
           label: const Text('You'),
           padding: const EdgeInsets.symmetric(vertical: 6.0),
         ),
