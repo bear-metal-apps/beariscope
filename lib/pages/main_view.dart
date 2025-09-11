@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class MainView extends StatefulWidget {
@@ -19,7 +18,12 @@ class MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<MainView> {
-  static const List<String> _routes = ['/home', '/scout', '/data', '/you'];
+  static const List<String> _routes = [
+    '/home',
+    '/teams',
+    '/analytics',
+    '/scout',
+  ];
 
   int get _selectedIndex {
     final String location = GoRouterState.of(context).uri.toString();
@@ -64,13 +68,9 @@ class _MainViewState extends State<MainView> {
       onDestinationSelected: _handleNavigation,
       destinations: [
         _buildNavBarDestination(0, Symbols.home_rounded, 'Home'),
-        _buildNavBarDestination(1, Symbols.explore_rounded, 'Scout'),
-        _buildNavBarDestination(2, Symbols.chart_data_rounded, 'Data'),
-        NavigationDestination(
-          icon: ProfilePicture(size: 12),
-          label: 'You',
-          tooltip: "",
-        ),
+        _buildNavBarDestination(1, Symbols.groups_rounded, 'Teams'),
+        _buildNavBarDestination(2, Symbols.bid_landscape_rounded, 'Analytics'),
+        _buildNavBarDestination(3, Symbols.explore_rounded, 'Scout'),
       ],
     );
   }
@@ -128,29 +128,10 @@ class _MainViewState extends State<MainView> {
       groupAlignment: -1.0,
       labelType: NavigationRailLabelType.all,
       destinations: <NavigationRailDestination>[
-        _buildNavRailDestination(
-          0,
-          Symbols.home_rounded,
-          'Home',
-          const EdgeInsets.only(top: 10, bottom: 6),
-        ),
-        _buildNavRailDestination(
-          1,
-          Symbols.explore_rounded,
-          'Scout',
-          const EdgeInsets.symmetric(vertical: 6.0),
-        ),
-        _buildNavRailDestination(
-          2,
-          Symbols.chart_data_rounded,
-          'Data',
-          const EdgeInsets.symmetric(vertical: 6.0),
-        ),
-        NavigationRailDestination(
-          icon: ProfilePicture(size: 12),
-          label: const Text('You'),
-          padding: const EdgeInsets.symmetric(vertical: 6.0),
-        ),
+        _buildNavRailDestination(0, Symbols.home_rounded, 'Home'),
+        _buildNavRailDestination(1, Symbols.groups_rounded, 'Teams'),
+        _buildNavRailDestination(2, Symbols.bid_landscape_rounded, 'Analytics'),
+        _buildNavRailDestination(3, Symbols.explore_rounded, 'Scout'),
       ],
       selectedIndex: _selectedIndex,
       onDestinationSelected: _handleNavigation,
@@ -161,7 +142,6 @@ class _MainViewState extends State<MainView> {
     int index,
     IconData icon,
     String label,
-    EdgeInsetsGeometry padding,
   ) {
     return NavigationRailDestination(
       icon: TweenAnimationBuilder<double>(
@@ -176,7 +156,7 @@ class _MainViewState extends State<MainView> {
         },
       ),
       label: Text(label),
-      padding: padding,
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
     );
   }
 
