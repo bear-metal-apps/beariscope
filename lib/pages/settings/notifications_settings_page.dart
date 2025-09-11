@@ -7,8 +7,8 @@ class NotificationsSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notifications')),
-      body: Center(child: Text('Notifications')),
+      appBar: AppBar(title: const Text('Notifications')),
+      body: Center(child: const Text('Notifications')),
     );
   }
 }

@@ -7,8 +7,8 @@ class AboutSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('About')),
-      body: Center(child: Text('About')),
+      appBar: AppBar(title: const Text('About')),
+      body: Center(child: const Text('About')),
     );
   }
 }

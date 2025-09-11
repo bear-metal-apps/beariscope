@@ -156,7 +156,7 @@ class _MainViewState extends State<MainView> {
         },
       ),
       label: Text(label),
-      padding: EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
     );
   }
 

@@ -7,8 +7,8 @@ class AppearanceSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('Appearance')),
-      body: Center(child: Text('Appearance')),
+      appBar: AppBar(title: const Text('Appearance')),
+      body: Center(child: const Text('Appearance')),
     );
   }
 }

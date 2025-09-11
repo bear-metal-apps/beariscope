@@ -7,8 +7,8 @@ class AccountSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text('Account')),
-      body: Center(child: Text('Account')),
+      appBar: AppBar(title: const Text('Account')),
+      body: Center(child: const Text('Account')),
     );
   }
 }

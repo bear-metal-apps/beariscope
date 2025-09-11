@@ -603,9 +603,11 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "/home/jackj/Projects/2046/libkoala"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "1e41c3ec71c946fae45cc936dc169e9df6534287"
+      url: "https://github.com/betterbearmetalcode/libkoala.git"
+    source: git
     version: "0.0.1"
   lints:
     dependency: transitive
