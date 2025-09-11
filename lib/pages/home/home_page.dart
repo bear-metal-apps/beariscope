@@ -11,12 +11,15 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Home'),
         actions: [
-          InkWell(
-            onTap: () {
-              context.push('/settings');
-            },
-            borderRadius: BorderRadius.circular(24),
-            child: ProfilePicture(),
+          Tooltip(
+            message: 'Settings',
+            child: InkWell(
+              onTap: () {
+                context.push('/settings');
+              },
+              borderRadius: BorderRadius.circular(24),
+              child: ProfilePicture(),
+            ),
           ),
         ],
         actionsPadding: const EdgeInsets.only(right: 16),

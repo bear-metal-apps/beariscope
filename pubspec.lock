@@ -603,7 +603,7 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "/home/jackj/Projects/Bear Metal/libkoala"
+      path: "/home/jackj/Projects/2046/libkoala"
       relative: false
     source: path
     version: "0.0.1"

@@ -4,9 +4,13 @@ import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/settings/about_settings_page.dart';
+import 'package:beariscope/pages/settings/account_settings_page.dart';
+import 'package:beariscope/pages/settings/appearance_settings_page.dart';
+import 'package:beariscope/pages/settings/manage_team_page.dart';
+import 'package:beariscope/pages/settings/notifications_settings_page.dart';
+import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/teams/teams_page.dart';
-import 'package:beariscope/pages/user/manage_team_page.dart';
-import 'package:beariscope/pages/user/settings_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -97,6 +101,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         builder: (context, state) => const SettingsPage(),
         routes: [
+          GoRoute(
+            path: 'account',
+            builder: (context, state) {
+              return const AccountSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'notifications',
+            builder: (context, state) {
+              return const NotificationsSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'appearance',
+            builder: (context, state) {
+              return const AppearanceSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'about',
+            builder: (context, state) {
+              return const AboutSettingsPage();
+            },
+          ),
           GoRoute(
             path: 'licenses',
             builder: (context, state) {
