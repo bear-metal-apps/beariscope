@@ -1,0 +1,31 @@
+name: Task
+description: A non-technical or low-effort technical task
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Description
+        Describe the task that needs to be completed.
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What is the task?
+      placeholder: Describe the task here.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional Context
+        Provide any additional context or resources that will help complete the task.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any other context or resources.
+      placeholder: e.g., links, references, related issues.
+    validations:
+      required: false

@@ -1,0 +1,59 @@
+name: Feature
+description: A request, idea, or new functionality
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Summary
+        A concise summary of the feature you are requesting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: Briefly describe the feature.
+      placeholder: e.g., Add support for dark mode.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Detailed Explanation
+        Provide a detailed description of how the feature should work.
+  - type: textarea
+    id: details
+    attributes:
+      label: Detailed Explanation
+      description: Describe the feature in detail.
+      placeholder: e.g., When enabled, the UI switches to a dark color scheme.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Alternatives
+        Describe any alternative solutions or features you've considered.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: List alternative solutions or features.
+      placeholder: e.g., Use a browser extension for dark mode.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional Context
+        Add any other context or screenshots about the feature request here.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any other context or screenshots.
+      placeholder: e.g., links, references, related issues.
+    validations:
+      required: false

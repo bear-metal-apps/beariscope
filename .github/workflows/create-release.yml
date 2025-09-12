@@ -1,3 +1,4 @@
+# yaml
 name: Create GitHub Release
 
 permissions:
@@ -13,6 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Extract changelog section
+        id: extract_changelog
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # extract lines after "## vX.Y.Z" up to next "## " header
+          sed -n "/^## ${TAG}\$/,/^## /{/^## ${TAG}\$/d;/^## /d;p}" CHANGELOG.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "No changelog section for ${TAG}" >&2
+            exit 1
+          fi
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -20,6 +33,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: ${{ github.ref_name }}
-          body_path: CHANGELOG.md
+          body_path: release_notes.md
           draft: false
           prerelease: false
