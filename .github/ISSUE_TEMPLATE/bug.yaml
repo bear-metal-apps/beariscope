@@ -2,24 +2,15 @@ name: Bug
 description: An unexpected problem or behavior
 type: Bug
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Description
-        A clear and concise description of what the bug is.
   - type: textarea
     id: description
     attributes:
       label: Bug Description
       description: What happened? What did you expect?
-      placeholder: Describe the bug here.
+      placeholder: e.g., The app crashes when I click the save button.
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Steps to Reproduce
   - type: textarea
     id: steps
     attributes:
@@ -33,44 +24,28 @@ body:
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Expected Behavior
   - type: textarea
     id: expected
     attributes:
       label: Expected Behavior
       description: What did you expect to happen?
-      placeholder: Describe the expected behavior.
+      placeholder: e.g., The app should save the file without crashing.
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Screenshots or Logs
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots or Logs
-      description: Add screenshots or logs if applicable.
-      placeholder: Paste screenshots or logs here.
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ## Environment Details
-  - type: input
+  - type: dropdown
     id: os
     attributes:
       label: OS
       description: Which operating system?
-      placeholder: iOS, Android, Windows, macOS, Linux, Web
-    validations:
-      required: true
+      multiple: true
+    options:
+      - Windows
+      - macOS
+      - Linux
+      - Android
+      - iOS
+      - Web
   - type: input
     id: version
     attributes:
@@ -80,15 +55,11 @@ body:
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Additional Context
   - type: textarea
     id: context
     attributes:
       label: Additional Context
-      description: Add any other context about the problem here.
-      placeholder: e.g., links, references, related issues.
+      description: Add any other context about the bug here.
+      placeholder: e.g., links, logs, references, related issues.
     validations:
       required: false
