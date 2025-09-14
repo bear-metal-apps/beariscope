@@ -38,15 +38,17 @@ Future<void> main() async {
 }
 
 // Makes the router refresh when auth status changes
-final _authRouterNotifierProvider = Provider<ChangeNotifier>((ref) {
-  final notifier = ChangeNotifier();
+class RouterRefreshNotifier extends ChangeNotifier {
+  void refresh() => notifyListeners();
+}
+
+final _authRouterNotifierProvider = Provider<RouterRefreshNotifier>((ref) {
+  final notifier = RouterRefreshNotifier();
+  ref.onDispose(notifier.dispose);
+
   ref.listen<AuthStatus>(authStatusProvider, (prev, next) {
     if (prev != next) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) =>
-            notifier
-                .notifyListeners(), //error is fine this just makes it not call during build
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifier.refresh());
     }
   });
   return notifier;
