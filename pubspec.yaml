@@ -25,7 +25,7 @@ dependencies:
   libkoala:
     git: https://github.com/betterbearmetalcode/libkoala.git
   logger: ^2.6.1
-  material_symbols_icons: ^4.2808.1
+  material_symbols_icons: ^4.2873.0
   package_info_plus: ^8.3.1
   path_provider: ^2.1.5
   percent_indicator: ^4.2.5
