@@ -1,13 +1,11 @@
-import 'package:beariscope/custom_fab.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
+/// Main shell view with adaptive navigation drawer and FAB.
 class MainView extends StatefulWidget {
   final Widget child;
 
@@ -17,162 +15,182 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
+class _NavItem {
+  final String route;
+  final IconData icon;
+  final String label;
+  final String group;
+
+  const _NavItem(this.route, this.icon, this.label, this.group);
+}
+
 class _MainViewState extends State<MainView> {
-  static const List<String> _routes = [
-    '/home',
-    '/teams',
-    '/analytics',
-    '/scout',
+  static const double _drawerWidth = 280;
+  static const _animationDuration = Duration(milliseconds: 100);
+
+  static const List<_NavItem> _navItems = [
+    _NavItem('/home', Symbols.home_rounded, 'Home', 'General'),
+    _NavItem('/event', Symbols.event_rounded, 'Event', 'General'),
+    _NavItem(
+      '/team_lookup',
+      Symbols.smart_toy_rounded,
+      'Team Lookup',
+      'Insights',
+    ),
+    _NavItem(
+      '/predictions',
+      Symbols.batch_prediction_rounded,
+      'Predictions',
+      'Insights',
+    ),
+    _NavItem('/picklists', Symbols.list_alt_rounded, 'Picklists', 'Insights'),
+    _NavItem(
+      '/corrections',
+      Symbols.table_edit_rounded,
+      'Data Corrections',
+      'Scouting',
+    ),
+    _NavItem(
+      '/ui_creator',
+      Symbols.dashboard_customize_rounded,
+      'UI Creator',
+      'Scouting',
+    ),
   ];
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   int get _selectedIndex {
-    final String location = GoRouterState.of(context).uri.toString();
-    for (int i = 0; i < _routes.length; i++) {
-      if (location.startsWith(_routes[i])) {
-        return i;
-      }
-    }
-    return 0; // Default is home
+    final location = GoRouterState.of(context).uri.toString();
+    final idx = _navItems.indexWhere((n) => location.startsWith(n.route));
+    return idx < 0 ? 0 : idx;
   }
 
-  bool _isFabOpen = false;
+  void _onDestinationSelected(int index, bool isDesktop) {
+    if (index == _selectedIndex) {
+      if (!isDesktop) Navigator.pop(context);
+      return;
+    }
+
+    context.go(_navItems[index].route);
+    if (!isDesktop) Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = PlatformUtils.useDesktopUI(context);
+
+    final navigationDrawer = SizedBox(
+      width: _drawerWidth,
+      child: NavigationDrawer(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
+        children: _buildNavChildren(),
+      ),
+    );
+    final body =
+        isDesktop
+            ? Row(
+              children: [
+                navigationDrawer,
+                Expanded(child: SafeArea(child: widget.child)),
+              ],
+            )
+            : SafeArea(child: widget.child);
+
     return Scaffold(
-      bottomNavigationBar:
-          !PlatformUtils.useDesktopUI(context) ? _buildNavBar() : null,
-      body: Row(
-        children: [
-          if (PlatformUtils.useDesktopUI(context)) _buildNavRail(),
-          Expanded(child: Center(child: widget.child)),
-        ],
-      ),
-      floatingActionButton: AnimatedOpacity(
-        opacity: !PlatformUtils.useDesktopUI(context) ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 0),
-        child:
-            !PlatformUtils.useDesktopUI(context)
-                ? _buildFloatingActionButton()
-                : const SizedBox.shrink(),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      // Use immediate animator to remove default animations
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      key: _scaffoldKey,
+      appBar:
+          !isDesktop
+              ? AppBar(
+                leading: IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                ),
+              )
+              : null,
+      drawer: !isDesktop ? navigationDrawer : null,
+      drawerEnableOpenDragGesture: !isDesktop,
+      drawerBarrierDismissible: !isDesktop,
+      body: body,
     );
   }
 
-  NavigationBar _buildNavBar() {
-    return NavigationBar(
-      selectedIndex: _selectedIndex,
-      onDestinationSelected: _handleNavigation,
-      destinations: [
-        _buildNavBarDestination(0, Symbols.home_rounded, 'Home'),
-        _buildNavBarDestination(1, Symbols.groups_rounded, 'Teams'),
-        _buildNavBarDestination(2, Symbols.bid_landscape_rounded, 'Analytics'),
-        _buildNavBarDestination(3, Symbols.explore_rounded, 'Scout'),
-      ],
-    );
-  }
+  List<Widget> _buildNavChildren() {
+    final children = <Widget>[];
 
-  NavigationDestination _buildNavBarDestination(
-    int index,
-    IconData icon,
-    String label,
-  ) {
-    return NavigationDestination(
-      icon: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: _selectedIndex == index ? 0.0 : 1.0,
-          end: _selectedIndex == index ? 1.0 : 0.0,
+    children.add(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+        child: Row(
+          children: [
+            SvgPicture.asset(
+              'lib/assets/scuffed_logo.svg',
+              width: 24,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).colorScheme.primary,
+                BlendMode.srcATop,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Beariscope',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
         ),
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.fastOutSlowIn,
-        builder: (context, value, child) {
-          return Icon(icon, weight: 600, fill: value);
-        },
       ),
-      label: label,
-      tooltip: "",
     );
-  }
 
-  NavigationRail _buildNavRail() {
-    return NavigationRail(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-      leading: Column(
-        children: [
-          const SizedBox(height: 16),
-          SvgPicture.asset(
-            'lib/assets/scuffed_logo.svg',
-            width: 28,
-            colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.primary,
-              BlendMode.srcATop,
+    children.add(
+      const Padding(
+        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 28),
+        child: Divider(),
+      ),
+    );
+
+    String? currentGroup;
+    for (final entry in _navItems.indexed) {
+      final index = entry.$1;
+      final item = entry.$2;
+      if (item.group != currentGroup) {
+        if (currentGroup != null) {
+          children.add(
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 28),
+              child: Divider(),
+            ),
+          );
+        }
+        currentGroup = item.group;
+        children.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 10, 16, 16),
+            child: Text(
+              currentGroup,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
           ),
-          const SizedBox(height: 24),
-          CustomFab(
-            direction: SpeedDialDirection.down,
-            switchLabelPosition: true,
-            elevation: 0.0,
-            isOpenOnStart: _isFabOpen,
-            onToggle: (bool isOpen) {
-              setState(() {
-                _isFabOpen = isOpen;
-              });
-            },
-          ).build(context),
-        ],
-      ),
-      groupAlignment: -1.0,
-      labelType: NavigationRailLabelType.all,
-      destinations: <NavigationRailDestination>[
-        _buildNavRailDestination(0, Symbols.home_rounded, 'Home'),
-        _buildNavRailDestination(1, Symbols.groups_rounded, 'Teams'),
-        _buildNavRailDestination(2, Symbols.bid_landscape_rounded, 'Analytics'),
-        _buildNavRailDestination(3, Symbols.explore_rounded, 'Scout'),
-      ],
-      selectedIndex: _selectedIndex,
-      onDestinationSelected: _handleNavigation,
-    );
-  }
-
-  NavigationRailDestination _buildNavRailDestination(
-    int index,
-    IconData icon,
-    String label,
-  ) {
-    return NavigationRailDestination(
-      icon: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: _selectedIndex == index ? 0.0 : 1.0,
-          end: _selectedIndex == index ? 1.0 : 0.0,
+        );
+      }
+      children.add(
+        NavigationDrawerDestination(
+          icon: TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+              begin: _selectedIndex == index ? 0.0 : 1.0,
+              end: _selectedIndex == index ? 1.0 : 0.0,
+            ),
+            duration: _animationDuration,
+            curve: Curves.fastOutSlowIn,
+            builder:
+                (context, value, _) =>
+                    Icon(item.icon, weight: 600, fill: value),
+          ),
+          label: Text(item.label),
         ),
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.fastOutSlowIn,
-        builder: (context, value, child) {
-          return Icon(icon, weight: 600, fill: value);
-        },
-      ),
-      label: Text(label),
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-    );
-  }
+      );
+    }
 
-  Widget _buildFloatingActionButton() {
-    return CustomFab(
-      isOpenOnStart: _isFabOpen,
-      onToggle: (bool isOpen) {
-        setState(() {
-          _isFabOpen = isOpen;
-        });
-      },
-    ).build(context);
-  }
-
-  void _handleNavigation(int index) {
-    HapticFeedback.lightImpact();
-    context.go(_routes[index]);
+    return children;
   }
 }

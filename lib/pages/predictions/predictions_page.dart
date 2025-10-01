@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 
-class TeamsPage extends StatelessWidget {
-  const TeamsPage({super.key});
+class PredictionsPage extends StatelessWidget {
+  const PredictionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Teams'),
+        title: const Text('Predictions'),
         actions: [
           Tooltip(
             message: 'Settings',
@@ -24,7 +24,7 @@ class TeamsPage extends StatelessWidget {
         ],
         actionsPadding: const EdgeInsets.only(right: 16),
       ),
-      body: const Center(child: Text('Teams Page')),
+      body: const Center(child: Text('Predictions Page')),
     );
   }
 }

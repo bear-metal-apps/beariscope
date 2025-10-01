@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 
-class ScoutPage extends StatelessWidget {
-  const ScoutPage({super.key});
+class PicklistsPage extends StatelessWidget {
+  const PicklistsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scout'),
+        title: const Text('Picklists'),
         actions: [
           Tooltip(
             message: 'Settings',
@@ -24,7 +24,7 @@ class ScoutPage extends StatelessWidget {
         ],
         actionsPadding: const EdgeInsets.only(right: 16),
       ),
-      body: const Center(child: Text('Scout Page')),
+      body: const Center(child: Text('Picklists Page')),
     );
   }
 }
