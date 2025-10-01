@@ -11,7 +11,7 @@ import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
-import 'package:beariscope/pages/team_lookup/teams_page.dart';
+import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'

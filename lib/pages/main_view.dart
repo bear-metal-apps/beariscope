@@ -3,9 +3,9 @@ import 'package:beariscope/utils/platform_utils_stub.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-/// Main shell view with adaptive navigation drawer and FAB.
 class MainView extends StatefulWidget {
   final Widget child;
 
@@ -22,6 +22,25 @@ class _NavItem {
   final String group;
 
   const _NavItem(this.route, this.icon, this.label, this.group);
+}
+
+class MainViewController extends InheritedWidget {
+  final VoidCallback openDrawer;
+  final bool isDesktop;
+
+  const MainViewController({
+    super.key,
+    required this.openDrawer,
+    required this.isDesktop,
+    required super.child,
+  });
+
+  static MainViewController of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<MainViewController>()!;
+
+  @override
+  bool updateShouldNotify(MainViewController oldWidget) =>
+      isDesktop != oldWidget.isDesktop;
 }
 
 class _MainViewState extends State<MainView> {
@@ -71,7 +90,6 @@ class _MainViewState extends State<MainView> {
       if (!isDesktop) Navigator.pop(context);
       return;
     }
-
     context.go(_navItems[index].route);
     if (!isDesktop) Navigator.pop(context);
   }
@@ -88,31 +106,22 @@ class _MainViewState extends State<MainView> {
         children: _buildNavChildren(),
       ),
     );
-    final body =
+
+    final childContent =
         isDesktop
-            ? Row(
-              children: [
-                navigationDrawer,
-                Expanded(child: SafeArea(child: widget.child)),
-              ],
-            )
-            : SafeArea(child: widget.child);
+            ? Row(children: [navigationDrawer, Expanded(child: widget.child)])
+            : widget.child;
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar:
-          !isDesktop
-              ? AppBar(
-                leading: IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                ),
-              )
-              : null,
-      drawer: !isDesktop ? navigationDrawer : null,
+      drawer: isDesktop ? null : navigationDrawer,
       drawerEnableOpenDragGesture: !isDesktop,
       drawerBarrierDismissible: !isDesktop,
-      body: body,
+      body: MainViewController(
+        isDesktop: isDesktop,
+        openDrawer: () => _scaffoldKey.currentState?.openDrawer(),
+        child: childContent,
+      ),
     );
   }
 
@@ -121,21 +130,35 @@ class _MainViewState extends State<MainView> {
 
     children.add(
       Padding(
-        padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+        padding: const EdgeInsets.fromLTRB(28, 16, 24, 10),
         child: Row(
           children: [
-            SvgPicture.asset(
-              'lib/assets/scuffed_logo.svg',
-              width: 24,
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcATop,
+            Expanded(
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    'lib/assets/scuffed_logo.svg',
+                    width: 24,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.primary,
+                      BlendMode.srcATop,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Beariscope',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 12),
-            Text(
-              'Beariscope',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            Tooltip(
+              message: 'Settings',
+              child: InkWell(
+                onTap: () => context.push('/settings'),
+                borderRadius: BorderRadius.circular(24),
+                child: ProfilePicture(size: 16),
+              ),
             ),
           ],
         ),
@@ -144,7 +167,7 @@ class _MainViewState extends State<MainView> {
 
     children.add(
       const Padding(
-        padding: EdgeInsets.symmetric(vertical: 0, horizontal: 28),
+        padding: EdgeInsets.symmetric(horizontal: 28),
         child: Divider(),
       ),
     );
@@ -157,7 +180,7 @@ class _MainViewState extends State<MainView> {
         if (currentGroup != null) {
           children.add(
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 0, horizontal: 28),
+              padding: EdgeInsets.symmetric(horizontal: 28),
               child: Divider(),
             ),
           );

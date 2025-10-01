@@ -2,15 +2,15 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class PredictionsPage extends StatelessWidget {
-  const PredictionsPage({super.key});
+class TeamLookupPage extends StatelessWidget {
+  const TeamLookupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Predictions'),
+        title: const Text('Team Lookup'),
         leading:
             controller.isDesktop
                 ? null
@@ -19,7 +19,7 @@ class PredictionsPage extends StatelessWidget {
                   onPressed: controller.openDrawer,
                 ),
       ),
-      body: const Center(child: Text('Predictions Page')),
+      body: const Center(child: Text('Team Lookup Page')),
     );
   }
 }
