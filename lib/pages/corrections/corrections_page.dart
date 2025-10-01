@@ -2,15 +2,15 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class CorrectionsPage extends StatelessWidget {
+  const CorrectionsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Data Corrections'),
         leading:
             controller.isDesktop
                 ? null
@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
                   onPressed: controller.openDrawer,
                 ),
       ),
-      body: const Center(child: Text('Home Page')),
+      body: const Center(child: Text('Data Corrections Page')),
     );
   }
 }

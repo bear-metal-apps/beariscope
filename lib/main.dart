@@ -1,16 +1,17 @@
-// lib/main.dart
-import 'package:beariscope/pages/analytics/analytics_page.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
+import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/event/event_page.dart';
 import 'package:beariscope/pages/home/home_page.dart';
 import 'package:beariscope/pages/main_view.dart';
-import 'package:beariscope/pages/scout/scout_page.dart';
+import 'package:beariscope/pages/picklists/picklists_page.dart';
+import 'package:beariscope/pages/predictions/predictions_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
-import 'package:beariscope/pages/teams/teams_page.dart';
+import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -62,74 +63,78 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     refreshListenable: authListenable,
     routes: <RouteBase>[
-      GoRoute(
-        path: '/welcome',
-        builder: (context, state) => const WelcomePage(),
-      ),
+      GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
       GoRoute(
         path: '/',
         builder:
-            (context, state) => const Scaffold(
+            (_, _) => const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
       ),
       ShellRoute(
-        builder: (context, state, child) => MainView(child: child),
+        builder: (_, _, child) => MainView(child: child),
         routes: [
           GoRoute(
             path: '/home',
-            pageBuilder:
-                (context, state) => const NoTransitionPage(child: HomePage()),
+            pageBuilder: (_, _) => const NoTransitionPage(child: HomePage()),
           ),
           GoRoute(
-            path: '/teams',
-            pageBuilder:
-                (context, state) => const NoTransitionPage(child: TeamsPage()),
+            path: '/event',
+            pageBuilder: (_, _) => const NoTransitionPage(child: EventPage()),
           ),
           GoRoute(
-            path: '/analytics',
+            path: '/team_lookup',
             pageBuilder:
-                (context, state) =>
-                    const NoTransitionPage(child: AnalyticsPage()),
+                (_, _) => const NoTransitionPage(child: TeamLookupPage()),
           ),
           GoRoute(
-            path: '/scout',
+            path: '/predictions',
             pageBuilder:
-                (context, state) => const NoTransitionPage(child: ScoutPage()),
+                (_, _) => const NoTransitionPage(child: PredictionsPage()),
+          ),
+          GoRoute(
+            path: '/picklists',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: PicklistsPage()),
+          ),
+          GoRoute(
+            path: '/corrections',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: CorrectionsPage()),
           ),
         ],
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsPage(),
+        builder: (_, _) => const SettingsPage(),
         routes: [
           GoRoute(
             path: 'account',
-            builder: (context, state) {
+            builder: (_, _) {
               return const AccountSettingsPage();
             },
           ),
           GoRoute(
             path: 'notifications',
-            builder: (context, state) {
+            builder: (_, _) {
               return const NotificationsSettingsPage();
             },
           ),
           GoRoute(
             path: 'appearance',
-            builder: (context, state) {
+            builder: (_, _) {
               return const AppearanceSettingsPage();
             },
           ),
           GoRoute(
             path: 'about',
-            builder: (context, state) {
+            builder: (_, _) {
               return const AboutSettingsPage();
             },
           ),
           GoRoute(
             path: 'licenses',
-            builder: (context, state) {
+            builder: (_, _) {
               return FutureBuilder<PackageInfo>(
                 future: PackageInfo.fromPlatform(),
                 builder: (context, snapshot) {
@@ -144,7 +149,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: 'manage_team/:teamId',
-            builder: (context, state) {
+            builder: (_, state) {
               final teamId = state.pathParameters['teamId'] ?? '';
               return teamId.isEmpty
                   ? const Center(child: Text('Team ID is empty'))
@@ -154,7 +159,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    redirect: (context, state) {
+    redirect: (_, state) {
       final location = state.matchedLocation;
 
       switch (authStatus) {
