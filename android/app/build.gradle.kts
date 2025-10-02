@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "org.tahomarobotics.scouting.beariscope"
+    namespace = "org.tahomarobotics.beariscope"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13113456"
 
@@ -21,10 +21,10 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "org.tahomarobotics.scouting.beariscope"
+        applicationId = "org.tahomarobotics.beariscope"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName

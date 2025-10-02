@@ -8,7 +8,7 @@
 PRODUCT_NAME = Beariscope
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = org.tahomarobotics.scouting.beariscope
+PRODUCT_BUNDLE_IDENTIFIER = org.tahomarobotics.beariscope
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 org.tahomarobotics.scouting. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 Bear Metal Robotics. All rights reserved.

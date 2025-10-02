@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "org.tahomarobotics.scouting" "\0"
+            VALUE "CompanyName", "Bear Metal" "\0"
             VALUE "FileDescription", "beariscope" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "org.tahomarobotics.scouting.beariscope" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 org.tahomarobotics.scouting. All rights reserved." "\0"
+            VALUE "InternalName", "org.tahomarobotics.beariscope" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Bear Metal Robotics. All rights reserved." "\0"
             VALUE "OriginalFilename", "beariscope.exe" "\0"
             VALUE "ProductName", "beariscope" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
