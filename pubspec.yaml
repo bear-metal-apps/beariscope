@@ -24,7 +24,7 @@ dependencies:
   go_router: ^16.2.2
   libkoala:
     git: https://github.com/betterbearmetalcode/libkoala.git
-  logger: ^2.6.1
+  logger: ^2.6.2
   material_symbols_icons: ^4.2808.1
   package_info_plus: ^8.3.1
   path_provider: ^2.1.5
