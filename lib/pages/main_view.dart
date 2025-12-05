@@ -21,7 +21,12 @@ class _NavItem {
   final String label;
   final String group;
 
-  const _NavItem(this.route, this.icon, this.label, this.group);
+  const _NavItem({
+    required this.route,
+    required this.icon,
+    required this.label,
+    required this.group,
+  });
 }
 
 class MainViewController extends InheritedWidget {
@@ -48,32 +53,47 @@ class _MainViewState extends State<MainView> {
   static const _animationDuration = Duration(milliseconds: 100);
 
   static const List<_NavItem> _navItems = [
-    _NavItem('/home', Symbols.home_rounded, 'Home', 'General'),
-    _NavItem('/event', Symbols.event_rounded, 'Event', 'General'),
     _NavItem(
-      '/team_lookup',
-      Symbols.smart_toy_rounded,
-      'Team Lookup',
-      'Insights',
+      route: '/home',
+      icon: Symbols.home_rounded,
+      label: 'Home',
+      group: 'General',
     ),
     _NavItem(
-      '/predictions',
-      Symbols.batch_prediction_rounded,
-      'Predictions',
-      'Insights',
-    ),
-    _NavItem('/picklists', Symbols.list_alt_rounded, 'Picklists', 'Insights'),
-    _NavItem(
-      '/corrections',
-      Symbols.table_edit_rounded,
-      'Data Corrections',
-      'Scouting',
+      route: '/event',
+      icon: Symbols.event_rounded,
+      label: 'Event',
+      group: 'General',
     ),
     _NavItem(
-      '/ui_creator',
-      Symbols.dashboard_customize_rounded,
-      'UI Creator',
-      'Scouting',
+      route: '/team_lookup',
+      icon: Symbols.smart_toy_rounded,
+      label: 'Team Lookup',
+      group: 'Insights',
+    ),
+    _NavItem(
+      route: '/predictions',
+      icon: Symbols.batch_prediction_rounded,
+      label: 'Predictions',
+      group: 'Insights',
+    ),
+    _NavItem(
+      route: '/picklists',
+      icon: Symbols.list_alt_rounded,
+      label: 'Picklists',
+      group: 'Insights',
+    ),
+    _NavItem(
+      route: '/corrections',
+      icon: Symbols.table_edit_rounded,
+      label: 'Data Corrections',
+      group: 'Scouting',
+    ),
+    _NavItem(
+      route: '/ui_creator',
+      icon: Symbols.dashboard_customize_rounded,
+      label: 'UI Creator',
+      group: 'Scouting',
     ),
   ];
 

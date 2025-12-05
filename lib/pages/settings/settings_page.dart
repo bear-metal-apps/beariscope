@@ -11,7 +11,6 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.read(authProvider);
     final userInfo = ref.watch(userInfoProvider);
 
     return Scaffold(
@@ -68,7 +67,7 @@ class SettingsPage extends ConsumerWidget {
                     ) ??
                     false;
                 if (confirmed && context.mounted) {
-                  await auth.logout();
+                  await ref.read(authProvider).logout();
                 }
               },
               icon: const Icon(Symbols.logout_rounded),

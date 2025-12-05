@@ -25,16 +25,18 @@ class _ImportFromJsonPopupState extends State<ImportFromJsonPopup> {
             icon: const Icon(Icons.upload_file),
             label: const Text('Select file'),
             onPressed: () async {
-              final result = await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ['json'],
-              );
-
-              if (result != null) {
-                setState(() {
-                  selectedFile = result.files.first;
-                });
-              }
+              await FilePicker.platform
+                  .pickFiles(type: FileType.custom, allowedExtensions: ['json'])
+                  .then(
+                    (value) => {
+                      if (value != null)
+                        {
+                          setState(() {
+                            selectedFile = value.files.first;
+                          }),
+                        },
+                    },
+                  );
             },
           ),
           const SizedBox(height: 8),
