@@ -33,7 +33,7 @@ Future<void> main() async {
   await initHiveForFlutter();
 
   if (PlatformUtils.isDesktop()) {
-    setWindowMinSize(const Size(450, 640));
+    setWindowMinSize(const Size(500, 600));
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }
