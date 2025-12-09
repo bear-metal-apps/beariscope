@@ -6,7 +6,7 @@ class TeamLookupPage extends StatefulWidget {
   const TeamLookupPage({super.key});
 
   @override
-  _TeamLookupPageState createState() => _TeamLookupPageState();
+  State<TeamLookupPage> createState() => _TeamLookupPageState();
 }
 
 class _TeamLookupPageState extends State<TeamLookupPage> {
