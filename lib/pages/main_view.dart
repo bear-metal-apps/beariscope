@@ -122,7 +122,11 @@ class _MainViewState extends State<MainView> {
         );
 
         final childContent =
-        isDesktop ? Row(children: [navigationDrawer, Expanded(child: widget.child)]) : widget.child;
+            isDesktop
+                ? Row(
+                  children: [navigationDrawer, Expanded(child: widget.child)],
+                )
+                : widget.child;
 
         return Scaffold(
           key: _scaffoldKey,
@@ -219,7 +223,9 @@ class _MainViewState extends State<MainView> {
             ),
             duration: _animationDuration,
             curve: Curves.fastOutSlowIn,
-            builder: (context, value, _) => Icon(item.icon, weight: 600, fill: value),
+            builder:
+                (context, value, _) =>
+                    Icon(item.icon, weight: 600, fill: value),
           ),
           label: Text(item.label),
         ),

@@ -76,7 +76,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'drive_team',
                 pageBuilder:
-                    (_, _) => const NoTransitionPage(child: DriveTeamHomePage()),
+                    (_, _) =>
+                        const NoTransitionPage(child: DriveTeamHomePage()),
               ),
               GoRoute(
                 path: 'corrections',
@@ -86,7 +87,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'pits_scouting',
                 pageBuilder:
-                    (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+                    (_, _) =>
+                        const NoTransitionPage(child: PitsScoutingHomePage()),
               ),
             ],
           ),
@@ -156,7 +158,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         case AuthStatus.authenticating:
           return (location == '/welcome' || location == '/') ? null : '/';
         case AuthStatus.authenticated:
-          return (location == '/' || location == '/welcome') ? '/up_next' : null;
+          return (location == '/' || location == '/welcome')
+              ? '/up_next'
+              : null;
       }
     },
   );
