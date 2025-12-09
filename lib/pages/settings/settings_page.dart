@@ -100,14 +100,14 @@ class SettingsPage extends ConsumerWidget {
                     ListTile(
                       leading: const Icon(Symbols.person_rounded),
                       title: const Text('Account'),
-                      subtitle: const Text('Profile, email, password'),
+                      subtitle: const Text('Email, Password, Roles'),
                       onTap: () => context.push('/settings/account'),
                     ),
                     const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Symbols.notifications_rounded),
                       title: const Text('Notifications'),
-                      subtitle: const Text('Push, email, in-app'),
+                      subtitle: const Text('Queuing, Schedule Release'),
                       onTap: () => context.push('/settings/notifications'),
                     ),
                     const Divider(height: 1),
