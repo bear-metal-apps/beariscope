@@ -2,22 +2,46 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class TeamLookupPage extends StatelessWidget {
+class TeamLookupPage extends StatefulWidget {
   const TeamLookupPage({super.key});
 
   @override
+  State<TeamLookupPage> createState() => _TeamLookupPageState();
+}
+
+class _TeamLookupPageState extends State<TeamLookupPage> {
+  @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
+    final controller = TextEditingController();
+    final main = MainViewController.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Team Lookup'),
+        centerTitle: true,
+        titleSpacing: 8.0,
+        title: SearchBar(
+          controller: controller,
+          hintText: 'Team name or number',
+          padding: const WidgetStatePropertyAll<EdgeInsets>(
+            EdgeInsets.symmetric(horizontal: 16.0),
+          ),
+          leading: const Icon(Icons.search_rounded),
+
+          trailing: [
+            IconButton(
+              icon: Icon(Icons.filter_list_rounded),
+              tooltip: 'Filter & Sort',
+              onPressed: () {},
+            ),
+          ],
+        ),
         leading:
-            controller.isDesktop
-                ? null
+            main.isDesktop
+                ? SizedBox(width: 48)
                 : IconButton(
                   icon: const Icon(Symbols.menu_rounded),
-                  onPressed: controller.openDrawer,
+                  onPressed: main.openDrawer,
                 ),
+        actions: [SizedBox(width: 48)],
       ),
       body: const Center(child: Text('Team Lookup Page')),
     );

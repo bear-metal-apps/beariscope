@@ -1,5 +1,3 @@
-import 'package:beariscope/utils/platform_utils_stub.dart'
-    if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -54,15 +52,9 @@ class _MainViewState extends State<MainView> {
 
   static const List<_NavItem> _navItems = [
     _NavItem(
-      route: '/home',
-      icon: Symbols.home_rounded,
-      label: 'Home',
-      group: 'General',
-    ),
-    _NavItem(
-      route: '/event',
+      route: '/up_next',
       icon: Symbols.event_rounded,
-      label: 'Event',
+      label: 'Up Next',
       group: 'General',
     ),
     _NavItem(
@@ -72,15 +64,15 @@ class _MainViewState extends State<MainView> {
       group: 'Insights',
     ),
     _NavItem(
-      route: '/predictions',
-      icon: Symbols.batch_prediction_rounded,
-      label: 'Predictions',
-      group: 'Insights',
-    ),
-    _NavItem(
       route: '/picklists',
       icon: Symbols.list_alt_rounded,
       label: 'Picklists',
+      group: 'Insights',
+    ),
+    _NavItem(
+      route: '/drive_team',
+      icon: Symbols.stadia_controller_rounded,
+      label: 'Drive Team',
       group: 'Insights',
     ),
     _NavItem(
@@ -90,9 +82,9 @@ class _MainViewState extends State<MainView> {
       group: 'Scouting',
     ),
     _NavItem(
-      route: '/ui_creator',
-      icon: Symbols.dashboard_customize_rounded,
-      label: 'UI Creator',
+      route: '/pits_scouting',
+      icon: Symbols.build_rounded,
+      label: 'Pits Scouting',
       group: 'Scouting',
     ),
   ];
@@ -116,32 +108,38 @@ class _MainViewState extends State<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDesktop = PlatformUtils.useDesktopUI(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 700; // arbitrary breakpoint
 
-    final navigationDrawer = SizedBox(
-      width: _drawerWidth,
-      child: NavigationDrawer(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
-        children: _buildNavChildren(),
-      ),
-    );
+        final navigationDrawer = SizedBox(
+          width: _drawerWidth,
+          child: NavigationDrawer(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
+            children: _buildNavChildren(),
+          ),
+        );
 
-    final childContent =
-        isDesktop
-            ? Row(children: [navigationDrawer, Expanded(child: widget.child)])
-            : widget.child;
+        final childContent =
+            isDesktop
+                ? Row(
+                  children: [navigationDrawer, Expanded(child: widget.child)],
+                )
+                : widget.child;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: isDesktop ? null : navigationDrawer,
-      drawerEnableOpenDragGesture: !isDesktop,
-      drawerBarrierDismissible: !isDesktop,
-      body: MainViewController(
-        isDesktop: isDesktop,
-        openDrawer: () => _scaffoldKey.currentState?.openDrawer(),
-        child: childContent,
-      ),
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: isDesktop ? null : navigationDrawer,
+          drawerEnableOpenDragGesture: !isDesktop,
+          drawerBarrierDismissible: !isDesktop,
+          body: MainViewController(
+            isDesktop: isDesktop,
+            openDrawer: () => _scaffoldKey.currentState?.openDrawer(),
+            child: childContent,
+          ),
+        );
+      },
     );
   }
 

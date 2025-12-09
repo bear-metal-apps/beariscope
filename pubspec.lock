@@ -755,9 +755,11 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "../libkoala"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: efceb55eb0a98541e86b2832e87f7f166e821367
+      url: "https://github.com/betterbearmetalcode/libkoala.git"
+    source: git
     version: "0.0.1"
   lints:
     dependency: transitive
@@ -1316,6 +1318,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   url_launcher:
     dependency: "direct main"
     description:
