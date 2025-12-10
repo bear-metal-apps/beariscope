@@ -152,16 +152,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (_, state) {
       final location = state.matchedLocation;
 
-      switch (authStatus) {
-        case AuthStatus.unauthenticated:
-          return location != '/welcome' ? '/welcome' : null;
-        case AuthStatus.authenticating:
-          return (location == '/welcome' || location == '/') ? null : '/';
-        case AuthStatus.authenticated:
+      // switch (authStatus) {
+      //   case AuthStatus.unauthenticated:
+      //     return location != '/welcome' ? '/welcome' : null;
+      //   case AuthStatus.authenticating:
+      //     return (location == '/welcome' || location == '/') ? null : '/';
+      //   case AuthStatus.authenticated:
           return (location == '/' || location == '/welcome')
               ? '/up_next'
               : null;
-      }
+      // }
     },
   );
 });

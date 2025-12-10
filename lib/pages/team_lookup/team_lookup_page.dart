@@ -63,9 +63,9 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
                 ),
         actions: [SizedBox(width: 48)],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
-          children: filteredTeamCards;
+          children: filteredTeamCards
         )
       ),
     );
