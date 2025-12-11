@@ -1,7 +1,9 @@
-import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/components/team_card.dart';
 
 class TeamLookupPage extends StatefulWidget {
   const TeamLookupPage({super.key});
@@ -12,7 +14,20 @@ class TeamLookupPage extends StatefulWidget {
 
 class _TeamLookupPageState extends State<TeamLookupPage> {
   TextEditingController _searchTermTEC = TextEditingController();
-  List<Widget> filteredTeamCards = [];
+  List<Widget> filteredTeamCards = [
+    SizedBox(height: 20),
+    TeamCard(teamName: 'Bear Metal', teamNumber: '2046'),
+    SizedBox(height: 20),
+    TeamCard(teamName: 'Riptide Robotics', teamNumber: '8267'),
+    SizedBox(height: 20),
+    TeamCard(teamName: 'Madcows!', teamNumber: '276'),
+    SizedBox(height: 20),
+    TeamCard(teamName: 'Vikings', teamNumber: '9289'),
+    SizedBox(height: 20),
+    TeamCard(teamName: 'The Vo', teamNumber: '4650'),
+    SizedBox(height: 20),
+  ];
+  Filter filter = Filter.allEvents;
 
   // final allTeamCards = ref.read(teamCardListNotifierProvider);
   // final filteredTeamCards = ref.read(filteredListNotifierProvider);
@@ -46,12 +61,31 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
           ),
           leading: const Icon(Icons.search_rounded),
           trailing: [
-            IconButton(
+            PopupMenuButton(
               icon: Icon(Icons.filter_list_rounded),
               tooltip: 'Filter & Sort',
-              onPressed: () {},
-              // onPressed: () {filter();},
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      value: Filter.allEvents,
+                      child: Text('All Events'),
+                    ),
+                    PopupMenuItem(
+                      value: Filter.currentEventsOnly,
+                      child: Text('Current Event Only'),
+                    ),
+                  ],
+              onSelected: (Filter newValue) {
+                setState(() {
+                  filter = newValue;
+                });
+              },
             ),
+            // IconButton(
+            //   icon: Icon(Icons.filter_list_rounded),
+            //   tooltip: 'Filter & Sort',
+            //   onPressed: () {},
+            // ),
           ],
         ),
         leading:
@@ -64,11 +98,12 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
         actions: [SizedBox(width: 48)],
       ),
       body: Center(
-        child: Column(
-          children: filteredTeamCards
-        )
+        child: SingleChildScrollView(
+          child: Column(children: filteredTeamCards),
+        ),
       ),
     );
   }
 }
 
+enum Filter { allEvents, currentEventsOnly }
