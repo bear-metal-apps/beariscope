@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/team_card.dart';
@@ -46,6 +45,12 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
   //   }
   // }
 
+  // void filter(String filterValue)
+  // Uses the values within a class Team and matches it with filterValue and
+  // changes filteredTeamCards based on if it matches
+  // Note: filteredTeamCards will eventually be a Provider<List<TeamCard>> so
+  // I can use a function addTeam(Team team) with state = [...state, team];
+
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
@@ -81,11 +86,6 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
                 });
               },
             ),
-            // IconButton(
-            //   icon: Icon(Icons.filter_list_rounded),
-            //   tooltip: 'Filter & Sort',
-            //   onPressed: () {},
-            // ),
           ],
         ),
         leading:

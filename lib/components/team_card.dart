@@ -4,32 +4,30 @@ class TeamCard extends StatelessWidget {
   final String teamName;
   final String teamNumber;
 
-  const TeamCard({
-    super.key,
-    required this.teamName,
-    required this.teamNumber,
-  });
+  const TeamCard({super.key, required this.teamName, required this.teamNumber});
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click, // changes mouse to pointer when it's hovering over the card
+      cursor:
+          SystemMouseCursors
+              .click, // changes mouse to pointer when it's hovering over the card
       child: Card(
         elevation: 3,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        clipBehavior: Clip.antiAlias, // makes sure InkWell ripple stays inside card
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior:
+            Clip.antiAlias, // makes sure InkWell ripple stays inside card
         child: InkWell(
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => TeamDetailsPage(
-                  teamNumber: teamNumber,
-                  teamName: teamName,
-                ),
+                builder:
+                    (context) => TeamDetailsPage(
+                      teamNumber: teamNumber,
+                      teamName: teamName,
+                    ),
               ),
             );
           },
@@ -41,11 +39,7 @@ class TeamCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // profile icon
-                const Icon(
-                  Icons.account_circle,
-                  size: 48,
-                  color: Colors.grey,
-                ),
+                const Icon(Icons.account_circle, size: 48, color: Colors.grey),
 
                 const SizedBox(width: 12),
 
@@ -62,10 +56,7 @@ class TeamCard extends StatelessWidget {
                     ),
                     Text(
                       teamNumber,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -77,7 +68,6 @@ class TeamCard extends StatelessWidget {
     );
   }
 }
-
 
 class TeamDetailsPage extends StatelessWidget {
   final String teamNumber;
@@ -92,9 +82,7 @@ class TeamDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Team $teamNumber"),
-      ),
+      appBar: AppBar(title: Text("Team $teamNumber")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
