@@ -78,39 +78,47 @@ class TeamCard extends StatelessWidget {
   }
 }
 
-
 class TeamDetailsPage extends StatelessWidget {
-  final String teamNumber;
   final String teamName;
+  final String teamNumber;
 
   const TeamDetailsPage({
     super.key,
-    required this.teamNumber,
     required this.teamName,
+    required this.teamNumber,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Team $teamNumber"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return DefaultTabController(
+      length: 4, // how many tabs
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Team $teamNumber'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Averages'),
+              Tab(text: 'Breakdown'),
+              Tab(text: 'Notes'),
+              Tab(text: 'Capabilities'),
+            ],
+          ),
+        ),
+
+        body: const TabBarView(
           children: [
-            const SizedBox(height: 20),
-            Text(
-              "Full team details go here",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            Center(child: Text('Averages content')),
+            Center(child: Text('Breakdown content')),
+            Center(child: Text('Notes content')),
+            Center(child: Text('Capabilities content')),
           ],
         ),
       ),
     );
   }
 }
+
+
 
 
 
