@@ -39,7 +39,7 @@ class TeamCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               width: double.infinity,
-              height: height ?? 200,
+              height: height ?? 250,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
