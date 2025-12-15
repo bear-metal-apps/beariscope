@@ -12,7 +12,7 @@ class TeamLookupPage extends StatefulWidget {
 }
 
 class _TeamLookupPageState extends State<TeamLookupPage> {
-  TextEditingController _searchTermTEC = TextEditingController();
+  final TextEditingController _searchTermTEC = TextEditingController();
   List<Widget> filteredTeamCards = [
     SizedBox(height: 20),
     TeamCard(teamName: 'Bear Metal', teamNumber: '2046'),
