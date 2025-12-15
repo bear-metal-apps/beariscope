@@ -3,64 +3,75 @@ import 'package:flutter/material.dart';
 class TeamCard extends StatelessWidget {
   final String teamName;
   final String teamNumber;
+  final double? height;
 
-  const TeamCard({super.key, required this.teamName, required this.teamNumber});
+  const TeamCard({
+    super.key,
+    required this.teamName,
+    required this.teamNumber,
+    this.height,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor:
-          SystemMouseCursors
-              .click, // changes mouse to pointer when it's hovering over the card
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       child: Card(
         elevation: 3,
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior:
             Clip.antiAlias, // makes sure InkWell ripple stays inside card
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => TeamDetailsPage(
-                      teamNumber: teamNumber,
-                      teamName: teamName,
-                    ),
-              ),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            width: double.infinity,
-            height: 300,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // profile icon
-                const Icon(Icons.account_circle, size: 48, color: Colors.grey),
-
-                const SizedBox(width: 12),
-
-                // team info
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      teamName,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+        child: MouseRegion(
+          cursor:
+              SystemMouseCursors
+                  .click, // changes mouse to pointer when it's hovering over the card
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => TeamDetailsPage(
+                        teamNumber: teamNumber,
+                        teamName: teamName,
                       ),
-                    ),
-                    Text(
-                      teamNumber,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
                 ),
-              ],
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              height: height ?? 250,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.account_circle,
+                    size: 52,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        teamName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        teamNumber,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -70,29 +81,38 @@ class TeamCard extends StatelessWidget {
 }
 
 class TeamDetailsPage extends StatelessWidget {
-  final String teamNumber;
   final String teamName;
+  final String teamNumber;
 
   const TeamDetailsPage({
     super.key,
-    required this.teamNumber,
     required this.teamName,
+    required this.teamNumber,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Team $teamNumber")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return DefaultTabController(
+      length: 4, // how many tabs
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Team $teamNumber'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Averages'),
+              Tab(text: 'Breakdown'),
+              Tab(text: 'Notes'),
+              Tab(text: 'Capabilities'),
+            ],
+          ),
+        ),
+
+        body: const TabBarView(
           children: [
-            const SizedBox(height: 20),
-            Text(
-              "Full team details go here",
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            Center(child: Text('Averages content')),
+            Center(child: Text('Breakdown content')),
+            Center(child: Text('Notes content')),
+            Center(child: Text('Capabilities content')),
           ],
         ),
       ),
