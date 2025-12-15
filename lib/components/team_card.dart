@@ -18,21 +18,23 @@ class TeamCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       child: Card(
         elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        clipBehavior: Clip.antiAlias, // makes sure InkWell ripple stays inside card
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior:
+            Clip.antiAlias, // makes sure InkWell ripple stays inside card
         child: MouseRegion(
-          cursor: SystemMouseCursors.click, // changes mouse to pointer when it's hovering over the card
+          cursor:
+              SystemMouseCursors
+                  .click, // changes mouse to pointer when it's hovering over the card
           child: InkWell(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TeamDetailsPage(
-                    teamNumber: teamNumber,
-                    teamName: teamName,
-                  ),
+                  builder:
+                      (context) => TeamDetailsPage(
+                        teamNumber: teamNumber,
+                        teamName: teamName,
+                      ),
                 ),
               );
             },
@@ -117,9 +119,3 @@ class TeamDetailsPage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
