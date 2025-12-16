@@ -125,6 +125,7 @@ class _MultipleChoiceState extends State<MultipleChoice> {
     );
   }
 }
+
 const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
 
 class DropdownButtonOneChoice extends StatefulWidget {
@@ -132,6 +133,7 @@ class DropdownButtonOneChoice extends StatefulWidget {
   @override
   State<DropdownButtonOneChoice> createState() => _DropdownButtonState();
 }
+
 class _DropdownButtonState extends State<DropdownButtonOneChoice> {
   String dropdownValue = list.first;
 
@@ -145,9 +147,45 @@ class _DropdownButtonState extends State<DropdownButtonOneChoice> {
           dropdownValue = value!;
         });
       },
-      items: list.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(value: value, child: Text(value));
-      }).toList(),
+      items:
+          list.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(value: value, child: Text(value));
+          }).toList(),
+    );
+  }
+}
+class SegmentedSlider extends StatefulWidget {
+  const SegmentedSlider({super.key});
+
+  @override
+  State<SegmentedSlider> createState() => _SegmentedSliderState();
+}
+class _SegmentedSliderState extends State<SegmentedSlider> {
+  double _currentDiscreteSliderValue = 60;
+  bool year2023 = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16,
+          children: <Widget>[
+            Slider(
+              value: _currentDiscreteSliderValue,
+              max: 100,
+              divisions: 5,
+              label: _currentDiscreteSliderValue.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _currentDiscreteSliderValue = value;
+                });
+              },
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

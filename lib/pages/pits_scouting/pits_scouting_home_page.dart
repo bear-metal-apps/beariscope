@@ -22,7 +22,7 @@ class PitsScoutingHomePage extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [NumberTextField(), RadioButton(), MultipleChoice(), DropdownButtonOneChoice()],
+          children: [NumberTextField(), RadioButton(), MultipleChoice(), DropdownButtonOneChoice(), SegmentedSlider()],
         ),
       ),
     );
