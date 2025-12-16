@@ -1,10 +1,10 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 
 class PitsScoutingHomePage extends StatelessWidget {
   const PitsScoutingHomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
@@ -19,7 +19,12 @@ class PitsScoutingHomePage extends StatelessWidget {
                   onPressed: controller.openDrawer,
                 ),
       ),
-      body: const Center(child: Text('Pits Scouting Page')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [NumberTextField(), RadioButton(), MultipleChoice(), DropdownButtonOneChoice()],
+        ),
+      ),
     );
   }
 }
