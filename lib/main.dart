@@ -77,8 +77,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'create',
                     builder: (_, _) => const PicklistsCreatePage(),
-                  )
-                ]
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'drive_team',
