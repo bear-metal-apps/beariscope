@@ -1,6 +1,7 @@
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
 import 'package:beariscope/pages/drive_team/drive_team_page.dart';
+import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/main_view.dart';
@@ -72,6 +73,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'picklists',
                 pageBuilder:
                     (_, _) => const NoTransitionPage(child: PicklistsPage()),
+                routes: [
+                  GoRoute(
+                    path: 'create',
+                    builder: (_, _) => const PicklistsCreatePage(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'drive_team',
