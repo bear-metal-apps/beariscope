@@ -22,13 +22,6 @@ class PicklistsCreatePageState extends State<PicklistsCreatePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Picklist'),
-        leading:
-            controller.isDesktop
-                ? null
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: controller.openDrawer,
-                ),
       ),
       body: Center(
         child: Column(
