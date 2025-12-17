@@ -4,15 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class MainView extends StatefulWidget {
-  final Widget child;
-
-  const MainView({super.key, required this.child});
-
-  @override
-  State<MainView> createState() => _MainViewState();
-}
-
 class _NavItem {
   final String route;
   final IconData icon;
@@ -44,6 +35,15 @@ class MainViewController extends InheritedWidget {
   @override
   bool updateShouldNotify(MainViewController oldWidget) =>
       isDesktop != oldWidget.isDesktop;
+}
+
+class MainView extends StatefulWidget {
+  final Widget child;
+
+  const MainView({super.key, required this.child});
+
+  @override
+  State<MainView> createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> {
@@ -97,6 +97,12 @@ class _MainViewState extends State<MainView> {
     return idx < 0 ? 0 : idx;
   }
 
+  bool get _isAtTopLevel {
+    final location = GoRouterState.of(context).uri.toString();
+    // just checks if we're at a top level nav item (not a nested route)
+    return _navItems.any((n) => n.route == location);
+  }
+
   void _onDestinationSelected(int index, bool isDesktop) {
     if (index == _selectedIndex) {
       if (!isDesktop) Navigator.pop(context);
@@ -110,7 +116,8 @@ class _MainViewState extends State<MainView> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth >= 700; // arbitrary breakpoint
+        final isDesktop = constraints.maxWidth >= 700;
+        final isAtTopLevel = _isAtTopLevel;
 
         final navigationDrawer = SizedBox(
           width: _drawerWidth,
@@ -130,8 +137,9 @@ class _MainViewState extends State<MainView> {
 
         return Scaffold(
           key: _scaffoldKey,
-          drawer: isDesktop ? null : navigationDrawer,
-          drawerEnableOpenDragGesture: !isDesktop,
+          // Only enable drawer when at top level and on mobile
+          drawer: isDesktop ? null : (isAtTopLevel ? navigationDrawer : null),
+          drawerEnableOpenDragGesture: !isDesktop && isAtTopLevel,
           drawerBarrierDismissible: !isDesktop,
           body: MainViewController(
             isDesktop: isDesktop,

@@ -46,129 +46,124 @@ final routerProvider = Provider<GoRouter>((ref) {
   final authStatus = ref.watch(authStatusProvider);
 
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/up_next',
     routes: <RouteBase>[
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
-      GoRoute(
-        path: '/',
-        builder:
-            (_, _) => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+      ShellRoute(
+        builder: (_, _, child) => MainView(child: child),
         routes: [
-          ShellRoute(
-            builder: (_, _, child) => MainView(child: child),
+          GoRoute(
+            path: '/up_next',
+            pageBuilder: (_, _) => const NoTransitionPage(child: UpNextPage()),
+          ),
+          GoRoute(
+            path: '/team_lookup',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: TeamLookupPage()),
+          ),
+          GoRoute(
+            path: '/picklists',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: PicklistsPage()),
             routes: [
               GoRoute(
-                path: 'up_next',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: UpNextPage()),
-              ),
-              GoRoute(
-                path: 'team_lookup',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: TeamLookupPage()),
-              ),
-              GoRoute(
-                path: 'picklists',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: PicklistsPage()),
-                routes: [
-                  GoRoute(
-                    path: 'create',
-                    builder: (_, _) => const PicklistsCreatePage(),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'drive_team',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: DriveTeamHomePage()),
-              ),
-              GoRoute(
-                path: 'corrections',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: CorrectionsPage()),
-              ),
-              GoRoute(
-                path: 'pits_scouting',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: PitsScoutingHomePage()),
+                path: 'create',
+                builder: (_, _) => const PicklistsCreatePage(),
               ),
             ],
           ),
           GoRoute(
-            path: 'settings',
-            builder: (_, _) => const SettingsPage(),
-            routes: [
-              GoRoute(
-                path: 'account',
-                builder: (_, _) {
-                  return const AccountSettingsPage();
-                },
-              ),
-              GoRoute(
-                path: 'notifications',
-                builder: (_, _) {
-                  return const NotificationsSettingsPage();
-                },
-              ),
-              GoRoute(
-                path: 'appearance',
-                builder: (_, _) {
-                  return const AppearanceSettingsPage();
-                },
-              ),
-              GoRoute(
-                path: 'about',
-                builder: (_, _) {
-                  return const AboutSettingsPage();
-                },
-              ),
-              GoRoute(
-                path: 'licenses',
-                builder: (_, _) {
-                  return FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder: (context, snapshot) {
-                      final version = snapshot.data?.version ?? '...';
-                      return LicensePage(
-                        applicationName: 'Beariscope',
-                        applicationVersion: version,
-                      );
-                    },
+            path: '/drive_team',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: DriveTeamHomePage()),
+          ),
+          GoRoute(
+            path: '/corrections',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: CorrectionsPage()),
+          ),
+          GoRoute(
+            path: '/pits_scouting',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (_, _) => const SettingsPage(),
+        routes: [
+          GoRoute(
+            path: 'account',
+            builder: (_, _) {
+              return const AccountSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'notifications',
+            builder: (_, _) {
+              return const NotificationsSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'appearance',
+            builder: (_, _) {
+              return const AppearanceSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'about',
+            builder: (_, _) {
+              return const AboutSettingsPage();
+            },
+          ),
+          GoRoute(
+            path: 'licenses',
+            builder: (_, _) {
+              return FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final version = snapshot.data?.version ?? '...';
+                  return LicensePage(
+                    applicationName: 'Beariscope',
+                    applicationVersion: version,
                   );
                 },
-              ),
-              GoRoute(
-                path: 'manage_team/:teamId',
-                builder: (_, state) {
-                  final teamId = state.pathParameters['teamId'] ?? '';
-                  return teamId.isEmpty
-                      ? const Center(child: Text('Team ID is empty'))
-                      : ManageTeamPage(teamId: teamId);
-                },
-              ),
-            ],
+              );
+            },
+          ),
+          GoRoute(
+            path: 'manage_team/:teamId',
+            builder: (_, state) {
+              final teamId = state.pathParameters['teamId'] ?? '';
+              return teamId.isEmpty
+                  ? const Center(child: Text('Team ID is empty'))
+                  : ManageTeamPage(teamId: teamId);
+            },
           ),
         ],
       ),
     ],
-    redirect: (_, state) {
+    redirect: (context, state) {
       final location = state.matchedLocation;
+      final isWelcomePage = location == '/welcome';
 
-      switch (authStatus) {
-        case AuthStatus.unauthenticated:
-          return location != '/welcome' ? '/welcome' : null;
-        case AuthStatus.authenticating:
-          return (location == '/welcome' || location == '/') ? null : '/';
-        case AuthStatus.authenticated:
-          return (location == '/' || location == '/welcome')
-              ? '/up_next'
-              : null;
+      // do nothing while authing
+      if (authStatus == AuthStatus.authenticating) {
+        return null;
       }
+
+      // go to welcome if not authed
+      if (authStatus == AuthStatus.unauthenticated) {
+        return isWelcomePage ? null : '/welcome';
+      }
+
+      // if on welcome and authed then leave
+      if (authStatus == AuthStatus.authenticated && isWelcomePage) {
+        return '/up_next';
+      }
+
+      return null;
     },
   );
 });
@@ -186,7 +181,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(authStatusProvider.notifier).setAuthenticating();
-
       await ref.read(authProvider).trySilentLogin();
     });
   }
@@ -194,6 +188,28 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final authStatus = ref.watch(authStatusProvider);
+
+    // Show loading screen while authenticating
+    if (authStatus == AuthStatus.authenticating) {
+      return MaterialApp(
+        theme: ThemeData(
+          brightness: Brightness.light,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.lightBlue,
+            brightness: Brightness.dark,
+          ),
+        ),
+        themeMode: ThemeMode.system,
+        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+      );
+    }
 
     return MaterialApp.router(
       theme: ThemeData(
