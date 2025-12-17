@@ -1,7 +1,5 @@
-import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class PicklistsCreatePage extends StatefulWidget {
   const PicklistsCreatePage({super.key});
@@ -18,7 +16,6 @@ class PicklistsCreatePageState extends State<PicklistsCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = MainViewController.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Picklist'),
