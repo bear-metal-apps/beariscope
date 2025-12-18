@@ -6,11 +6,11 @@ class UpNextWidget extends StatelessWidget {
   final VoidCallback onPressed;
 
   const UpNextWidget({
-    Key? key,
+    super.key,
     required this.match,
     required this.time,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
