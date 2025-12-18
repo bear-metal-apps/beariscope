@@ -15,7 +15,7 @@ class UpNextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child:Container(
+      child: Container(
         width: MediaQuery.of(context).size.width * 0.6,
         height: 100,
         padding: EdgeInsets.all(10.0),
