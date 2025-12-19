@@ -26,7 +26,11 @@ class AboutSettingsPage extends ConsumerWidget {
                   'Bear Metal 2046 is a team. Yeah. Crazy. We\'re in FRC or First Robotics Competition. idk man. ajrwrgheorghweorgbwoirugohqwptghwejbrgioejbrielrnmawrislgjhlgnawjrngbijalkfgnbjdlfkgbanjroglkbwanrgkljmhgslfjgnmflgkjns fogln mim just tryna make it longer Here\'s a paragraph. \n'
                   'Here\s the paragraph you ordered. Now have fun. I guess. Why are you still here.'
               ),
-            )
+            ),
+            Text(
+                style: TextStyle(fontSize: 30),
+                'About Beariscope'
+            ),
           ],
         ),
       ),
