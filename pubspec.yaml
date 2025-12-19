@@ -33,6 +33,7 @@ dependencies:
   window_size: ^0.1.0
   hive_ce_flutter: ^2.3.3
   graphql_flutter: ^5.2.1
+  google_fonts: ^6.3.3
 
 dependency_overrides:
   flutter_web_auth_2: 5.0.0-alpha.3
@@ -50,4 +51,11 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/
+    - assets/
+  fonts:
+    - family: Xolonium
+      fonts:
+        - asset: assets/fonts/Xolonium-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Xolonium-Bold.ttf
+          weight: 700
