@@ -156,14 +156,14 @@ class _MainViewState extends State<MainView> {
 
     children.add(
       Padding(
-        padding: const EdgeInsets.fromLTRB(28, 16, 24, 10),
+        padding: const EdgeInsets.fromLTRB(28, 12, 24, 10),
         child: Row(
           children: [
             Expanded(
               child: Row(
                 children: [
                   SvgPicture.asset(
-                    'lib/assets/scuffed_logo.svg',
+                    'assets/scuffed_logo.svg',
                     width: 24,
                     colorFilter: ColorFilter.mode(
                       Theme.of(context).colorScheme.primary,
@@ -173,7 +173,7 @@ class _MainViewState extends State<MainView> {
                   const SizedBox(width: 12),
                   const Text(
                     'Beariscope',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(fontFamily: 'Xolonium', fontSize: 20),
                   ),
                 ],
               ),

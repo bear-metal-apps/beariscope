@@ -61,6 +61,7 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
         title: SearchBar(
           controller: _searchTermTEC,
           hintText: 'Team name or number',
+          elevation: WidgetStateProperty.all(0.0),
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),

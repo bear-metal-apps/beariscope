@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -187,35 +188,48 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
 
     return MaterialApp.router(
       routerConfig: router,
-      theme: _lightTheme,
-      darkTheme: _darkTheme,
+      theme: _createTheme(Brightness.light),
+      darkTheme: _createTheme(Brightness.dark),
       themeMode: ThemeMode.system,
     );
   }
 
   Widget _loadingApp() {
     return MaterialApp(
-      theme: _lightTheme,
-      darkTheme: _darkTheme,
+      theme: _createTheme(Brightness.light),
+      darkTheme: _createTheme(Brightness.dark),
       themeMode: ThemeMode.system,
       home: const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 }
 
-final _lightTheme = ThemeData(
-  brightness: Brightness.light,
-  useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-  iconTheme: const IconThemeData(fill: 0.0, weight: 600),
-);
-
-final _darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
+ThemeData _createTheme(Brightness brightness) {
+  final colorScheme = ColorScheme.fromSeed(
     seedColor: Colors.lightBlue,
-    brightness: Brightness.dark,
-  ),
-  iconTheme: const IconThemeData(fill: 0.0, weight: 600),
-);
+    brightness: brightness,
+  );
+
+  final baseTheme = ThemeData(
+    brightness: brightness,
+    useMaterial3: true,
+    colorScheme: colorScheme,
+    iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+    textTheme: GoogleFonts.nunitoSansTextTheme(
+      ThemeData(
+        brightness: brightness,
+        colorScheme: colorScheme,
+      ).textTheme,
+    ),
+  );
+
+  return baseTheme.copyWith(
+    appBarTheme: AppBarTheme(
+      centerTitle: false,
+      titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
+        fontFamily: 'Xolonium',
+        fontSize: 20,
+      ),
+    ),
+  );
+}
