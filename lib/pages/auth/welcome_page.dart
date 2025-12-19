@@ -36,7 +36,13 @@ class WelcomePage extends ConsumerWidget {
                 children: [
                   FilledButton.icon(
                     onPressed: () {
-                      auth.login();
+                      auth.login([
+                        'openid',
+                        'profile',
+                        'offline_access',
+                        'User.Read',
+                        'api://bearmet.al/honeycomb/access',
+                      ]);
                     },
                     label: const Text('Sign In With BMBC Account'),
                     icon: const Icon(Symbols.login_rounded),

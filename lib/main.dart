@@ -133,17 +133,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    redirect: (context, state) {
+    redirect: (_, state) {
+      final auth = authStatus;
       final location = state.matchedLocation;
       final isWelcomePage = location == '/welcome';
 
       // do nothing while authing
-      if (authStatus == AuthStatus.authenticating) {
+      if (auth == AuthStatus.authenticating) {
         return null;
       }
 
       // go to welcome if not authed
-      if (authStatus == AuthStatus.unauthenticated) {
+      if (auth == AuthStatus.unauthenticated) {
         return isWelcomePage ? null : '/welcome';
       }
 
@@ -168,9 +169,9 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(authStatusProvider.notifier).setAuthenticating();
-      await ref.read(authProvider).trySilentLogin();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider).trySilentLogin();
     });
   }
 
@@ -181,43 +182,40 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
 
     // Show loading screen while authenticating
     if (authStatus == AuthStatus.authenticating) {
-      return MaterialApp(
-        theme: ThemeData(
-          brightness: Brightness.light,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        ),
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.lightBlue,
-            brightness: Brightness.dark,
-          ),
-        ),
-        themeMode: ThemeMode.system,
-        home: const Scaffold(body: Center(child: CircularProgressIndicator())),
-      );
+      return _loadingApp();
     }
 
     return MaterialApp.router(
-      theme: ThemeData(
-        brightness: Brightness.light,
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightBlue,
-          brightness: Brightness.dark,
-        ),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
-      ),
-      themeMode: ThemeMode.system,
       routerConfig: router,
+      theme: _lightTheme,
+      darkTheme: _darkTheme,
+      themeMode: ThemeMode.system,
+    );
+  }
+
+  Widget _loadingApp() {
+    return MaterialApp(
+      theme: _lightTheme,
+      darkTheme: _darkTheme,
+      themeMode: ThemeMode.system,
+      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 }
+
+final _lightTheme = ThemeData(
+  brightness: Brightness.light,
+  useMaterial3: true,
+  colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+  iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+);
+
+final _darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  useMaterial3: true,
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: Colors.lightBlue,
+    brightness: Brightness.dark,
+  ),
+  iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+);
