@@ -47,7 +47,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   return GoRouter(
     initialLocation: '/up_next',
-    routes: <RouteBase>[
+    routes: [
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
       ShellRoute(
         builder: (_, _, child) => MainView(child: child),
@@ -95,28 +95,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'account',
-            builder: (_, _) {
-              return const AccountSettingsPage();
-            },
+            builder: (_, _) => const AccountSettingsPage(),
           ),
           GoRoute(
             path: 'notifications',
-            builder: (_, _) {
-              return const NotificationsSettingsPage();
-            },
+            builder: (_, _) => const NotificationsSettingsPage(),
           ),
           GoRoute(
             path: 'appearance',
-            builder: (_, _) {
-              return const AppearanceSettingsPage();
-            },
+            builder: (_, _) => const AppearanceSettingsPage(),
           ),
-          GoRoute(
-            path: 'about',
-            builder: (_, _) {
-              return const AboutSettingsPage();
-            },
-          ),
+          GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',
             builder: (_, _) {
