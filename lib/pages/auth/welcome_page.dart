@@ -18,7 +18,7 @@ class WelcomePage extends ConsumerWidget {
           spacing: 16,
           children: <Widget>[
             SvgPicture.asset(
-              'lib/assets/scuffed_logo.svg',
+              'assets/beariscope_head.svg',
               height: 128,
               colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary,

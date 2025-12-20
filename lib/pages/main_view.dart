@@ -163,7 +163,7 @@ class _MainViewState extends State<MainView> {
               child: Row(
                 children: [
                   SvgPicture.asset(
-                    'assets/scuffed_logo.svg',
+                    'assets/beariscope_head.svg',
                     width: 24,
                     colorFilter: ColorFilter.mode(
                       Theme.of(context).colorScheme.primary,
