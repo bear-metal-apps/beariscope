@@ -17,9 +17,7 @@ class PicklistsCreatePageState extends State<PicklistsCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Picklist'),
-      ),
+      appBar: AppBar(title: const Text('Create Picklist')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
