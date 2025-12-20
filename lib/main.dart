@@ -24,7 +24,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+import 'package:libkoala/libkoala.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -181,93 +181,25 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final authStatus = ref.watch(authStatusProvider);
+    final deviceInfo = ref.read(deviceInfoProvider);
 
-    // Show loading screen while authenticating
     if (authStatus == AuthStatus.authenticating) {
       return _loadingApp();
     }
 
-    return PlatformMenuBar(
-      menus: [
-        PlatformMenu(
-          label: 'Beariscope',
-          menus: [
-            PlatformMenuItem(
-              label: 'About Beariscope',
-              onSelected: () => router.push('/settings/about'),
-            ),
-            PlatformMenuItem(
-              label: 'Settings',
-              shortcut: const SingleActivator(
-                LogicalKeyboardKey.comma,
-                meta: true,
-              ),
-              onSelected: () => router.push('/settings'),
-            ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.servicesSubmenu,
-                ),
-              ],
-            ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.hide,
-                ),
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.hideOtherApplications,
-                ),
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.showAllApplications,
-                ),
-              ],
-            ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.quit,
-                ),
-              ],
-            ),
-          ],
-        ),
-        PlatformMenu(
-          label: 'View',
-          menus: [
-            PlatformProvidedMenuItem(
-              type: PlatformProvidedMenuItemType.toggleFullScreen,
-            ),
-          ],
-        ),
-        PlatformMenu(
-          label: 'Window',
-          menus: [
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.minimizeWindow,
-                ),
-                PlatformProvidedMenuItem(
-                  type: PlatformProvidedMenuItemType.zoomWindow,
-                ),
-              ],
-            ),
-            PlatformProvidedMenuItem(
-              type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
-            ),
-          ],
-        ),
-      ],
-      child: MaterialApp.router(
-        routerConfig: router,
-        theme: _createTheme(Brightness.light),
-        darkTheme: _createTheme(Brightness.dark),
-        themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
-      ),
+    final app = MaterialApp.router(
+      routerConfig: router,
+      theme: _createTheme(Brightness.light),
+      darkTheme: _createTheme(Brightness.dark),
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
     );
+
+    if (deviceInfo.deviceOS == DeviceOS.macos) {
+      return PlatformMenuBar(menus: _buildMacMenus(router), child: app);
+    }
+
+    return app;
   }
 
   Widget _loadingApp() {
@@ -305,4 +237,72 @@ ThemeData _createTheme(Brightness brightness) {
       ),
     ),
   );
+}
+
+List<PlatformMenu> _buildMacMenus(GoRouter router) {
+  return [
+    PlatformMenu(
+      label: 'Beariscope',
+      menus: [
+        PlatformMenuItem(
+          label: 'About Beariscope',
+          onSelected: () => router.push('/settings/about'),
+        ),
+        PlatformMenuItem(
+          label: 'Settings',
+          shortcut: const SingleActivator(LogicalKeyboardKey.comma, meta: true),
+          onSelected: () => router.push('/settings'),
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.servicesSubmenu,
+            ),
+          ],
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hide),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.hideOtherApplications,
+            ),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.showAllApplications,
+            ),
+          ],
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.quit),
+          ],
+        ),
+      ],
+    ),
+    PlatformMenu(
+      label: 'View',
+      menus: [
+        PlatformProvidedMenuItem(
+          type: PlatformProvidedMenuItemType.toggleFullScreen,
+        ),
+      ],
+    ),
+    PlatformMenu(
+      label: 'Window',
+      menus: [
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.minimizeWindow,
+            ),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.zoomWindow,
+            ),
+          ],
+        ),
+        PlatformProvidedMenuItem(
+          type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
+        ),
+      ],
+    ),
+  ];
 }
