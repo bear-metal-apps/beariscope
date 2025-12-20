@@ -18,6 +18,7 @@ import 'package:beariscope/utils/platform_utils_stub.dart'
 import 'package:beariscope/utils/window_size_stub.dart'
     if (dart.library.io) 'package:window_size/window_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
@@ -186,11 +187,86 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
       return _loadingApp();
     }
 
-    return MaterialApp.router(
-      routerConfig: router,
-      theme: _createTheme(Brightness.light),
-      darkTheme: _createTheme(Brightness.dark),
-      themeMode: ThemeMode.system,
+    return PlatformMenuBar(
+      menus: [
+        PlatformMenu(
+          label: 'Beariscope',
+          menus: [
+            PlatformMenuItem(
+              label: 'About Beariscope',
+              onSelected: () => router.push('/settings/about'),
+            ),
+            PlatformMenuItem(
+              label: 'Settings',
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.comma,
+                meta: true,
+              ),
+              onSelected: () => router.push('/settings'),
+            ),
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.servicesSubmenu,
+                ),
+              ],
+            ),
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.hide,
+                ),
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.hideOtherApplications,
+                ),
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.showAllApplications,
+                ),
+              ],
+            ),
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.quit,
+                ),
+              ],
+            ),
+          ],
+        ),
+        PlatformMenu(
+          label: 'View',
+          menus: [
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.toggleFullScreen,
+            ),
+          ],
+        ),
+        PlatformMenu(
+          label: 'Window',
+          menus: [
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.minimizeWindow,
+                ),
+                PlatformProvidedMenuItem(
+                  type: PlatformProvidedMenuItemType.zoomWindow,
+                ),
+              ],
+            ),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
+            ),
+          ],
+        ),
+      ],
+      child: MaterialApp.router(
+        routerConfig: router,
+        theme: _createTheme(Brightness.light),
+        darkTheme: _createTheme(Brightness.dark),
+        themeMode: ThemeMode.system,
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 
@@ -216,10 +292,7 @@ ThemeData _createTheme(Brightness brightness) {
     colorScheme: colorScheme,
     iconTheme: const IconThemeData(fill: 0.0, weight: 600),
     textTheme: GoogleFonts.nunitoSansTextTheme(
-      ThemeData(
-        brightness: brightness,
-        colorScheme: colorScheme,
-      ).textTheme,
+      ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
     ),
   );
 
