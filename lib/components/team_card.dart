@@ -1,4 +1,7 @@
+import 'package:animations/animations.dart'; // Import this package
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/device_info_provider.dart';
 
 class TeamCard extends StatelessWidget {
   final String teamName;
@@ -14,41 +17,33 @@ class TeamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        clipBehavior:
-            Clip.antiAlias, // makes sure InkWell ripple stays inside card
-        child: MouseRegion(
-          cursor:
-              SystemMouseCursors
-                  .click, // changes mouse to pointer when it's hovering over the card
+    return OpenContainer(
+      useRootNavigator: true,
+      transitionType: ContainerTransitionType.fade,
+      closedElevation: 0,
+
+      openColor: Theme.of(context).scaffoldBackgroundColor,
+      middleColor: Theme.of(context).scaffoldBackgroundColor,
+      closedColor: Theme.of(context).colorScheme.surfaceContainer,
+      closedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      closedBuilder: (context, action) {
+        return SizedBox(
+          height: height ?? 256,
+          width: double.infinity,
           child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => TeamDetailsPage(
-                        teamNumber: teamNumber,
-                        teamName: teamName,
-                      ),
-                ),
-              );
-            },
+            onTap: action,
+            borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.all(16),
-              width: double.infinity,
-              height: height ?? 250,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.account_circle,
                     size: 52,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -58,14 +53,14 @@ class TeamCard extends StatelessWidget {
                         teamName,
                         style: const TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Xolonium',
                         ),
                       ),
                       Text(
                         teamNumber,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -74,13 +69,16 @@ class TeamCard extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
+      openBuilder: (context, action) {
+        return TeamDetailsPage(teamName: teamName, teamNumber: teamNumber);
+      },
     );
   }
 }
 
-class TeamDetailsPage extends StatelessWidget {
+class TeamDetailsPage extends ConsumerWidget {
   final String teamName;
   final String teamNumber;
 
@@ -91,30 +89,53 @@ class TeamDetailsPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
       length: 4, // how many tabs
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Team $teamNumber'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Averages'),
-              Tab(text: 'Breakdown'),
-              Tab(text: 'Notes'),
-              Tab(text: 'Capabilities'),
-            ],
-          ),
-        ),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              title: Text('$teamName - $teamNumber'),
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+              bottom: const TabBar(
+                tabs: [
+                  Tab(text: 'Averages'),
+                  Tab(text: 'Breakdown'),
+                  Tab(text: 'Notes'),
+                  Tab(text: 'Capabilities'),
+                ],
+              ),
+            ),
 
-        body: const TabBarView(
-          children: [
-            Center(child: Text('Averages content')),
-            Center(child: Text('Breakdown content')),
-            Center(child: Text('Notes content')),
-            Center(child: Text('Capabilities content')),
-          ],
-        ),
+            body: const TabBarView(
+              children: [
+                Center(child: Text('Averages content')),
+                Center(child: Text('Breakdown content')),
+                Center(child: Text('Notes content')),
+                Center(child: Text('Capabilities content')),
+              ],
+            ),
+          ),
+          if (ref.read(deviceInfoProvider).deviceOS == DeviceOS.ios)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 20,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragEnd: (details) {
+                  if (details.primaryVelocity! > 0) {
+                    Navigator.pop(context);
+                  }
+                },
+              ),
+            ),
+        ],
       ),
     );
   }
