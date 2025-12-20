@@ -152,16 +152,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (_, state) {
       final location = state.matchedLocation;
 
-      switch (authStatus) {
-        case AuthStatus.unauthenticated:
-          return location != '/welcome' ? '/welcome' : null;
-        case AuthStatus.authenticating:
-          return (location == '/welcome' || location == '/') ? null : '/';
-        case AuthStatus.authenticated:
+       switch (authStatus) {
+         case AuthStatus.unauthenticated:
+           return location != '/welcome' ? '/welcome' : null;
+         case AuthStatus.authenticating:
+           return (location == '/welcome' || location == '/') ? null : '/';
+         case AuthStatus.authenticated:
           return (location == '/' || location == '/welcome')
               ? '/up_next'
               : null;
-      }
+       }
     },
   );
 });
@@ -187,6 +187,8 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final accentColor = ref.watch(accentColorProvider);
 
     return MaterialApp.router(
       theme: ThemeData(
@@ -204,7 +206,7 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
         ),
         iconTheme: const IconThemeData(fill: 0.0, weight: 600),
       ),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }
