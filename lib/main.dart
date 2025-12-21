@@ -211,3 +211,4 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     );
   }
 }
+
