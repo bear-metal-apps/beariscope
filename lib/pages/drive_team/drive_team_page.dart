@@ -178,6 +178,23 @@ class _DriveTeamHomePageState extends State<DriveTeamHomePage> {
                   );
                 },
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: SizedBox(
+                  width: 586,
+                  child: FilledButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Center();
+                        },
+                      );
+                    },
+                    child: Text('Scout Lead Notes'),
+                  ),
+                ),
+              ),
             ],
           );
         },
