@@ -48,7 +48,7 @@ class _DriveTeamNotesPageState extends State<DriveTeamNotesPage> {
         actionsPadding: EdgeInsets.only(right: 12),
       ),
       body: Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
