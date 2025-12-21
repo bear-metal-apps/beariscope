@@ -33,6 +33,7 @@ dependencies:
   window_size: ^0.1.0
   hive_ce_flutter: ^2.3.3
   graphql_flutter: ^5.2.1
+  dots_indicator: ^4.0.1
 
 dependency_overrides:
   flutter_web_auth_2: 5.0.0-alpha.3
