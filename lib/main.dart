@@ -194,14 +194,14 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
         iconTheme: const IconThemeData(fill: 0.0, weight: 600),
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightBlue,
+          seedColor: accentColor,
           brightness: Brightness.dark,
         ),
         iconTheme: const IconThemeData(fill: 0.0, weight: 600),
