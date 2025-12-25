@@ -1,18 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
-final accentColorProvider = StateProvider<Color>((ref) => Colors.lightBlue);
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) => ThemeModeNotifier());
+final accentColorProvider = StateNotifierProvider<AccentColorNotifier, Color>((ref) => AccentColorNotifier());
+
+class AccentColorNotifier extends StateNotifier<Color> {
+  AccentColorNotifier() : super(Colors.lightBlue) {
+    _loadColor();
+  }
+
+  Future<void> _loadColor() async {
+    final preferences = await SharedPreferences.getInstance();
+    final savedColor = preferences.getInt('accentColor');
+    if (savedColor != null) {
+      state = Color(savedColor);
+    }
+  }
+
+  Future<void> setColor(Color color) async {
+    state = color;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('accentColor', color.value);
+  }
+}
+
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier() : super(ThemeMode.system) {
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedMode = prefs.getString('themeMode');
+
+    if (savedMode != null) {
+      state = ThemeMode.values.firstWhere(
+            (mode) => mode.toString() == savedMode,
+        orElse: () => ThemeMode.system,
+      );
+    }
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    state = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('themeMode', mode.toString());
+  }
+}
+
 final accentColors = [
-  Colors.lightBlue,
-  Colors.deepPurple,
+  Colors.pink,
+  Colors.red,
+  Colors.orange,
+  Colors.amber,
+  Colors.lightGreenAccent,
   Colors.green,
   Colors.teal,
-  Colors.orange,
-  Colors.red,
-  Colors.pink,
+  Colors.cyanAccent,
+  Colors.lightBlue,
+  Colors.purpleAccent,
+  Colors.deepPurple,
+
 ];
+
 
 class AppearanceSettingsPage extends ConsumerWidget {
   const AppearanceSettingsPage({super.key});
@@ -25,22 +77,17 @@ class AppearanceSettingsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Appearance')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 title: const Text('Theme'),
                 trailing: DropdownButton<ThemeMode>(
                   value: themeMode,
                   onChanged: (newMode) {
                     if (newMode != null) {
-                      ref.read(themeModeProvider.notifier).state = newMode;
+                      ref.read(themeModeProvider.notifier).setThemeMode(newMode);
                     }
                   },
                   items: const [
@@ -60,56 +107,52 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 2,
               child: Padding(
-                padding:const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Accent Color'
-                    ),
-
+                    const Text('Accent Color'),
                     const SizedBox(height: 12),
-
                     GridView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: accentColors.length,
                       gridDelegate:
-                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 40,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                        ),
+                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 40,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                      ),
                       itemBuilder: (context, index) {
                         final color = accentColors[index];
                         final isSelected = color == selectedColor;
 
                         return GestureDetector(
                           onTap: () {
-                            ref.read(accentColorProvider.notifier).state = color;
+                            ref.read(accentColorProvider.notifier).setColor(color);
                           },
                           child: Container(
                             decoration: BoxDecoration(
                               color: color,
-                              shape: BoxShape.rectangle,
-                              border: isSelected ? Border.all(
+                              border: isSelected
+                                  ? Border.all(
                                 color: Theme.of(context).colorScheme.onSurface,
                                 width: 1,
-                              ): null,
+                              )
+                                  : null,
                             ),
-                            child: isSelected ? const Icon(
+                            child: isSelected
+                                ? const Icon(
                               Icons.check,
                               color: Colors.white,
-                            ): null,
-                          )
+                            )
+                                : null,
+                          ),
                         );
-                      }
+                      },
                     ),
                   ],
                 ),
@@ -121,6 +164,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
     );
   }
 }
+
 
 
 

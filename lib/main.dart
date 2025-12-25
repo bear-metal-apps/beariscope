@@ -13,9 +13,9 @@ import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
-    if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
+if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
-    if (dart.library.io) 'package:window_size/window_size.dart';
+if (dart.library.io) 'package:window_size/window_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -24,6 +24,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,45 +51,41 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
       GoRoute(
         path: '/',
-        builder:
-            (_, _) => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+        builder: (_, _) =>
+        const Scaffold(body: Center(child: CircularProgressIndicator())),
         routes: [
           ShellRoute(
             builder: (_, _, child) => MainView(child: child),
             routes: [
               GoRoute(
                 path: 'up_next',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: UpNextPage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: UpNextPage()),
               ),
               GoRoute(
                 path: 'team_lookup',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: TeamLookupPage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: TeamLookupPage()),
               ),
               GoRoute(
                 path: 'picklists',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: PicklistsPage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: PicklistsPage()),
               ),
               GoRoute(
                 path: 'drive_team',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: DriveTeamHomePage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: DriveTeamHomePage()),
               ),
               GoRoute(
                 path: 'corrections',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: CorrectionsPage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: CorrectionsPage()),
               ),
               GoRoute(
                 path: 'pits_scouting',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: PitsScoutingHomePage()),
+                pageBuilder: (_, _) =>
+                const NoTransitionPage(child: PitsScoutingHomePage()),
               ),
             ],
           ),
@@ -98,27 +95,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'account',
-                builder: (_, _) {
-                  return const AccountSettingsPage();
-                },
+                builder: (_, _) => const AccountSettingsPage(),
               ),
               GoRoute(
                 path: 'notifications',
-                builder: (_, _) {
-                  return const NotificationsSettingsPage();
-                },
+                builder: (_, _) =>
+                const NotificationsSettingsPage(),
               ),
               GoRoute(
                 path: 'appearance',
-                builder: (_, _) {
-                  return const AppearanceSettingsPage();
-                },
+                builder: (_, _) =>
+                const AppearanceSettingsPage(),
               ),
               GoRoute(
                 path: 'about',
-                builder: (_, _) {
-                  return const AboutSettingsPage();
-                },
+                builder: (_, _) =>
+                const AboutSettingsPage(),
               ),
               GoRoute(
                 path: 'licenses',
@@ -152,16 +144,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (_, state) {
       final location = state.matchedLocation;
 
-       switch (authStatus) {
-         case AuthStatus.unauthenticated:
-           return location != '/welcome' ? '/welcome' : null;
-         case AuthStatus.authenticating:
-           return (location == '/welcome' || location == '/') ? null : '/';
-         case AuthStatus.authenticated:
+      switch (authStatus) {
+        case AuthStatus.unauthenticated:
+          return location != '/welcome' ? '/welcome' : null;
+        case AuthStatus.authenticating:
+          return (location == '/welcome' || location == '/') ? null : '/';
+        case AuthStatus.authenticated:
           return (location == '/' || location == '/welcome')
               ? '/up_next'
               : null;
-       }
+      }
     },
   );
 });
@@ -179,7 +171,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(authStatusProvider.notifier).setAuthenticating();
-
       await ref.read(authProvider).trySilentLogin();
     });
   }
@@ -192,23 +183,22 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
 
     return MaterialApp.router(
       theme: ThemeData(
-        brightness: Brightness.light,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: accentColor,
+        ),
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: accentColor,
           brightness: Brightness.dark,
         ),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
       ),
       themeMode: themeMode,
       routerConfig: router,
     );
   }
 }
+
 
