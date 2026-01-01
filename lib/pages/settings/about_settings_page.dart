@@ -118,7 +118,7 @@ class AboutSettingsPageState extends ConsumerState<AboutSettingsPage> {
                 style: TextStyle(fontSize: 10),
                 'Copyright Bear Metal 2046, 2025. All rights reserved.',
               ),
-              SizedBox(height: 12)
+              SizedBox(height: 12),
             ],
           ),
         ),
