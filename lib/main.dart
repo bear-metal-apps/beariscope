@@ -105,27 +105,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'account',
-                builder: (_, _) {
-                  return const AccountSettingsPage();
-                },
+                builder: (_, _) => const AccountSettingsPage(),
               ),
               GoRoute(
                 path: 'notifications',
-                builder: (_, _) {
-                  return const NotificationsSettingsPage();
-                },
+                builder: (_, _) => const NotificationsSettingsPage(),
               ),
               GoRoute(
                 path: 'appearance',
-                builder: (_, _) {
-                  return const AppearanceSettingsPage();
-                },
+                builder: (_, _) => const AppearanceSettingsPage(),
               ),
               GoRoute(
                 path: 'about',
-                builder: (_, _) {
-                  return const AboutSettingsPage();
-                },
+                builder: (_, _) => const AboutSettingsPage(),
               ),
               GoRoute(
                 path: 'licenses',
@@ -186,7 +178,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(authStatusProvider.notifier).setAuthenticating();
-
       await ref.read(authProvider).trySilentLogin();
     });
   }
@@ -194,24 +185,22 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final accentColor = ref.watch(accentColorProvider);
 
     return MaterialApp.router(
       theme: ThemeData(
-        brightness: Brightness.light,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightBlue,
+          seedColor: accentColor,
           brightness: Brightness.dark,
         ),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
       ),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }
