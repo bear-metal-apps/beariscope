@@ -44,33 +44,38 @@ class AboutSettingsPageState extends ConsumerState<AboutSettingsPage> {
             children: [
               Section(
                 title: 'About Bear Metal',
-                imageURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGsrfomCbhbrN0fotdpuRs-1Yrb0fvKw_lxA&s',
-                text: 'Bear Metal is a FIRST Robotics Competition team. We are the official Robotics team for Tahoma High School. Our Robotics team consists of several specialized sub-teams which all contribute to our success: Design, Fabrication, Hardware, Programming, Business, Apps, and Systems Engineering. Aside from our sub-teams, our coaches, executives, and mentors are crucial in managing, organizing, and supporting out Robotics team.',
+                imageURL:
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGsrfomCbhbrN0fotdpuRs-1Yrb0fvKw_lxA&s',
+                text:
+                    'Bear Metal is a FIRST Robotics Competition team. We are the official Robotics team for Tahoma High School. Our Robotics team consists of several specialized sub-teams which all contribute to our success: Design, Fabrication, Hardware, Programming, Business, Apps, and Systems Engineering. Aside from our sub-teams, our coaches, executives, and mentors are crucial in managing, organizing, and supporting out Robotics team.',
               ),
               Section(
-                  title: 'About Beariscope',
-                  imageURL: '',
-                  text: 'Also known as the Viewer App, Beariscope is an organized method for our Robotics team members to view, sort, synthesize, and analyze data gathered by our Scouting Team. Features include picklists, which prioritize certain teams for use during alliance selection, team databases, which store information on a team\'s statistics on scouted games within a given season, and scheduling, in which team members can view upcoming tasks and events. \n'
-                      'Beariscope is coded by the Apps subteam of Bear Metal. The language used to code Beariscope is Dart, using Flutter as the app building software. The APIs used in Beariscope are listed below: \n'
-                      ' - The Blue Alliance | https://www.thebluealliance.com/apidocs \n'
-                      ' - Statbotics | https://www.statbotics.io/docs/rest \n'
-                      ' - FRC Nexus | https://frc.nexus/api/v1/docs'
+                title: 'About Beariscope',
+                imageURL: '',
+                text:
+                    'Also known as the Viewer App, Beariscope is an organized method for our Robotics team members to view, sort, synthesize, and analyze data gathered by our Scouting Team. Features include picklists, which prioritize certain teams for use during alliance selection, team databases, which store information on a team\'s statistics on scouted games within a given season, and scheduling, in which team members can view upcoming tasks and events. \n'
+                    'Beariscope is coded by the Apps subteam of Bear Metal. The language used to code Beariscope is Dart, using Flutter as the app building software. The APIs used in Beariscope are listed below: \n'
+                    ' - The Blue Alliance | https://www.thebluealliance.com/apidocs \n'
+                    ' - Statbotics | https://www.statbotics.io/docs/rest \n'
+                    ' - FRC Nexus | https://frc.nexus/api/v1/docs',
               ),
               Section(
-                  title: 'About the Bear Metal Apps Subteam',
-                  imageURL: 'https://avatars.githubusercontent.com/u/149735106?s=200&v=4',
-                  text: 'All Apps subteam team members: \n'
-                      ' - Bradshaw, Callie "Sen" \n'
-                      ' - Dodge, Benton "Ben" \n'
-                      ' - Gupta, Aarav \n'
-                      ' - Hayes, Ashton "Ash" \n'
-                      ' - Jorgensen, Jack \n'
-                      ' - Libadisos, Jacob "Tiny" \n'
-                      ' - Sojy, Meghnaa \n'
-                      ' - Tice, Zayden \n'
-                      ' - Yeo, Ryan \n'
-                      'This is the official Bear Metal 2046 Apps subteam GitHub organization: \n'
-                      ' - https://github.com/bear-metal-apps'
+                title: 'About the Bear Metal Apps Subteam',
+                imageURL:
+                    'https://avatars.githubusercontent.com/u/149735106?s=200&v=4',
+                text:
+                    'All Apps subteam team members: \n'
+                    ' - Bradshaw, Callie "Sen" \n'
+                    ' - Dodge, Benton "Ben" \n'
+                    ' - Gupta, Aarav \n'
+                    ' - Hayes, Ashton "Ash" \n'
+                    ' - Jorgensen, Jack \n'
+                    ' - Libadisos, Jacob "Tiny" \n'
+                    ' - Sojy, Meghnaa \n'
+                    ' - Tice, Zayden \n'
+                    ' - Yeo, Ryan \n'
+                    'This is the official Bear Metal 2046 Apps subteam GitHub organization: \n'
+                    ' - https://github.com/bear-metal-apps',
               ),
               SizedBox(height: 35),
               Text(
@@ -95,19 +100,24 @@ class Section extends StatelessWidget {
   String imageURL;
   String text;
 
-  Section({super.key, required this.title, required this.imageURL, required this.text});
+  Section({
+    super.key,
+    required this.title,
+    required this.imageURL,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Text(style: TextStyle(fontSize: 30), title),
-        imageURL != '' ?
-        Padding(
-          padding: EdgeInsets.all(20),
-          child: Image(image: NetworkImage(imageURL)),
-        ) :
-        SizedBox(),
+        imageURL != ''
+            ? Padding(
+              padding: EdgeInsets.all(20),
+              child: Image(image: NetworkImage(imageURL)),
+            )
+            : SizedBox(),
         // Padding(
         //   padding: EdgeInsets.all(20),
         //   child: Image(image: AssetImage('assets/icon.png'))
