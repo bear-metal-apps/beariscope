@@ -107,10 +107,11 @@ class Section extends StatelessWidget {
           padding: EdgeInsets.all(20),
           child: Image(image: NetworkImage(imageURL)),
         ) :
-        Padding(
-          padding: EdgeInsets.all(20),
-          child: Image(image: AssetImage('lib/assets/icon.png'))
-        ),
+        SizedBox(),
+        // Padding(
+        //   padding: EdgeInsets.all(20),
+        //   child: Image(image: AssetImage('assets/icon.png'))
+        // ),
         Padding(
           padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
           child: Align(
