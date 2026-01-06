@@ -1,4 +1,5 @@
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -19,7 +20,22 @@ class UpNextPage extends StatelessWidget {
                   onPressed: controller.openDrawer,
                 ),
       ),
-      body: const Center(child: Text('Up Next Page')),
+      body: Center(
+        child: Column(
+          children: [
+            UpNextWidget(
+              match: 'Qualification 11',
+              time: 'Next match in 20 Minutes',
+              onPressed: () {},
+            ),
+            UpNextWidget(
+              match: 'Qualification 12',
+              time: 'Next match in 30 Minutes',
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
