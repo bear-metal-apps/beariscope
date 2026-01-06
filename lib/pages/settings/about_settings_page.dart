@@ -96,11 +96,11 @@ class AboutSettingsPageState extends ConsumerState<AboutSettingsPage> {
 }
 
 class Section extends StatelessWidget {
-  String title;
-  String imageURL;
-  String text;
+  final String title;
+  final String imageURL;
+  final String text;
 
-  Section({
+  const Section({
     super.key,
     required this.title,
     required this.imageURL,
