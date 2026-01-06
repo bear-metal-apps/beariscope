@@ -1,6 +1,7 @@
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_page.dart';
+import 'package:beariscope/pages/drive_team/drive_team_match_preview_page.dart';
+import 'package:beariscope/pages/drive_team/drive_team_notes_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
@@ -82,9 +83,32 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: 'drive_team',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: DriveTeamHomePage()),
+                redirect: (context, state) {
+                  if (state.fullPath == '/drive_team') {
+                    return '/drive_team/match_preview/1';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'match_preview/:matchId',
+                    pageBuilder: (context, state) {
+                      final matchId = state.pathParameters['matchId'] ?? '1';
+                      return NoTransitionPage(
+                        child: DriveTeamMatchPreviewPage(matchId: matchId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'notes/:matchId',
+                    pageBuilder: (context, state) {
+                      final matchId = state.pathParameters['matchId'] ?? '1';
+                      return NoTransitionPage(
+                        child: DriveTeamNotesPage(matchId: matchId),
+                      );
+                    },
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'corrections',
