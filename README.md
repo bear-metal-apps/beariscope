@@ -25,26 +25,17 @@
 </p>
 
 > [!IMPORTANT]
-> Beariscope is under active development! Exciting features are still on the way.
+> Beariscope is under active development! New features and quality-of-life are still on the way.
 ---
 
-Beariscope is a next-generation, gamified, and powerful scouting platform for FRC teams, designed and maintained by
-the Bear Metal 2046 Apps subteam.
+Beariscope is a powerful data-viewing application for FRC teams, designed and maintained by the Bear Metal 2046 Apps subteam.
 
 ## Features
 
-- Gamified scouting experience with match wagers using virtual currency [^1]
-- Detailed analytics and insights[^1]
-- Easy data transfer through the cloud[^1]
+- Gamified scouting experience with match wagers using virtual currency
+- Detailed analytics and insights
+- Easy data transfer through the cloud
 - Fast, responsive, and cross-platform
 - Organized, intuitive, and professional user interface
 - Mobile *and* desktop support
 - Built with Flutter
-
-## Getting Started
-
-To get started with Beariscope, simply download the latest release from
-the [Releases](https://github.com/betterbearmetalcode/beariscope/releases) page. Then, you can easily view the data
-collected from Pawfinder!
-
-[^1]: These features, like most, are currently in development and will be available in future releases.
