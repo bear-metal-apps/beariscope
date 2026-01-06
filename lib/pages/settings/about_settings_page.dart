@@ -84,7 +84,7 @@ class AboutSettingsPageState extends ConsumerState<AboutSettingsPage> {
               ),
               Text(
                 style: TextStyle(fontSize: 10),
-                'Copyright Bear Metal 2046, 2025. All rights reserved.',
+                'Copyright FRC Team 2046 Bear Metal, 2025. All rights reserved.',
               ),
               SizedBox(height: 12),
             ],
@@ -109,27 +109,41 @@ class Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(style: TextStyle(fontSize: 30), title),
-        imageURL != ''
-            ? Padding(
-              padding: EdgeInsets.all(20),
-              child: Image(image: NetworkImage(imageURL)),
-            )
-            : SizedBox(),
-        // Padding(
-        //   padding: EdgeInsets.all(20),
-        //   child: Image(image: AssetImage('assets/icon.png'))
-        // ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(style: TextStyle(fontSize: 14), text),
+    return Padding(
+      padding: EdgeInsetsGeometry.symmetric(vertical: 15, horizontal: 30),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+          padding: EdgeInsetsGeometry.all(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(style: TextStyle(fontSize: 30), title),
+                imageURL != ''
+                    ? Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Image(image: NetworkImage(imageURL)),
+                    )
+                    : SizedBox(),
+                // Padding(
+                //   padding: EdgeInsets.all(20),
+                //   child: Image(image: AssetImage('assets/icon.png'))
+                // ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(style: TextStyle(fontSize: 14), text),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ],
+      ),
     );
   }
 }
