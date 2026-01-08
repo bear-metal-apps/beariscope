@@ -1,6 +1,8 @@
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_page.dart';
+import 'package:beariscope/pages/drive_team/drive_team_match_preview_page.dart';
+import 'package:beariscope/pages/drive_team/drive_team_notes_page.dart';
+import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/main_view.dart';
@@ -72,12 +74,41 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'picklists',
                 pageBuilder:
                     (_, _) => const NoTransitionPage(child: PicklistsPage()),
+                routes: [
+                  GoRoute(
+                    path: 'create',
+                    builder: (_, _) => const PicklistsCreatePage(),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'drive_team',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: DriveTeamHomePage()),
+                redirect: (context, state) {
+                  if (state.fullPath == '/drive_team') {
+                    return '/drive_team/match_preview/1';
+                  }
+                  return null;
+                },
+                routes: [
+                  GoRoute(
+                    path: 'match_preview/:matchId',
+                    pageBuilder: (context, state) {
+                      final matchId = state.pathParameters['matchId'] ?? '1';
+                      return NoTransitionPage(
+                        child: DriveTeamMatchPreviewPage(matchId: matchId),
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'notes/:matchId',
+                    pageBuilder: (context, state) {
+                      final matchId = state.pathParameters['matchId'] ?? '1';
+                      return NoTransitionPage(
+                        child: DriveTeamNotesPage(matchId: matchId),
+                      );
+                    },
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'corrections',
@@ -98,27 +129,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'account',
-                builder: (_, _) {
-                  return const AccountSettingsPage();
-                },
+                builder: (_, _) => const AccountSettingsPage(),
               ),
               GoRoute(
                 path: 'notifications',
-                builder: (_, _) {
-                  return const NotificationsSettingsPage();
-                },
+                builder: (_, _) => const NotificationsSettingsPage(),
               ),
               GoRoute(
                 path: 'appearance',
-                builder: (_, _) {
-                  return const AppearanceSettingsPage();
-                },
+                builder: (_, _) => const AppearanceSettingsPage(),
               ),
               GoRoute(
                 path: 'about',
-                builder: (_, _) {
-                  return const AboutSettingsPage();
-                },
+                builder: (_, _) => const AboutSettingsPage(),
               ),
               GoRoute(
                 path: 'licenses',
@@ -179,7 +202,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       ref.read(authStatusProvider.notifier).setAuthenticating();
-
       await ref.read(authProvider).trySilentLogin();
     });
   }
@@ -187,24 +209,22 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final accentColor = ref.watch(accentColorProvider);
 
     return MaterialApp.router(
       theme: ThemeData(
-        brightness: Brightness.light,
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
       ),
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightBlue,
+          seedColor: accentColor,
           brightness: Brightness.dark,
         ),
-        iconTheme: const IconThemeData(fill: 0.0, weight: 600),
       ),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       routerConfig: router,
     );
   }

@@ -1,13 +1,25 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
+import 'package:riverpod/riverpod.dart';
 
-class PitsScoutingHomePage extends StatelessWidget {
+import 'pits_scouting_data_provider.dart';
+
+class PitsScoutingHomePage extends ConsumerStatefulWidget {
   const PitsScoutingHomePage({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => PitsScoutingHomePageState();
+}
+
+class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
+    for (var i = 0; i < 50; i++) {
+      ref.read(PitsScoutingDatabaseProvider.notifier).editData(PitsScoutingTeamData('Team name', i, false, 'Notes'));
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pits Scouting'),
@@ -19,12 +31,7 @@ class PitsScoutingHomePage extends StatelessWidget {
                   onPressed: controller.openDrawer,
                 ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [NumberTextField(labelText: 'Meow',), RadioButton(inputs: ['meow', 'meow2'],), MultipleChoice(), DropdownButtonOneChoice(), SegmentedSlider()],
-        ),
-      ),
+      body: Center(child: Text('Pits Scouting Page')),
     );
   }
 }
