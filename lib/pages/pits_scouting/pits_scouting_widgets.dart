@@ -41,14 +41,17 @@ class _RadioButtonState extends State<RadioButton> {
           _option = value;
         });
       },
-      child: ListView.builder(
-        itemCount: widget.inputs.length,
-        itemBuilder: (context, index) {
-          ListTile(
-            title: const Text('Placeholder 1'),
-            leading: Radio<String>(value: widget.inputs[index]),
-          );
-        },
+      child: SizedBox(
+        height: 120,
+        child: ListView.builder(
+          itemCount: widget.inputs.length,
+          itemBuilder: (context, index) {
+            ListTile(
+              title: const Text('Placeholder 1'),
+              leading: Radio<String>(value: widget.inputs[index]),
+            );
+          },
+        ),
       ),
     );
   }
