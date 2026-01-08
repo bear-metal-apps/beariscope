@@ -23,7 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/libkoala.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,7 +33,8 @@ Future<void> main() async {
   await SharedPreferences.getInstance();
   setUrlStrategy(PathUrlStrategy());
 
-  await initHiveForFlutter();
+  await Hive.initFlutter();
+  await Hive.openBox('api_cache');
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));
