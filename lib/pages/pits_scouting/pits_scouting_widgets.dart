@@ -1,20 +1,15 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-class NumberTextField extends StatefulWidget {
-  const NumberTextField({super.key});
+class NumberTextField extends StatelessWidget {
+  final String labelText;
 
-  @override
-  State<StatefulWidget> createState() {
-    return _NumberTextFieldState();
-  }
-}
+  const NumberTextField({super.key, required this.labelText});
 
-class _NumberTextFieldState extends State<NumberTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      decoration: InputDecoration(labelText: "Enter number"),
+      decoration: InputDecoration(labelText: labelText),
       keyboardType: TextInputType.number,
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.digitsOnly,
@@ -24,7 +19,9 @@ class _NumberTextFieldState extends State<NumberTextField> {
 }
 
 class RadioButton extends StatefulWidget {
-  const RadioButton({super.key});
+  const RadioButton({super.key, required this.inputs});
+
+  final List<String> inputs;
 
   @override
   State<RadioButton> createState() => _RadioButtonState();
@@ -44,17 +41,14 @@ class _RadioButtonState extends State<RadioButton> {
           _option = value;
         });
       },
-      child: const Column(
-        children: <Widget>[
+      child: ListView.builder(
+        itemCount: widget.inputs.length,
+        itemBuilder: (context, index) {
           ListTile(
-            title: Text('Placeholder 1'),
-            leading: Radio<ScoutingOption>(value: ScoutingOption.choice1),
-          ),
-          ListTile(
-            title: Text('Placeholder 2'),
-            leading: Radio<ScoutingOption>(value: ScoutingOption.choice2),
-          ),
-        ],
+            title: const Text('Placeholder 1'),
+            leading: Radio<String>(value: widget.inputs[index]),
+          );
+        },
       ),
     );
   }
@@ -130,6 +124,7 @@ const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
 
 class DropdownButtonOneChoice extends StatefulWidget {
   const DropdownButtonOneChoice({super.key});
+
   @override
   State<DropdownButtonOneChoice> createState() => _DropdownButtonState();
 }
@@ -146,21 +141,21 @@ class _DropdownButtonState extends State<DropdownButtonOneChoice> {
           dropdownValue = value!;
         });
       },
-      dropdownMenuEntries: list.map<DropdownMenuEntry<String>>((String value) {
-        return DropdownMenuEntry<String>(
-          value: value,
-          label: value,
-        );
-      }).toList(),
+      dropdownMenuEntries:
+          list.map<DropdownMenuEntry<String>>((String value) {
+            return DropdownMenuEntry<String>(value: value, label: value);
+          }).toList(),
     );
   }
 }
+
 class SegmentedSlider extends StatefulWidget {
   const SegmentedSlider({super.key});
 
   @override
   State<SegmentedSlider> createState() => _SegmentedSliderState();
 }
+
 class _SegmentedSliderState extends State<SegmentedSlider> {
   double _currentDiscreteSliderValue = 60;
   bool year2023 = true;
