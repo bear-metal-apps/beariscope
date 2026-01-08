@@ -30,15 +30,15 @@ class RadioButton extends StatefulWidget {
 enum ScoutingOption { choice1, choice2 }
 
 class _RadioButtonState extends State<RadioButton> {
-  ScoutingOption? _option = ScoutingOption.choice1;
+  ScoutingOption? option = ScoutingOption.choice1;
 
   @override
   Widget build(BuildContext context) {
     return RadioGroup<ScoutingOption>(
-      groupValue: _option,
+      groupValue: option,
       onChanged: (ScoutingOption? value) {
         setState(() {
-          _option = value;
+          option = value;
         });
       },
       child: ListView.builder(
@@ -48,13 +48,14 @@ class _RadioButtonState extends State<RadioButton> {
             title: const Text('Placeholder 1'),
             leading: Radio<String>(value: widget.inputs[index]),
           );
+          return null;
         },
       ),
     );
   }
 }
 
-enum ScoutOption { one, two, three, four, five }
+enum ScoutOption {one, two, three, four, five}
 
 const List<(ScoutOption, String)> scoutChooseOptions = <(ScoutOption, String)>[
   (ScoutOption.one, 'Option 1'),

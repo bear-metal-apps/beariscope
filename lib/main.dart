@@ -4,6 +4,7 @@ import 'package:beariscope/pages/drive_team/drive_team_match_preview_page.dart';
 import 'package:beariscope/pages/drive_team/drive_team_notes_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
+import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page_savings.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/picklists/picklists_page.dart';
