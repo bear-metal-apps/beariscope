@@ -48,9 +48,126 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [],
+          children: [
+            PitsScoutingTeamCard(teamName: 'Bear Metal', teamNumber: '2046')
+          ],
         ),
       ),
+    );
+  }
+}
+
+class PitsScoutingTeamCard extends StatelessWidget {
+  final String teamName;
+  final String teamNumber;
+  final double? height;
+  final bool? scouted;
+
+  const PitsScoutingTeamCard({
+    super.key,
+    required this.teamName,
+    required this.teamNumber,
+    this.height,
+    this.scouted
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        clipBehavior: Clip.antiAlias,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => _ScoutingPage(
+                    teamNumber: teamNumber,
+                    teamName: teamName,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              height: height ?? 90,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        teamName,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        teamNumber,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(child: SizedBox(height: 89)),
+                  scouted ?? false == false ?
+                      Text(
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        'Not Scouted'
+                      ) :
+                      Text(
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        'Scouted'
+                      )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoutingPage extends StatefulWidget {
+  final String teamName;
+  final String teamNumber;
+
+  const _ScoutingPage({
+    super.key,
+    required this.teamName,
+    required this.teamNumber,
+  });
+
+  @override
+  State<_ScoutingPage> createState() => _ScoutingPageState();
+}
+
+class _ScoutingPageState extends State<_ScoutingPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Scouting: Team ${widget.teamNumber}'),
+        ),
+        body: Center()
     );
   }
 }
