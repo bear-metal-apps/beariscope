@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 
-import 'pits_scouting_data_provider.dart';
-
 class _PitsScoutingHomePage extends StatelessWidget {
   const _PitsScoutingHomePage({super.key});
   @override
@@ -14,17 +12,23 @@ class _PitsScoutingHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Pits Scouting'),
         leading:
-        controller.isDesktop
-            ? null
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: controller.openDrawer,
-        ),
+            controller.isDesktop
+                ? null
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: controller.openDrawer,
+                ),
       ),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [NumberTextField(labelText: 'Meow',), RadioButton(inputs: ['meow', 'meow2'],), MultipleChoice(), DropdownButtonOneChoice(), SegmentedSlider()],
+          children: [
+            NumberTextField(labelText: 'Meow'),
+            RadioButton(inputs: ['meow', 'meow2']),
+            MultipleChoice(),
+            DropdownButtonOneChoice(),
+            SegmentedSlider(),
+          ],
         ),
       ),
     );

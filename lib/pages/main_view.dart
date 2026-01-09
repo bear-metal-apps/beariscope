@@ -234,4 +234,3 @@ class _MainViewState extends State<MainView> {
     return children;
   }
 }
-

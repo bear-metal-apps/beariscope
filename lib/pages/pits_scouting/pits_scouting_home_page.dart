@@ -4,13 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:riverpod/riverpod.dart';
 
-import 'pits_scouting_data_provider.dart';
-
 class PitsScoutingHomePage extends ConsumerStatefulWidget {
   const PitsScoutingHomePage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => PitsScoutingHomePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      PitsScoutingHomePageState();
 }
 
 class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
@@ -39,14 +38,19 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
           ],
         ),
         leading:
-        main.isDesktop
-            ? SizedBox(width: 40)
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
+            main.isDesktop
+                ? SizedBox(width: 40)
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: main.openDrawer,
+                ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [],
         ),
       ),
-      body: Center(child: Text('Pits Scouting Page')),
     );
   }
 }

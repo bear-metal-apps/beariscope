@@ -55,7 +55,7 @@ class _RadioButtonState extends State<RadioButton> {
   }
 }
 
-enum ScoutOption {one, two, three, four, five}
+enum ScoutOption { one, two, three, four, five }
 
 const List<(ScoutOption, String)> scoutChooseOptions = <(ScoutOption, String)>[
   (ScoutOption.one, 'Option 1'),
