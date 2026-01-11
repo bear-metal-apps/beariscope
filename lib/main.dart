@@ -1,3 +1,4 @@
+import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
@@ -46,11 +47,16 @@ Future<void> main() async {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authStatus = ref.watch(authStatusProvider);
+  final authStatus = ref.watch(authStatusProvider.notifier);
 
   return GoRouter(
-    initialLocation: '/up_next',
+    initialLocation: '/splash',
+    refreshListenable: authStatus,
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
       ShellRoute(
         builder: (_, _, child) => MainView(child: child),
@@ -141,23 +147,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (_, state) {
-      final auth = authStatus;
+      final auth = ref.watch(authStatusProvider);
       final location = state.matchedLocation;
-      final isWelcomePage = location == '/welcome';
 
-      // do nothing while authing
+      // splash while authing
       if (auth == AuthStatus.authenticating) {
-        return null;
+        return location == '/splash' ? null : '/splash';
       }
 
       // go to welcome if not authed
       if (auth == AuthStatus.unauthenticated) {
-        return isWelcomePage ? null : '/welcome';
+        return location == '/welcome' ? null : '/welcome';
       }
 
       // if on welcome and authed then leave
-      if (authStatus == AuthStatus.authenticated && isWelcomePage) {
-        return '/up_next';
+      if (auth == AuthStatus.authenticated) {
+        if (location == '/welcome' || location == '/splash') {
+          return '/up_next';
+        }
       }
 
       return null;
@@ -187,12 +194,7 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final accentColor = ref.watch(accentColorProvider);
-    final authStatus = ref.watch(authStatusProvider);
     final deviceInfo = ref.read(deviceInfoProvider);
-
-    if (authStatus == AuthStatus.authenticating) {
-      return _loadingApp(accentColor);
-    }
 
     final app = MaterialApp.router(
       routerConfig: router,
@@ -207,15 +209,6 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     }
 
     return app;
-  }
-
-  Widget _loadingApp(Color accentColor) {
-    return MaterialApp(
-      theme: _createTheme(Brightness.light, accentColor),
-      darkTheme: _createTheme(Brightness.dark, accentColor),
-      themeMode: ThemeMode.system,
-      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
-    );
   }
 }
 

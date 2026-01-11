@@ -16,7 +16,7 @@ class WelcomePage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16,
-          children: <Widget>[
+          children: [
             SvgPicture.asset(
               'assets/beariscope_head.svg',
               height: 128,
@@ -31,7 +31,7 @@ class WelcomePage extends ConsumerWidget {
             ),
             IntrinsicWidth(
               child: Column(
-                spacing: 12,
+                spacing: 16,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FilledButton.icon(
