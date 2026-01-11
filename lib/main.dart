@@ -1,7 +1,6 @@
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_match_preview_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_notes_page.dart';
+import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
@@ -59,6 +58,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/up_next',
             pageBuilder: (_, _) => const NoTransitionPage(child: UpNextPage()),
+            routes: [
+              GoRoute(
+                path: ':matchKey',
+                builder: (context, state) {
+                  final matchKey = state.pathParameters['matchKey'] ?? '1';
+                  return DriveTeamMatchPreviewPage(matchKey: matchKey);
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: '/team_lookup',
@@ -73,35 +81,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'create',
                 builder: (_, _) => const PicklistsCreatePage(),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/drive_team',
-            redirect: (context, state) {
-              if (state.fullPath == '/drive_team') {
-                return '/drive_team/match_preview/1';
-              }
-              return null;
-            },
-            routes: [
-              GoRoute(
-                path: 'match_preview/:matchId',
-                pageBuilder: (context, state) {
-                  final matchId = state.pathParameters['matchId'] ?? '1';
-                  return NoTransitionPage(
-                    child: DriveTeamMatchPreviewPage(matchId: matchId),
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'notes/:matchId',
-                pageBuilder: (context, state) {
-                  final matchId = state.pathParameters['matchId'] ?? '1';
-                  return NoTransitionPage(
-                    child: DriveTeamNotesPage(matchId: matchId),
-                  );
-                },
               ),
             ],
           ),
@@ -157,124 +136,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                   ? const Center(child: Text('Team ID is empty'))
                   : ManageTeamPage(teamId: teamId);
             },
-      GoRoute(
-        path: '/',
-        builder:
-            (_, _) => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-        routes: [
-          ShellRoute(
-            builder: (_, _, child) => MainView(child: child),
-            routes: [
-              GoRoute(
-                path: 'up_next',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: UpNextPage()),
-              ),
-              GoRoute(
-                path: 'team_lookup',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: TeamLookupPage()),
-              ),
-              GoRoute(
-                path: 'picklists',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: PicklistsPage()),
-                routes: [
-                  GoRoute(
-                    path: 'create',
-                    builder: (_, _) => const PicklistsCreatePage(),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'drive_team',
-                redirect: (context, state) {
-                  if (state.fullPath == '/drive_team') {
-                    return '/drive_team/match_preview/1';
-                  }
-                  return null;
-                },
-                routes: [
-                  GoRoute(
-                    path: 'match_preview/:matchId',
-                    pageBuilder: (context, state) {
-                      final matchId = state.pathParameters['matchId'] ?? '1';
-                      return NoTransitionPage(
-                        child: DriveTeamMatchPreviewPage(matchId: matchId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'notes/:matchId',
-                    pageBuilder: (context, state) {
-                      final matchId = state.pathParameters['matchId'] ?? '1';
-                      return NoTransitionPage(
-                        child: DriveTeamNotesPage(matchId: matchId),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'corrections',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: CorrectionsPage()),
-              ),
-              GoRoute(
-                path: 'pits_scouting',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: PitsScoutingHomePage()),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'settings',
-            builder: (_, _) => const SettingsPage(),
-            routes: [
-              GoRoute(
-                path: 'account',
-                builder: (_, _) => const AccountSettingsPage(),
-              ),
-              GoRoute(
-                path: 'notifications',
-                builder: (_, _) => const NotificationsSettingsPage(),
-              ),
-              GoRoute(
-                path: 'appearance',
-                builder: (_, _) => const AppearanceSettingsPage(),
-              ),
-              GoRoute(
-                path: 'about',
-                builder: (_, _) => const AboutSettingsPage(),
-              ),
-              GoRoute(
-                path: 'licenses',
-                builder: (_, _) {
-                  return FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder: (context, snapshot) {
-                      final version = snapshot.data?.version ?? '...';
-                      return LicensePage(
-                        applicationName: 'Beariscope',
-                        applicationVersion: version,
-                      );
-                    },
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'manage_team/:teamId',
-                builder: (_, state) {
-                  final teamId = state.pathParameters['teamId'] ?? '';
-                  return teamId.isEmpty
-                      ? const Center(child: Text('Team ID is empty'))
-                      : ManageTeamPage(teamId: teamId);
-                },
-              ),
-            ],
           ),
         ],
       ),
@@ -330,14 +191,14 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     final deviceInfo = ref.read(deviceInfoProvider);
 
     if (authStatus == AuthStatus.authenticating) {
-      return _loadingApp();
+      return _loadingApp(accentColor);
     }
 
     final app = MaterialApp.router(
       routerConfig: router,
-      theme: _createTheme(Brightness.light),
-      darkTheme: _createTheme(Brightness.dark),
-      themeMode: ThemeMode.system,
+      theme: _createTheme(Brightness.light, accentColor),
+      darkTheme: _createTheme(Brightness.dark, accentColor),
+      themeMode: themeMode,
       debugShowCheckedModeBanner: false,
     );
 
@@ -348,19 +209,19 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     return app;
   }
 
-  Widget _loadingApp() {
+  Widget _loadingApp(Color accentColor) {
     return MaterialApp(
-      theme: _createTheme(Brightness.light),
-      darkTheme: _createTheme(Brightness.dark),
+      theme: _createTheme(Brightness.light, accentColor),
+      darkTheme: _createTheme(Brightness.dark, accentColor),
       themeMode: ThemeMode.system,
       home: const Scaffold(body: Center(child: CircularProgressIndicator())),
     );
   }
 }
 
-ThemeData _createTheme(Brightness brightness) {
+ThemeData _createTheme(Brightness brightness, Color accentColor) {
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: Colors.lightBlue,
+    seedColor: accentColor,
     brightness: brightness,
   );
 

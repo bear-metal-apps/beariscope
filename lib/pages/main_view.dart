@@ -70,12 +70,6 @@ class _MainViewState extends State<MainView> {
       group: 'Insights',
     ),
     _NavItem(
-      route: '/drive_team',
-      icon: Symbols.stadia_controller_rounded,
-      label: 'Drive Team',
-      group: 'Insights',
-    ),
-    _NavItem(
       route: '/corrections',
       icon: Symbols.table_edit_rounded,
       label: 'Data Corrections',

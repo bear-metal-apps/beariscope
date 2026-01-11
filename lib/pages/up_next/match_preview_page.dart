@@ -1,14 +1,11 @@
 import 'package:beariscope/components/team_card.dart';
-import 'package:beariscope/pages/main_view.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 class DriveTeamMatchPreviewPage extends StatefulWidget {
-  final String matchId;
+  final String matchKey;
 
-  const DriveTeamMatchPreviewPage({super.key, required this.matchId});
+  const DriveTeamMatchPreviewPage({super.key, required this.matchKey});
 
   @override
   State<DriveTeamMatchPreviewPage> createState() =>
@@ -49,37 +46,8 @@ class _DriveTeamMatchPreviewPageState extends State<DriveTeamMatchPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final mainViewController = MainViewController.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Qualifier ${widget.matchId}'),
-        leading:
-            mainViewController.isDesktop
-                ? null
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: mainViewController.openDrawer,
-                ),
-        actions: [
-          IconButton.filledTonal(
-            onPressed: () {
-              if ((int.tryParse(widget.matchId) ?? 1) != 1) {
-                context.go(
-                  '/drive_team/notes/${int.tryParse(widget.matchId)! - 1}',
-                );
-              }
-            },
-            icon: Icon(Symbols.arrow_back),
-          ),
-          SizedBox(width: 12),
-          FilledButton(
-            onPressed: () => context.go('/drive_team/notes/${widget.matchId}'),
-            child: Text('Next'),
-          ),
-        ],
-        actionsPadding: EdgeInsets.only(right: 12),
-      ),
+      appBar: AppBar(title: Text('Qualifier ${widget.matchKey}')),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
@@ -204,12 +172,74 @@ class _DriveTeamMatchPreviewPageState extends State<DriveTeamMatchPreviewPage> {
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
+                        showDragHandle: true,
+                        isScrollControlled: true,
                         builder: (BuildContext context) {
-                          return Center();
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
+                            ),
+                            child: SingleChildScrollView(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Column(
+                                  mainAxisSize:
+                                      MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '2046',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const TextField(
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        labelText: 'Notes',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      '2910',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const TextField(
+                                      maxLines: null,
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        labelText: 'Notes',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
                         },
                       );
                     },
-                    child: Text('Scout Lead Notes'),
+                    child: Text('Take Notes'),
                   ),
                 ),
               ),

@@ -1,78 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class UpNextWidget extends StatelessWidget {
-  final String match;
+  final String matchKey;
   final String time;
-  final VoidCallback onPressed;
 
-  const UpNextWidget({
-    super.key,
-    required this.match,
-    required this.time,
-    required this.onPressed,
-  });
+  const UpNextWidget({super.key, required this.matchKey, required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.6,
-        height: 100,
-        padding: EdgeInsets.all(10.0),
-        margin: EdgeInsets.all(20.0),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        match,
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      margin: EdgeInsets.all(0),
+      clipBehavior: Clip.antiAlias,
+      elevation: 0,
+      child: InkWell(
+        onTap: () => context.push('/up_next/$matchKey'),
+        child: Container(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    matchKey,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(time, style: TextStyle(fontSize: 18)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.2,
 
-                child: OutlinedButton(
-                  onPressed: onPressed,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text('Next Event', style: TextStyle(fontSize: 18)),
-                  ),
-                ),
+                  Text(time),
+                ],
               ),
-            ),
-          ],
+              // OutlinedButton(onPressed: onPressed, child: Text('Next Event')),
+            ],
+          ),
         ),
       ),
     );

@@ -21,19 +21,24 @@ class UpNextPage extends StatelessWidget {
                 ),
       ),
       body: Center(
-        child: Column(
-          children: [
-            UpNextWidget(
-              match: 'Qualification 11',
-              time: 'Next match in 20 Minutes',
-              onPressed: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Column(
+              spacing: 16,
+              children: [
+                UpNextWidget(
+                  matchKey: '2026wabon_qm11',
+                  time: 'Starts at 10:05 AM',
+                ),
+                UpNextWidget(
+                  matchKey: '2026wabon_qm12',
+                  time: 'Starts at 10:25 AM',
+                ),
+              ],
             ),
-            UpNextWidget(
-              match: 'Qualification 12',
-              time: 'Next match in 30 Minutes',
-              onPressed: () {},
-            ),
-          ],
+          ),
         ),
       ),
     );
