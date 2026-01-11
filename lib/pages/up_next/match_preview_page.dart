@@ -174,65 +174,60 @@ class _DriveTeamMatchPreviewPageState extends State<DriveTeamMatchPreviewPage> {
                         context: context,
                         showDragHandle: true,
                         isScrollControlled: true,
+                        useSafeArea: true,
                         builder: (BuildContext context) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            child: SingleChildScrollView(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Column(
-                                  mainAxisSize:
-                                      MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '2046',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                      ),
+                          return SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '2046',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
-                                    const SizedBox(height: 8),
-                                    const TextField(
-                                      maxLines: null,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: 'Notes',
-                                      ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const TextField(
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: 'Notes',
                                     ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      '2910',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                      ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    '2910',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
-                                    const SizedBox(height: 8),
-                                    const TextField(
-                                      maxLines: null,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(),
-                                        labelText: 'Notes',
-                                      ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const TextField(
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      labelText: 'Notes',
                                     ),
-                                    const SizedBox(height: 16),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
                               ),
                             ),
                           );
