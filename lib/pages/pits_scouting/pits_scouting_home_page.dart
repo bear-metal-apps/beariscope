@@ -37,12 +37,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
           ],
         ),
         leading:
-        main.isDesktop
-            ? SizedBox(width: 40)
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
-        ),
+            main.isDesktop
+                ? SizedBox(width: 40)
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: main.openDrawer,
+                ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -166,9 +166,9 @@ class _PitsScoutingTeamCardState extends State<PitsScoutingTeamCard> {
                 MaterialPageRoute(
                   builder:
                       (context) => _ScoutingPage(
-                    teamNumber: widget.teamNumber,
-                    teamName: widget.teamName,
-                  ),
+                        teamNumber: widget.teamNumber,
+                        teamName: widget.teamName,
+                      ),
                 ),
               );
 
@@ -207,19 +207,19 @@ class _PitsScoutingTeamCardState extends State<PitsScoutingTeamCard> {
                   Expanded(child: SizedBox(height: 89)),
                   scouted == false
                       ? Text(
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    'Not Scouted',
-                  )
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        'Not Scouted',
+                      )
                       : Text(
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    'Scouted',
-                  ),
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        'Scouted',
+                      ),
                 ],
               ),
             ),
@@ -234,10 +234,7 @@ class _ScoutingPage extends StatefulWidget {
   final String teamName;
   final String teamNumber;
 
-  const _ScoutingPage({
-    required this.teamName,
-    required this.teamNumber,
-  });
+  const _ScoutingPage({required this.teamName, required this.teamNumber});
 
   @override
   State<_ScoutingPage> createState() => _ScoutingPageState();
