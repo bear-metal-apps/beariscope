@@ -25,7 +25,7 @@
 </p>
 
 > [!IMPORTANT]
-> Beariscope is under active development! New features and quality-of-life are still on the way.
+> Beariscope is under active development! Currently in closed beta.
 ---
 
 Beariscope is a powerful data-viewing application for FRC teams, designed and maintained by the Bear Metal 2046 Apps subteam.
