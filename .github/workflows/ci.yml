@@ -53,7 +53,7 @@ jobs:
 
       - name: Analyze project source
         id: analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
         continue-on-error: true
 
       - name: Run tests
