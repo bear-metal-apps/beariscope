@@ -3,14 +3,23 @@ import 'package:flutter/material.dart';
 
 class NumberTextField extends StatelessWidget {
   final String labelText;
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
-  const NumberTextField({super.key, required this.labelText});
+  const NumberTextField({
+    super.key,
+    required this.labelText,
+    this.controller,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       decoration: InputDecoration(labelText: labelText),
       keyboardType: TextInputType.number,
+      onChanged: onChanged,
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.digitsOnly,
       ],
@@ -19,167 +28,218 @@ class NumberTextField extends StatelessWidget {
 }
 
 class RadioButton extends StatefulWidget {
-  const RadioButton({super.key, required this.inputs});
+  const RadioButton({
+    super.key,
+    required this.options,
+    this.initialValue,
+    this.onChanged,
+  });
 
-  final List<String> inputs;
+  final List<String> options;
+  final String? initialValue;
+  final ValueChanged<String?>? onChanged;
 
   @override
   State<RadioButton> createState() => _RadioButtonState();
 }
 
-enum ScoutingOption { choice1, choice2 }
-
 class _RadioButtonState extends State<RadioButton> {
-  ScoutingOption? _option = ScoutingOption.choice1;
+  String? _selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.initialValue ?? widget.options.firstOrNull;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return RadioGroup<ScoutingOption>(
-      groupValue: _option,
-      onChanged: (ScoutingOption? value) {
-        setState(() {
-          _option = value;
-        });
-      },
-      child: SizedBox(
-        height: 120,
-        child: ListView.builder(
-          itemCount: widget.inputs.length,
-          itemBuilder: (context, index) {
-            ListTile(
-              title: const Text('Placeholder 1'),
-              leading: Radio<String>(value: widget.inputs[index]),
-            );
-          },
-        ),
+    return SizedBox(
+      height: 120,
+      child: ListView.builder(
+        itemCount: widget.options.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(widget.options[index]),
+            leading: Radio<String>(
+              value: widget.options[index],
+              groupValue: _selectedValue,
+              onChanged: (String? value) {
+                setState(() {
+                  _selectedValue = value;
+                });
+                widget.onChanged?.call(value);
+              },
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-enum ScoutOption { one, two, three, four, five }
-
-const List<(ScoutOption, String)> scoutChooseOptions = <(ScoutOption, String)>[
-  (ScoutOption.one, 'Option 1'),
-  (ScoutOption.two, 'Option 2'),
-  (ScoutOption.three, 'Option 3'),
-  (ScoutOption.four, 'Option 4'),
-  (ScoutOption.five, 'Option 5'),
-];
-
 class MultipleChoice extends StatefulWidget {
-  const MultipleChoice({super.key});
+  const MultipleChoice({
+    super.key,
+    required this.options,
+    this.initialSelection,
+    this.onSelectionChanged,
+    this.label,
+  });
+
+  final List<String> options;
+  final List<String>? initialSelection;
+  final ValueChanged<Set<String>>? onSelectionChanged;
+  final String? label;
 
   @override
   State<MultipleChoice> createState() => _MultipleChoiceState();
 }
 
 class _MultipleChoiceState extends State<MultipleChoice> {
-  Set<ScoutOption> _multipleChoiceSelection = <ScoutOption>{ScoutOption.three};
+  Set<String> _selection = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialSelection != null) {
+      _selection = widget.initialSelection!.toSet();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        const SizedBox(height: 20),
-        const Text('Multiple Choice'),
-        const SizedBox(height: 10),
-        SegmentedButton<ScoutOption>(
+        if (widget.label != null) ...[
+          const SizedBox(height: 20),
+          Text(widget.label!),
+          const SizedBox(height: 10),
+        ],
+        SegmentedButton<String>(
           multiSelectionEnabled: true,
           emptySelectionAllowed: true,
           showSelectedIcon: false,
-          selected: _multipleChoiceSelection,
-          onSelectionChanged: (Set<ScoutOption> newSelection) {
+          selected: _selection,
+          onSelectionChanged: (Set<String> newSelection) {
             setState(() {
-              _multipleChoiceSelection = newSelection;
+              _selection = newSelection;
             });
+            widget.onSelectionChanged?.call(newSelection);
           },
-          segments: const <ButtonSegment<ScoutOption>>[
-            ButtonSegment<ScoutOption>(
-              value: ScoutOption.one,
-              label: Text('One'),
-            ),
-            ButtonSegment<ScoutOption>(
-              value: ScoutOption.two,
-              label: Text('Two'),
-            ),
-            ButtonSegment<ScoutOption>(
-              value: ScoutOption.three,
-              label: Text('Three'),
-            ),
-            ButtonSegment<ScoutOption>(
-              value: ScoutOption.four,
-              label: Text('Four'),
-            ),
-            ButtonSegment<ScoutOption>(
-              value: ScoutOption.five,
-              label: Text('Five'),
-            ),
-          ],
+          segments: widget.options
+              .map((option) => ButtonSegment<String>(
+            value: option,
+            label: Text(option),
+          ))
+              .toList(),
         ),
       ],
     );
   }
 }
 
-const List<String> list = <String>['One', 'Two', 'Three', 'Four'];
-
 class DropdownButtonOneChoice extends StatefulWidget {
-  const DropdownButtonOneChoice({super.key});
+  const DropdownButtonOneChoice({
+    super.key,
+    required this.options,
+    this.initialValue,
+    this.onChanged,
+    this.label,
+  });
+
+  final List<String> options;
+  final String? initialValue;
+  final ValueChanged<String?>? onChanged;
+  final String? label;
 
   @override
   State<DropdownButtonOneChoice> createState() => _DropdownButtonState();
 }
 
 class _DropdownButtonState extends State<DropdownButtonOneChoice> {
-  String dropdownValue = list.first;
+  String? _selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.initialValue ?? widget.options.firstOrNull;
+  }
 
   @override
   Widget build(BuildContext context) {
     return DropdownMenu<String>(
-      initialSelection: dropdownValue,
+      label: widget.label != null ? Text(widget.label!) : null,
+      initialSelection: _selectedValue,
       onSelected: (String? value) {
         setState(() {
-          dropdownValue = value!;
+          _selectedValue = value;
         });
+        widget.onChanged?.call(value);
       },
       dropdownMenuEntries:
-          list.map<DropdownMenuEntry<String>>((String value) {
-            return DropdownMenuEntry<String>(value: value, label: value);
-          }).toList(),
+      widget.options.map<DropdownMenuEntry<String>>((String value) {
+        return DropdownMenuEntry<String>(value: value, label: value);
+      }).toList(),
     );
   }
 }
 
 class SegmentedSlider extends StatefulWidget {
-  const SegmentedSlider({super.key});
+  const SegmentedSlider({
+    super.key,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    this.initialValue,
+    this.onChanged,
+    this.label,
+  });
+
+  final double min;
+  final double max;
+  final int divisions;
+  final double? initialValue;
+  final ValueChanged<double>? onChanged;
+  final String? label;
 
   @override
   State<SegmentedSlider> createState() => _SegmentedSliderState();
 }
 
 class _SegmentedSliderState extends State<SegmentedSlider> {
-  double _currentDiscreteSliderValue = 60;
-  bool year2023 = true;
+  late double _currentValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentValue = widget.initialValue ?? widget.min;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        if (widget.label != null) ...[
+          Text(widget.label!),
+          const SizedBox(height: 8),
+        ],
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16,
           children: <Widget>[
             Slider(
-              value: _currentDiscreteSliderValue,
-              max: 100,
-              divisions: 5,
-              label: _currentDiscreteSliderValue.round().toString(),
+              value: _currentValue,
+              min: widget.min,
+              max: widget.max,
+              divisions: widget.divisions,
+              label: _currentValue.round().toString(),
               onChanged: (double value) {
                 setState(() {
-                  _currentDiscreteSliderValue = value;
+                  _currentValue = value;
                 });
+                widget.onChanged?.call(value);
               },
             ),
           ],
