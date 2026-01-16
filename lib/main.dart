@@ -11,6 +11,7 @@ import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/manage_team_page.dart';
+import 'package:beariscope/pages/settings/user_selection_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
@@ -138,6 +139,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'appearance',
                 builder: (_, _) => const AppearanceSettingsPage(),
+              ),
+              GoRoute(
+                path: 'user_selection',
+                builder: (_, _) => const UserSelectionPage(),
               ),
               GoRoute(
                 path: 'about',
