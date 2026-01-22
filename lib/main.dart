@@ -142,7 +142,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: 'user_selection',
-                builder: (_, _) => const UserSelectionPage(),
+                builder: (_, _) => const MainView(child: UserSelectionPage()),
               ),
               GoRoute(
                 path: 'about',
