@@ -20,8 +20,9 @@ dependencies:
     sdk: flutter
   go_router: ^16.2.2
   libkoala:
-#    git: https://github.com/betterbearmetalcode/libkoala.git
-    path: ../libkoala
+    git: 
+      url: https://github.com/betterbearmetalcode/libkoala.git
+      ref: v2.0.0
   logger: ^2.6.2
   material_symbols_icons: ^4.2808.1
   package_info_plus: ^8.3.1
