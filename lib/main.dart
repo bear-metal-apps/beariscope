@@ -9,7 +9,6 @@ import 'package:beariscope/pages/picklists/picklists_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
-import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
@@ -25,6 +24,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:beariscope/pages/settings/team_role.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -116,6 +117,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const AppearanceSettingsPage(),
               ),
               GoRoute(
+                path: 'roles',
+                builder: (_, _) => const TeamRolesPage(),
+              ),
+              GoRoute(
                 path: 'about',
                 builder: (_, _) => const AboutSettingsPage(),
               ),
@@ -132,15 +137,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                       );
                     },
                   );
-                },
-              ),
-              GoRoute(
-                path: 'manage_team/:teamId',
-                builder: (_, state) {
-                  final teamId = state.pathParameters['teamId'] ?? '';
-                  return teamId.isEmpty
-                      ? const Center(child: Text('Team ID is empty'))
-                      : ManageTeamPage(teamId: teamId);
                 },
               ),
             ],
