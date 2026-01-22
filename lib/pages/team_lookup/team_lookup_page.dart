@@ -14,17 +14,11 @@ class TeamLookupPage extends StatefulWidget {
 class _TeamLookupPageState extends State<TeamLookupPage> {
   final TextEditingController _searchTermTEC = TextEditingController();
   List<Widget> filteredTeamCards = [
-    SizedBox(height: 20),
     TeamCard(teamName: 'Bear Metal', teamNumber: '2046'),
-    SizedBox(height: 20),
     TeamCard(teamName: 'Riptide Robotics', teamNumber: '8267'),
-    SizedBox(height: 20),
     TeamCard(teamName: 'Madcows!', teamNumber: '276'),
-    SizedBox(height: 20),
     TeamCard(teamName: 'Vikings', teamNumber: '9289'),
-    SizedBox(height: 20),
     TeamCard(teamName: 'The Vo', teamNumber: '4650'),
-    SizedBox(height: 20),
   ];
   Filter filter = Filter.allEvents;
 
@@ -61,6 +55,7 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
         title: SearchBar(
           controller: _searchTermTEC,
           hintText: 'Team name or number',
+          elevation: WidgetStateProperty.all(0.0),
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
@@ -99,7 +94,10 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Column(children: filteredTeamCards),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(spacing: 16, children: filteredTeamCards),
+          ),
         ),
       ),
     );
