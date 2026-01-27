@@ -29,7 +29,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferences.getInstance();
@@ -89,10 +88,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create',
                 builder: (_, _) => const PicklistsCreatePage(),
               ),
-              GoRoute(
-                path: 'roles',
-                builder: (_, _) => const TeamRolesPage(),
-              ),
+              GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
               GoRoute(
                 path: 'about',
                 builder: (_, _) => const AboutSettingsPage(),
@@ -112,7 +108,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                   );
                 },
               ),
-            ],
             ],
           ),
           GoRoute(
@@ -143,6 +138,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'appearance',
             builder: (_, _) => const AppearanceSettingsPage(),
           ),
+          GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',
@@ -157,15 +153,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                   );
                 },
               );
-            },
-          ),
-          GoRoute(
-            path: 'manage_team/:teamId',
-            builder: (_, state) {
-              final teamId = state.pathParameters['teamId'] ?? '';
-              return teamId.isEmpty
-                  ? const Center(child: Text('Team ID is empty'))
-                  : ManageTeamPage(teamId: teamId);
             },
           ),
         ],
