@@ -39,7 +39,61 @@ class _UserSelectionPageState extends State<UserSelectionPage> {
         ),
         actions: [SizedBox(width: 48)],
       ),
-      body: const Center(child: Text('User Selection Page')),
+      body: Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            UserSelectionNameCard(userName: 'John'),
+            UserSelectionNameCard(userName: 'Jane'),
+            UserSelectionNameCard(
+              userName: 'Joe',
+            ),
+            UserSelectionNameCard(
+              userName: 'Jared',
+            ),
+          ],
+        ),
+      ),
+    )
     );
   }
 }
+
+class UserSelectionNameCard extends StatefulWidget {
+  final String userName;
+  final double? height;
+
+  const UserSelectionNameCard({
+    super.key,
+    required this.userName,
+    this.height,
+  });
+
+  State<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
+}
+class _UserSelectionNameCardState extends State<UserSelectionNameCard>{
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Scouting: ${widget.userName}'),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
