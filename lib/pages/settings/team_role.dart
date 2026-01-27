@@ -39,6 +39,7 @@ class TeamMemberCard extends StatefulWidget {
 
 class _TeamMemberCardState extends State<TeamMemberCard> {
   String? _selectedRole;
+  final List<String> roles = [];
 
   @override
   Widget build(BuildContext context) {
@@ -80,60 +81,101 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                           showDialog(
                             context: context,
                             builder: (context) {
-                              bool driveTeam = false;
-                              bool scouting = false;
-                              bool admin = false;
+                              List<String> tempRoles = List.from(roles);
 
-                              return AlertDialog(
-                                title: const Text('Assign Roles'),
-                                content: StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return Column(
+                              return StatefulBuilder(
+                                builder: (context, setDialogState) {
+                                  return AlertDialog(
+                                    title: const Text('Assign Roles'),
+                                    content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         CheckboxListTile(
-                                          title: const Text('Drive Team'),
-                                          value: driveTeam,
-                                          onChanged: (val) =>
-                                              setState(() => driveTeam = val!),
+                                          title: const Text('Role 1'),
+                                          value: tempRoles.contains('Role 1'),
+                                          onChanged: (isChecked) {
+                                            setDialogState(() {
+                                              if (isChecked == true) {
+                                                tempRoles.add('Role 1');
+                                              } else {
+                                                tempRoles.remove('Role 1');
+                                              }
+                                            });
+                                          },
                                         ),
                                         CheckboxListTile(
-                                          title: const Text('Scouting'),
-                                          value: scouting,
-                                          onChanged: (val) =>
-                                              setState(() => scouting = val!),
+                                          title: const Text('Role 2'),
+                                          value: tempRoles.contains('Role 2'),
+                                          onChanged: (isChecked) {
+                                            setDialogState(() {
+                                              if (isChecked == true) {
+                                                tempRoles.add('Role 2');
+                                              } else {
+                                                tempRoles.remove('Role 2');
+                                              }
+                                            });
+                                          },
                                         ),
                                         CheckboxListTile(
                                           title: const Text('Admin'),
-                                          value: admin,
-                                          onChanged: (val) =>
-                                              setState(() => admin = val!),
+                                          value: tempRoles.contains('Admin'),
+                                          onChanged: (isChecked) {
+                                            setDialogState(() {
+                                              if (isChecked == true) {
+                                                tempRoles.add('Admin');
+                                              } else {
+                                                tempRoles.remove('Admin');
+                                              }
+                                            });
+                                          },
                                         ),
                                       ],
-                                    );
-                                  },
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Save'),
-                                  ),
-                                ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            roles
+                                              ..clear()
+                                              ..addAll(tempRoles);
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Save'),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             },
                           );
                         },
                         child: const Text('Assign Roles'),
                       ),
+
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: roles.map((role) {
+                      return Chip(
+                        label: Text(role),
+                        onDeleted: () {
+                          setState(() {
+                            roles.remove(role);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ],
               ),
             ),
