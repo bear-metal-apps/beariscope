@@ -47,10 +47,10 @@ class _UserSelectionPageState extends State<UserSelectionPage> {
             UserSelectionNameCard(userName: 'John'),
             UserSelectionNameCard(userName: 'Jane'),
             UserSelectionNameCard(
-              userName: 'Joe',
+              userName: 'John',
             ),
             UserSelectionNameCard(
-              userName: 'Jared',
+              userName: 'Jane',
             ),
           ],
         ),
@@ -69,31 +69,49 @@ class UserSelectionNameCard extends StatefulWidget {
     required this.userName,
     this.height,
   });
-
+  @override
   State<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
 }
-class _UserSelectionNameCardState extends State<UserSelectionNameCard>{
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Scouting: ${widget.userName}'),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              FilledButton(
-                onPressed: () {
-                  Navigator.pop(context, true);
-                },
-                child: Text('Submit'),
-              ),
-            ],
+class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
+  bool scouted = false;
+@override
+Widget build(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+    child: Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: InkWell(
+          onTap: () async {
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            width: double.infinity,
+            height: widget.height ?? 90,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.userName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
 }
-
+}
