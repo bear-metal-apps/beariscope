@@ -9,7 +9,6 @@ class TeamRolesPage extends ConsumerStatefulWidget {
 }
 
 class _TeamRolesPageState extends ConsumerState<TeamRolesPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,9 +44,7 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -55,11 +52,7 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.account_circle,
-              size: 52,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.account_circle, size: 52, color: Colors.grey),
             const SizedBox(width: 12),
 
             Expanded(
@@ -158,23 +151,23 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                         },
                         child: const Text('Assign Roles'),
                       ),
-
                     ],
                   ),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: roles.map((role) {
-                      return Chip(
-                        label: Text(role),
-                        onDeleted: () {
-                          setState(() {
-                            roles.remove(role);
-                          });
-                        },
-                      );
-                    }).toList(),
+                    children:
+                        roles.map((role) {
+                          return Chip(
+                            label: Text(role),
+                            onDeleted: () {
+                              setState(() {
+                                roles.remove(role);
+                              });
+                            },
+                          );
+                        }).toList(),
                   ),
                 ],
               ),
@@ -185,4 +178,3 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
     );
   }
 }
-
