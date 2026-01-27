@@ -37,7 +37,6 @@ class TeamMemberCard extends StatefulWidget {
 }
 
 class _TeamMemberCardState extends State<TeamMemberCard> {
-  String? _selectedRole;
   final List<String> roles = [];
 
   @override
@@ -48,7 +47,7 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
       clipBehavior: Clip.antiAlias,
       child: Container(
         padding: const EdgeInsets.all(16),
-        height: 140,
+        height:100,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -153,7 +152,7 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
@@ -166,6 +165,9 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                                 roles.remove(role);
                               });
                             },
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           );
                         }).toList(),
                   ),
