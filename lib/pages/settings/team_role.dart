@@ -47,7 +47,7 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
       clipBehavior: Clip.antiAlias,
       child: Container(
         padding: const EdgeInsets.all(16),
-        height:100,
+        height: 100,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,7 +167,8 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                             },
                             visualDensity: VisualDensity.compact,
                             padding: const EdgeInsets.symmetric(horizontal: 3),
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                           );
                         }).toList(),
                   ),
@@ -180,4 +181,3 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
     );
   }
 }
-
