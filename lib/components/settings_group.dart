@@ -16,25 +16,25 @@ class SettingsGroup extends StatelessWidget {
           children: [
             if (title != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                padding: const EdgeInsets.fromLTRB(0, 16, 16, 8),
                 child: Text(
                   title!,
                   style: const TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             Card(
               clipBehavior: Clip.antiAlias,
+              margin: EdgeInsets.all(0),
+              elevation: 0,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   for (int i = 0; i < children.length; i++) ...[
                     children[i],
-                    // Add a Divider strictly between items, not after the last one
-                    if (i < children.length - 1)
-                      const Divider(height: 1, indent: 16),
+                    if (i < children.length - 1) const Divider(height: 1),
                   ],
                 ],
               ),

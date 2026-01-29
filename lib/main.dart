@@ -1,7 +1,7 @@
+import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_match_preview_page.dart';
-import 'package:beariscope/pages/drive_team/drive_team_notes_page.dart';
+import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
@@ -20,11 +20,13 @@ import 'package:beariscope/utils/platform_utils_stub.dart'
 import 'package:beariscope/utils/window_size_stub.dart'
     if (dart.library.io) 'package:window_size/window_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:libkoala/providers/auth_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_ce_flutter/adapters.dart';
+import 'package:libkoala/libkoala.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,7 +35,8 @@ Future<void> main() async {
   await SharedPreferences.getInstance();
   setUrlStrategy(PathUrlStrategy());
 
-  await initHiveForFlutter();
+  await Hive.initFlutter();
+  await Hive.openBox('api_cache');
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));
@@ -45,151 +48,127 @@ Future<void> main() async {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authStatus = ref.watch(authStatusProvider);
+  final authStatus = ref.watch(authStatusProvider.notifier);
 
   return GoRouter(
-    initialLocation: '/',
-    routes: <RouteBase>[
-      GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
+    initialLocation: '/splash',
+    refreshListenable: authStatus,
+    routes: [
       GoRoute(
-        path: '/',
-        builder:
-            (_, _) => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
+      ShellRoute(
+        builder: (_, _, child) => MainView(child: child),
         routes: [
-          ShellRoute(
-            builder: (_, _, child) => MainView(child: child),
+          GoRoute(
+            path: '/up_next',
+            pageBuilder: (_, _) => const NoTransitionPage(child: UpNextPage()),
             routes: [
               GoRoute(
-                path: 'up_next',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: UpNextPage()),
-              ),
-              GoRoute(
-                path: 'team_lookup',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: TeamLookupPage()),
-              ),
-              GoRoute(
-                path: 'picklists',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: PicklistsPage()),
-                routes: [
-                  GoRoute(
-                    path: 'create',
-                    builder: (_, _) => const PicklistsCreatePage(),
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'drive_team',
-                redirect: (context, state) {
-                  if (state.fullPath == '/drive_team') {
-                    return '/drive_team/match_preview/1';
-                  }
-                  return null;
+                path: ':matchKey',
+                builder: (context, state) {
+                  final matchKey = state.pathParameters['matchKey'] ?? '1';
+                  return DriveTeamMatchPreviewPage(matchKey: matchKey);
                 },
-                routes: [
-                  GoRoute(
-                    path: 'match_preview/:matchId',
-                    pageBuilder: (context, state) {
-                      final matchId = state.pathParameters['matchId'] ?? '1';
-                      return NoTransitionPage(
-                        child: DriveTeamMatchPreviewPage(matchId: matchId),
-                      );
-                    },
-                  ),
-                  GoRoute(
-                    path: 'notes/:matchId',
-                    pageBuilder: (context, state) {
-                      final matchId = state.pathParameters['matchId'] ?? '1';
-                      return NoTransitionPage(
-                        child: DriveTeamNotesPage(matchId: matchId),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              GoRoute(
-                path: 'corrections',
-                pageBuilder:
-                    (_, _) => const NoTransitionPage(child: CorrectionsPage()),
-              ),
-              GoRoute(
-                path: 'pits_scouting',
-                pageBuilder:
-                    (_, _) =>
-                        const NoTransitionPage(child: PitsScoutingHomePage()),
               ),
             ],
           ),
           GoRoute(
-            path: 'settings',
-            builder: (_, _) => const SettingsPage(),
+            path: '/team_lookup',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: TeamLookupPage()),
+          ),
+          GoRoute(
+            path: '/picklists',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: PicklistsPage()),
             routes: [
               GoRoute(
-                path: 'account',
-                builder: (_, _) => const AccountSettingsPage(),
-              ),
-              GoRoute(
-                path: 'notifications',
-                builder: (_, _) => const NotificationsSettingsPage(),
-              ),
-              GoRoute(
-                path: 'appearance',
-                builder: (_, _) => const AppearanceSettingsPage(),
-              ),
-              GoRoute(
-                path: 'user_selection',
-                builder: (_, _) => const MainView(child: UserSelectionPage()),
-              ),
-              GoRoute(
-                path: 'about',
-                builder: (_, _) => const AboutSettingsPage(),
-              ),
-              GoRoute(
-                path: 'licenses',
-                builder: (_, _) {
-                  return FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder: (context, snapshot) {
-                      final version = snapshot.data?.version ?? '...';
-                      return LicensePage(
-                        applicationName: 'Beariscope',
-                        applicationVersion: version,
-                      );
-                    },
-                  );
-                },
-              ),
-              GoRoute(
-                path: 'manage_team/:teamId',
-                builder: (_, state) {
-                  final teamId = state.pathParameters['teamId'] ?? '';
-                  return teamId.isEmpty
-                      ? const Center(child: Text('Team ID is empty'))
-                      : ManageTeamPage(teamId: teamId);
-                },
+                path: 'create',
+                builder: (_, _) => const PicklistsCreatePage(),
               ),
             ],
+          ),
+          GoRoute(
+            path: '/corrections',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: CorrectionsPage()),
+          ),
+          GoRoute(
+            path: '/pits_scouting',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (_, _) => const SettingsPage(),
+        routes: [
+          GoRoute(
+            path: 'account',
+            builder: (_, _) => const AccountSettingsPage(),
+          ),
+          GoRoute(
+            path: 'notifications',
+            builder: (_, _) => const NotificationsSettingsPage(),
+          ),
+          GoRoute(
+            path: 'appearance',
+            builder: (_, _) => const AppearanceSettingsPage(),
+          ),
+          GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
+          GoRoute(
+            path: 'licenses',
+            builder: (_, _) {
+              return FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final version = snapshot.data?.version ?? '...';
+                  return LicensePage(
+                    applicationName: 'Beariscope',
+                    applicationVersion: version,
+                  );
+                },
+              );
+            },
+          ),
+          GoRoute(
+            path: 'manage_team/:teamId',
+            builder: (_, state) {
+              final teamId = state.pathParameters['teamId'] ?? '';
+              return teamId.isEmpty
+                  ? const Center(child: Text('Team ID is empty'))
+                  : ManageTeamPage(teamId: teamId);
+            },
           ),
         ],
       ),
     ],
     redirect: (_, state) {
+      final auth = ref.watch(authStatusProvider);
       final location = state.matchedLocation;
 
-      switch (authStatus) {
-        case AuthStatus.unauthenticated:
-          return location != '/welcome' ? '/welcome' : null;
-        case AuthStatus.authenticating:
-          return (location == '/welcome' || location == '/') ? null : '/';
-        case AuthStatus.authenticated:
-          return (location == '/' || location == '/welcome')
-              ? '/up_next'
-              : null;
+      // splash while authing
+      if (auth == AuthStatus.authenticating) {
+        return location == '/splash' ? null : '/splash';
       }
+
+      // go to welcome if not authed
+      if (auth == AuthStatus.unauthenticated) {
+        return location == '/welcome' ? null : '/welcome';
+      }
+
+      // if on welcome and authed then leave
+      if (auth == AuthStatus.authenticated) {
+        if (location == '/welcome' || location == '/splash') {
+          return '/up_next';
+        }
+      }
+
+      return null;
     },
   );
 });
@@ -205,9 +184,9 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      ref.read(authStatusProvider.notifier).setAuthenticating();
-      await ref.read(authProvider).trySilentLogin();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider).trySilentLogin();
     });
   }
 
@@ -216,21 +195,115 @@ class _BeariscopeState extends ConsumerState<Beariscope> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final accentColor = ref.watch(accentColorProvider);
+    final deviceInfo = ref.read(deviceInfoProvider);
 
-    return MaterialApp.router(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: accentColor),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: accentColor,
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: themeMode,
+    final app = MaterialApp.router(
       routerConfig: router,
+      theme: _createTheme(Brightness.light, accentColor),
+      darkTheme: _createTheme(Brightness.dark, accentColor),
+      themeMode: themeMode,
+      debugShowCheckedModeBanner: false,
     );
+
+    if (deviceInfo.deviceOS == DeviceOS.macos) {
+      return PlatformMenuBar(menus: _buildMacMenus(router), child: app);
+    }
+
+    return app;
   }
+}
+
+ThemeData _createTheme(Brightness brightness, Color accentColor) {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: accentColor,
+    brightness: brightness,
+  );
+
+  final baseTheme = ThemeData(
+    brightness: brightness,
+    useMaterial3: true,
+    colorScheme: colorScheme,
+    iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+    textTheme: GoogleFonts.nunitoSansTextTheme(
+      ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
+    ),
+  );
+
+  return baseTheme.copyWith(
+    appBarTheme: AppBarTheme(
+      centerTitle: false,
+      titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
+        fontFamily: 'Xolonium',
+        fontSize: 20,
+      ),
+    ),
+  );
+}
+
+List<PlatformMenu> _buildMacMenus(GoRouter router) {
+  return [
+    PlatformMenu(
+      label: 'Beariscope',
+      menus: [
+        PlatformMenuItem(
+          label: 'About Beariscope',
+          onSelected: () => router.push('/settings/about'),
+        ),
+        PlatformMenuItem(
+          label: 'Settings',
+          shortcut: const SingleActivator(LogicalKeyboardKey.comma, meta: true),
+          onSelected: () => router.push('/settings'),
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.servicesSubmenu,
+            ),
+          ],
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hide),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.hideOtherApplications,
+            ),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.showAllApplications,
+            ),
+          ],
+        ),
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.quit),
+          ],
+        ),
+      ],
+    ),
+    PlatformMenu(
+      label: 'View',
+      menus: [
+        PlatformProvidedMenuItem(
+          type: PlatformProvidedMenuItemType.toggleFullScreen,
+        ),
+      ],
+    ),
+    PlatformMenu(
+      label: 'Window',
+      menus: [
+        PlatformMenuItemGroup(
+          members: <PlatformMenuItem>[
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.minimizeWindow,
+            ),
+            PlatformProvidedMenuItem(
+              type: PlatformProvidedMenuItemType.zoomWindow,
+            ),
+          ],
+        ),
+        PlatformProvidedMenuItem(
+          type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
+        ),
+      ],
+    ),
+  ];
 }
