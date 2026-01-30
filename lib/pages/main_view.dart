@@ -81,6 +81,12 @@ class _MainViewState extends State<MainView> {
       label: 'Pits Scouting',
       group: 'Scouting',
     ),
+    _NavItem(
+      route: '/ui_creator',
+      icon: Symbols.mode_edit_outline,
+      label: 'UI Creator',
+      group: 'Scouting',
+    ),
   ];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

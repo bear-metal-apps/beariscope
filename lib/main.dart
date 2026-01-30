@@ -1,6 +1,7 @@
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/pages/ui_creator/ui_creator.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
@@ -99,6 +100,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/pits_scouting',
             pageBuilder:
                 (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+          ),
+          GoRoute(
+            path: '/ui_creator',
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: UICreatorPage()),
           ),
         ],
       ),
