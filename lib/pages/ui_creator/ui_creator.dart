@@ -14,6 +14,10 @@ class _UiCreatorState extends State<UICreatorPage> {
   double widgetWidth = 50.0;
   double widgetHeight = 50.0;
 
+  // Editable offsets applied to the drop position
+  double offsetX = -250.0;
+  double offsetY = 0.0;
+
   Set<String> occupiedPoints = {};
   List<DroppedWidget> homeWidgets = [];
   @override
@@ -25,8 +29,8 @@ class _UiCreatorState extends State<UICreatorPage> {
           final Offset dropPosition = details.offset;
 
           // Subtract half the widget size to "center" the snap to your finger
-          double adjustedX = dropPosition.dx - (widgetWidth / 2);
-          double adjustedY = dropPosition.dy - (widgetHeight / 2);
+          double adjustedX = dropPosition.dx - (widgetWidth / 2) + offsetX;
+          double adjustedY = dropPosition.dy - (widgetHeight / 2) + offsetY;
 
           int ptX = (adjustedX / pointSize).round();
           int ptY = (adjustedY / pointSize).round();
@@ -61,7 +65,7 @@ class _UiCreatorState extends State<UICreatorPage> {
         },
       ),
       bottomNavigationBar: Container(
-        height: 100,
+        height: 140,
         decoration: BoxDecoration(
           color: Colors.transparent,
           border: Border(top: BorderSide(color: Colors.white54, width: 1)),
