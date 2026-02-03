@@ -88,8 +88,9 @@ class _MainViewState extends State<MainView> {
   int get _selectedIndex {
     final location = GoRouterState.of(context).uri.toString();
     final idx = _navItems.indexWhere((n) => location.startsWith(n.route));
-    return idx < 0 ? 0 : idx;
+    return idx;
   }
+
 
   bool get _isAtTopLevel {
     final location = GoRouterState.of(context).uri.toString();
@@ -196,6 +197,9 @@ class _MainViewState extends State<MainView> {
     for (final entry in _navItems.indexed) {
       final index = entry.$1;
       final item = entry.$2;
+      final isSelected = index == _selectedIndex && _selectedIndex >= 0;
+
+
       if (item.group != currentGroup) {
         if (currentGroup != null) {
           children.add(
@@ -225,14 +229,53 @@ class _MainViewState extends State<MainView> {
             ),
             duration: _animationDuration,
             curve: Curves.fastOutSlowIn,
-            builder:
-                (context, value, _) =>
-                    Icon(item.icon, weight: 600, fill: value),
+            builder: (context, value, _) => Icon(item.icon, weight: 600, fill: value),
           ),
           label: Text(item.label),
         ),
       );
     }
+    children.add(
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        child: Divider(),
+      ),
+    );
+
+    final location = GoRouterState.of(context).uri.toString();
+    final isUtilitiesSelected = location.startsWith('/utilities');
+
+    children.add(
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: OutlinedButton(
+            onPressed: () => context.go('/utilities'),
+            style: OutlinedButton.styleFrom(
+              alignment: Alignment.center,
+              side: BorderSide.none,
+              backgroundColor: isUtilitiesSelected
+                  ? Theme.of(context).colorScheme.primary.withOpacity(0.4)
+                  : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.more_horiz,
+                  size: 30,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
     return children;
   }
 }
