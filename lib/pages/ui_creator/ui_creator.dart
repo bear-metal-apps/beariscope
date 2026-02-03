@@ -14,7 +14,6 @@ class _UiCreatorState extends State<UICreatorPage> {
   double widgetWidth = 50.0;
   double widgetHeight = 50.0;
 
-  // Editable offsets applied to the drop position
   double offsetX = -250.0;
   double offsetY = 0.0;
 
@@ -28,7 +27,6 @@ class _UiCreatorState extends State<UICreatorPage> {
           RenderBox box = context.findRenderObject() as RenderBox;
           final Offset dropPosition = details.offset;
 
-          // Subtract half the widget size to "center" the snap to your finger
           double adjustedX = dropPosition.dx - (widgetWidth / 2) + offsetX;
           double adjustedY = dropPosition.dy - (widgetHeight / 2) + offsetY;
 
@@ -45,6 +43,7 @@ class _UiCreatorState extends State<UICreatorPage> {
                   position: Offset(ptX * pointSize, ptY * pointSize),
                 ),
               );
+              print("Dropped ${details.data} at ($ptX, $ptY)");
             });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
