@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:beariscope/pages/main_view.dart';
 
 class UserSelectionPage extends StatefulWidget {
   const UserSelectionPage({super.key});
@@ -9,45 +7,44 @@ class UserSelectionPage extends StatefulWidget {
   State<UserSelectionPage> createState() => _UserSelectionPageState();
 }
 
+//type name in this bar to add a user
 class _UserSelectionPageState extends State<UserSelectionPage> {
+  List<Widget> users = [];
+  final TextEditingController _newUserTEC = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController();
-    final main = MainViewController.of(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         titleSpacing: 8.0,
         title: SearchBar(
-          controller: controller,
+          controller: _newUserTEC,
           hintText: 'Type Name Here',
           trailing: [
             IconButton(
               icon: Icon(Icons.add),
               tooltip: 'Add User',
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  users.add(UserSelectionNameCard(userName: _newUserTEC.text));
+                });
+              },
             ),
           ],
         ),
-        leading:
-            main.isDesktop
-                ? SizedBox(width: 48)
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: main.openDrawer,
-                ),
-        actions: [SizedBox(width: 48)],
       ),
+      //name card section
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              UserSelectionNameCard(userName: 'John'),
-              UserSelectionNameCard(userName: 'Jane'),
-              UserSelectionNameCard(userName: 'Jack'),
-              UserSelectionNameCard(userName: 'Jill'),
-            ],
+            children: users,
+            // UserSelectionNameCard(userName: 'John'),
+            // UserSelectionNameCard(userName: 'Jane'),
+            // UserSelectionNameCard(userName: 'Jack'),
+            // UserSelectionNameCard(userName: 'Jill'),
           ),
         ),
       ),
@@ -64,6 +61,7 @@ class UserSelectionNameCard extends StatefulWidget {
   State<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
 }
 
+//name cards for users to pick from after adding themselves
 class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
   bool scouted = false;
   @override
