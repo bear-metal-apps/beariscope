@@ -119,6 +119,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'appearance',
             builder: (_, _) => const AppearanceSettingsPage(),
           ),
+          GoRoute(
+            path: 'user_selection',
+            builder: (_, _) => const  UserSelectionPage(),
+          ),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',

@@ -86,7 +86,7 @@ class SettingsPage extends ConsumerWidget {
                 onTap: () => context.push('/settings/account'),
               ),
               ListTile(
-                leading: const Icon(Symbols.person_rounded),
+                leading: const Icon(Symbols.person_add),
                 title: const Text('User Selection'),
                 subtitle: const Text('Swap users, Add users'),
                 onTap: () => context.push('/settings/user_selection'),
