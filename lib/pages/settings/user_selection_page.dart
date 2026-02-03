@@ -14,7 +14,6 @@ class _UserSelectionPageState extends State<UserSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
