@@ -30,19 +30,17 @@ class _UtilitiesPageState extends State<UtilitiesPage> {
           leading: const Icon(Icons.search_rounded),
         ),
         leading:
-        main.isDesktop
-            ? SizedBox(width: 48)
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
-        ),
+            main.isDesktop
+                ? SizedBox(width: 48)
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: main.openDrawer,
+                ),
         actions: [SizedBox(width: 48)],
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-          ),
+          child: Padding(padding: const EdgeInsets.all(16)),
         ),
       ),
     );

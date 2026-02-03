@@ -148,10 +148,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                   : ManageTeamPage(teamId: teamId);
             },
           ),
-
         ],
       ),
-
     ],
     redirect: (_, state) {
       final auth = ref.watch(authStatusProvider);

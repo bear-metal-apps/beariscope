@@ -91,7 +91,6 @@ class _MainViewState extends State<MainView> {
     return idx;
   }
 
-
   bool get _isAtTopLevel {
     final location = GoRouterState.of(context).uri.toString();
     // just checks if we're at a top level nav item (not a nested route)
@@ -199,7 +198,6 @@ class _MainViewState extends State<MainView> {
       final item = entry.$2;
       final isSelected = index == _selectedIndex && _selectedIndex >= 0;
 
-
       if (item.group != currentGroup) {
         if (currentGroup != null) {
           children.add(
@@ -229,7 +227,9 @@ class _MainViewState extends State<MainView> {
             ),
             duration: _animationDuration,
             curve: Curves.fastOutSlowIn,
-            builder: (context, value, _) => Icon(item.icon, weight: 600, fill: value),
+            builder:
+                (context, value, _) =>
+                    Icon(item.icon, weight: 600, fill: value),
           ),
           label: Text(item.label),
         ),
@@ -256,9 +256,10 @@ class _MainViewState extends State<MainView> {
             style: OutlinedButton.styleFrom(
               alignment: Alignment.center,
               side: BorderSide.none,
-              backgroundColor: isUtilitiesSelected
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.4)
-                  : null,
+              backgroundColor:
+                  isUtilitiesSelected
+                      ? Theme.of(context).colorScheme.primary.withOpacity(0.4)
+                      : null,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -269,7 +270,6 @@ class _MainViewState extends State<MainView> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
-
               ],
             ),
           ),
