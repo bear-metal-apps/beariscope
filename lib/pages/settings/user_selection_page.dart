@@ -85,11 +85,12 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
   List<Widget> buildUserList() {
     List<Widget> currentUserList = [];
     final allUsers = ref.read(usersNotifierProvider);
-
     for (User processedUser in allUsers) {
-      currentUserList.add(
-        UserSelectionNameCard(userName: processedUser.username),
-      );
+      setState(() {
+        currentUserList.add(
+          UserSelectionNameCard(userName: processedUser.username),
+        );
+      });
     }
     return currentUserList;
   }
@@ -107,10 +108,12 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
             IconButton(
               icon: Icon(Icons.add),
               tooltip: 'Add User',
-              onPressed:
-                  () => ref
-                      .read(usersNotifierProvider.notifier)
-                      .addUser(User(_newUserTEC.text)),
+              onPressed: () {
+                ref
+                    .read(usersNotifierProvider.notifier)
+                    .addUser(User(_newUserTEC.text));
+                users = buildUserList();
+              },
             ),
           ],
         ),
