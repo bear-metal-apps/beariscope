@@ -1,48 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserSelectionPage extends StatefulWidget {
-  const UserSelectionPage({super.key});
+class User {
+  String username;
 
-  @override
-  State<UserSelectionPage> createState() => _UserSelectionPageState();
-}
-
-class _UserSelectionPageState extends State<UserSelectionPage> {
-  List<Widget> users = [];
-  final TextEditingController _newUserTEC = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        titleSpacing: 8.0,
-        title: SearchBar(
-          controller: _newUserTEC,
-          hintText: 'Type Your Name Here',
-          trailing: [
-            IconButton(
-              icon: Icon(Icons.add),
-              tooltip: 'Add User',
-              onPressed: () {
-                setState(() {
-                  users.add(UserSelectionNameCard(userName: _newUserTEC.text));
-                });
-              },
-            )
-          ],
-        ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: users,
-          ),
-        ),
-      ),
-    );
-  }
+  User(this.username);
 }
 
 class UserSelectionNameCard extends StatefulWidget {
@@ -87,13 +49,80 @@ class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
           ),
         ),
-      )
+      ),
+    );
+  }
+}
+
+class UserDatabase extends Notifier<List<User>> {
+  @override
+  List<User> build() => [];
+
+  void addUser(User user) => state = [...state, user];
+}
+
+final usersNotifierProvider = NotifierProvider<UserDatabase, List<User>>(
+  UserDatabase.new,
+);
+
+class UserSelectionPage extends ConsumerStatefulWidget {
+  const UserSelectionPage({super.key});
+
+  @override
+  ConsumerState<UserSelectionPage> createState() => _UserSelectionPageState();
+}
+
+class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
+  late List<Widget> users = buildUserList();
+  final TextEditingController _newUserTEC = TextEditingController();
+
+  List<Widget> buildUserList() {
+    List<Widget> currentUserList = [];
+    final allUsers = ref.read(usersNotifierProvider);
+
+    for (User processedUser in allUsers) {
+      currentUserList.add(
+        UserSelectionNameCard(userName: processedUser.username),
+      );
+    }
+    return currentUserList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        titleSpacing: 8.0,
+        title: SearchBar(
+          controller: _newUserTEC,
+          hintText: 'Type Your Name Here',
+          trailing: [
+            IconButton(
+              icon: Icon(Icons.add),
+              tooltip: 'Add User',
+              onPressed:
+                  () => ref
+                      .read(usersNotifierProvider.notifier)
+                      .addUser(User(_newUserTEC.text)),
+            ),
+          ],
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: users,
+          ),
+        ),
+      ),
     );
   }
 }
