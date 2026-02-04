@@ -82,7 +82,7 @@ class SettingsPage extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Symbols.person_rounded),
                 title: const Text('Account'),
-                subtitle: const Text('Email, Password, Roles'),
+                subtitle: const Text('Email, Password'),
                 onTap: () => context.push('/settings/account'),
               ),
               ListTile(
@@ -96,6 +96,12 @@ class SettingsPage extends ConsumerWidget {
                 title: const Text('Appearance'),
                 subtitle: const Text('Theme, UI Options'),
                 onTap: () => context.push('/settings/appearance'),
+              ),
+              ListTile(
+                leading: const Icon(Symbols.group),
+                title: const Text('Members'),
+                subtitle: const Text('Roles'),
+                onTap: () => context.push('/settings/roles'),
               ),
             ],
           ),
