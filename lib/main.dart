@@ -14,6 +14,7 @@ import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
+import 'package:beariscope/utilities/utilities_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -99,6 +100,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/pits_scouting',
             pageBuilder:
                 (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+          ),
+          GoRoute(
+            path: '/utilities',
+            builder: (context, state) => const UtilitiesPage(),
           ),
         ],
       ),
