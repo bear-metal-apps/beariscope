@@ -14,7 +14,8 @@ class UserSelectionNameCard extends ConsumerStatefulWidget {
 
   const UserSelectionNameCard({super.key, required this.userName, this.height});
   @override
-  ConsumerState<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
+  ConsumerState<UserSelectionNameCard> createState() =>
+      _UserSelectionNameCardState();
 }
 
 class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
@@ -32,26 +33,38 @@ class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
           cursor: SystemMouseCursors.click,
           child: InkWell(
             onTap: () {
-              ref.read(currentUserNotifierProvider.notifier).newUser(widget.userName);
+              ref
+                  .read(currentUserNotifierProvider.notifier)
+                  .newUser(widget.userName);
             },
             child: Container(
               padding: const EdgeInsets.all(16),
               width: double.infinity,
-              height: widget.height ?? 90,
+              height: widget.height ?? 80,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.userName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    widget.userName,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Expanded(child: SizedBox(height: widget.height ?? 80)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2),
+                    child: FilledButton(
+                      onPressed: () {},
+                      child: Text('Rename'),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2),
+                    child: FilledButton(
+                      onPressed: () {},
+                      child: Text('Delete'),
+                    ),
                   ),
                 ],
               ),
@@ -130,7 +143,9 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
                 padding: EdgeInsets.all(10),
                 child: Text('Current User: $currentUser'),
               ),
-              ...allUsers.map((u) => UserSelectionNameCard(userName: u.username)),
+              ...allUsers.map(
+                (u) => UserSelectionNameCard(userName: u.username),
+              ),
             ],
           ),
         ),
