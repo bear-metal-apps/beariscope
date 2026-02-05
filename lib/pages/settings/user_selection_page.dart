@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+// Widget and Riverpod preparation
 class User {
   String username;
 
   User(this.username);
 }
 
-class UserSelectionNameCard extends StatefulWidget {
+class UserSelectionNameCard extends ConsumerStatefulWidget {
   final String userName;
   final double? height;
 
   const UserSelectionNameCard({super.key, required this.userName, this.height});
   @override
-  State<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
+  ConsumerState<UserSelectionNameCard> createState() => _UserSelectionNameCardState();
 }
 
-class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
+class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
   bool scouted = false;
 
   @override
@@ -30,7 +31,9 @@ class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: InkWell(
-            onTap: () async {},
+            onTap: () {
+              ref.read(currentUserNotifierProvider.notifier).newUser(widget.userName);
+            },
             child: Container(
               padding: const EdgeInsets.all(16),
               width: double.infinity,
@@ -60,6 +63,7 @@ class _UserSelectionNameCardState extends State<UserSelectionNameCard> {
   }
 }
 
+// NotifierProvider
 class UserDatabase extends Notifier<List<User>> {
   @override
   List<User> build() => [];
@@ -71,6 +75,18 @@ final usersNotifierProvider = NotifierProvider<UserDatabase, List<User>>(
   UserDatabase.new,
 );
 
+class CurrentUser extends Notifier<String> {
+  @override
+  String build() => 'None';
+
+  void newUser(String user) => state = user;
+}
+
+final currentUserNotifierProvider = NotifierProvider<CurrentUser, String>(
+  CurrentUser.new,
+);
+
+// Widget tree
 class UserSelectionPage extends ConsumerStatefulWidget {
   const UserSelectionPage({super.key});
 
@@ -79,24 +95,12 @@ class UserSelectionPage extends ConsumerStatefulWidget {
 }
 
 class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
-  late List<Widget> users = buildUserList();
   final TextEditingController _newUserTEC = TextEditingController();
-
-  List<Widget> buildUserList() {
-    List<Widget> currentUserList = [];
-    final allUsers = ref.read(usersNotifierProvider);
-    for (User processedUser in allUsers) {
-      setState(() {
-        currentUserList.add(
-          UserSelectionNameCard(userName: processedUser.username),
-        );
-      });
-    }
-    return currentUserList;
-  }
 
   @override
   Widget build(BuildContext context) {
+    final allUsers = ref.watch(usersNotifierProvider);
+    final currentUser = ref.watch(currentUserNotifierProvider);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -112,7 +116,6 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
                 ref
                     .read(usersNotifierProvider.notifier)
                     .addUser(User(_newUserTEC.text));
-                users = buildUserList();
               },
             ),
           ],
@@ -122,7 +125,13 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: users,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Current User: $currentUser'),
+              ),
+              ...allUsers.map((u) => UserSelectionNameCard(userName: u.username)),
+            ],
           ),
         ),
       ),
