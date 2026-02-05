@@ -25,13 +25,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: ${{ env.FLUTTER_CHANNEL }}
-      - name: Cache Flutter & Pub
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.pub-cache
-            ~/.flutter
-          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_CHANNEL }}-${{ hashFiles('**/pubspec.yaml') }}
+          cache: true
       - name: Install dependencies
         run: flutter pub get
       - name: Update web version file
