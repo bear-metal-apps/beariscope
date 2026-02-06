@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/libkoala.dart';
+import 'package:libkoala/providers/api_provider.dart';
+import 'package:riverpod/src/framework.dart';
 
 // Riverpod preparation
 class User {
@@ -79,17 +80,6 @@ class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
 }
 
 // NotifierProvider
-class UserDatabase extends Notifier<List<User>> {
-  @override
-  List<User> build() => [];
-
-  void addUser(User user) => state = [...state, user];
-}
-
-final usersNotifierProvider = NotifierProvider<UserDatabase, List<User>>(
-  UserDatabase.new,
-);
-
 class CurrentUser extends Notifier<String> {
   @override
   String build() => 'None';
@@ -111,12 +101,25 @@ class UserSelectionPage extends ConsumerStatefulWidget {
 
 class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
   final TextEditingController _newUserTEC = TextEditingController();
+  final usersProvider = FutureProvider<List<dynamic>>((ref) async {
+    final client = ref.watch(honeycombClientProvider);
+    return client.get<List<dynamic>>('/scouts');
+  });
+
+  List<Widget> buildUserList(List<String> users) {
+    List<Widget> userList = [];
+
+    for (var i = 0; i < users.length; i++) {
+      userList.add(UserSelectionNameCard(userName: users[i]));
+    }
+
+    return userList;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final allUsers = ref.watch(usersNotifierProvider);
     final currentUser = ref.watch(currentUserNotifierProvider);
-    final usersProvider = getDataProvider(endpoint: '/scouts');
+    // final usersProvider = getDataProvider(endpoint: '/scouts');
     final usersAsync = ref.watch(usersProvider);
     return Scaffold(
       appBar: AppBar(
@@ -129,11 +132,7 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
             IconButton(
               icon: Icon(Icons.add),
               tooltip: 'Add User',
-              onPressed: () {
-                ref
-                    .read(usersNotifierProvider.notifier)
-                    .addUser(User(_newUserTEC.text));
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -147,8 +146,20 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
                 padding: EdgeInsets.all(10),
                 child: Text('Current User: $currentUser'),
               ),
-              ...allUsers.map(
-                (u) => UserSelectionNameCard(userName: u.username),
+              usersAsync.when(
+                data: (data) {
+                  final userData =
+                      data.map((item) => item['name'] as String).toList();
+                  return Column(children: buildUserList(userData));
+                },
+                error:
+                    (err, stack) => FilledButton(
+                      onPressed:
+                          () =>
+                              ref.invalidate(usersProvider as ProviderOrFamily),
+                      child: const Text('Retry'),
+                    ),
+                loading: () => const Center(child: CircularProgressIndicator()),
               ),
             ],
           ),
