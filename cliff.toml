@@ -47,5 +47,5 @@ protect_breaking_commits = false
 filter_unconventional = false
 
 link_parsers = [
-    { pattern = "#(\\d+)", href = "https://github.com/bear-metal-apps/beariscope/issues/$1" },
+    { pattern = "#(\\d+)", href = "https://github.com/betterbearmetalcode/beariscope/issues/$1" },
 ]
