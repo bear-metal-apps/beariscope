@@ -3,8 +3,8 @@
 #define MyAppURL "scout.bearmet.al"
 #define MyAppExeName "beariscope.exe"
 
-#if MyAppVersion == ""
-  #define MyAppVersion "1.0.0"
+#ifndef MyAppVersion
+  #define MyAppVersion "0.0.0"
 #endif
 
 [Setup]
@@ -34,7 +34,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\windows\redist\VC_redist.x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 Source: "..\windows\redist\VC_redist.x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 
@@ -43,12 +42,12 @@ Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{tmp}\VC_redist.x64.exe"; Parameters: "/install /quiet /norestart"; Check: NeedsVC2015x64; StatusMsg: "Installing Visual C++ 2015–2022 x64..."
-Filename: "{tmp}\VC_redist.x86.exe"; Parameters: "/install /quiet /norestart"; Check: NeedsVC2015x86; StatusMsg: "Installing Visual C++ 2015–2022 x86..."
+Filename: "{tmp}\VC_redist.x64.exe"; Parameters: "/install /quiet /norestart"; Check: NeedsVC2015x64; StatusMsg: "Installing Visual C++ 2015-2022 x64..."
+Filename: "{tmp}\VC_redist.x86.exe"; Parameters: "/install /quiet /norestart"; Check: NeedsVC2015x86; StatusMsg: "Installing Visual C++ 2015-2022 x86..."
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
-// Checks if Visual C++ 2015–2022 x64 redistributable is installed
+// Checks if Visual C++ 2015-2022 x64 redistributable is installed
 function NeedsVC2015x64(): Boolean;
 begin
   Result := not RegKeyExists(HKLM, 'Software\Classes\Installer\Dependencies\{d992c12e-cab2-426f-bde3-fb8c53950b0d}');
