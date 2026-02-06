@@ -1,0 +1,159 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 26.1 or 26.2.1)'
+        required: true
+        type: string
+      codename:
+        description: 'Release codename (e.g., Glacier Peak)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      full_version: ${{ steps.bump.outputs.full_version }}
+      build_number: ${{ steps.bump.outputs.build_number }}
+    steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+          
+      - name: Get Bearitone User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}      
+      
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+      
+      - name: Normalize version
+        id: normalize
+        run: |
+          VERSION="${{ inputs.version }}"
+          
+          # Validate and normalize version
+          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            # x.y format - normalize to x.y.0
+            VERSION="${VERSION}.0"
+          elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            # x.y.z format - already valid
+            :
+          else
+            echo "Error: Invalid version format '$VERSION'. Expected x.y or x.y.z (e.g., 26.1 or 26.2.1)"
+            exit 1
+          fi
+          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          
+      - name: Generate Changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --latest --tag ${{ steps.normalize.outputs.version }}
+        env:
+          OUTPUT: release_notes.md
+
+      - name: Upload changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: release_notes.md
+          retention-days: 1
+
+      - name: Bump version and create tag
+        id: bump
+        run: |
+          VERSION="${{ steps.normalize.outputs.version }}"
+          BUILD_NUMBER="${{ github.run_number }}"
+          FULL_VERSION="${VERSION}+${BUILD_NUMBER}"
+          
+          sed -i "s/^version: .*/version: ${FULL_VERSION}/" pubspec.yaml
+          
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git add pubspec.yaml
+          git commit -m "chore: bump version to ${VERSION} [skip ci]"
+          git push
+          
+          git tag -a "${VERSION}" -m "Release ${VERSION} - ${{ inputs.codename }}"
+          git push origin "${VERSION}"
+          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "full_version=${FULL_VERSION}" >> $GITHUB_OUTPUT
+          echo "build_number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+
+  build-android:
+    needs: prepare
+    uses: ./.github/workflows/build-android.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+
+  build-windows:
+    needs: prepare
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+
+  build-linux:
+    needs: prepare
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+
+  build-web:
+    needs: prepare
+    uses: ./.github/workflows/build-web.yml
+    with:
+      version: ${{ needs.prepare.outputs.version }}
+    secrets: inherit
+
+  create-release:
+    needs: [prepare, build-android, build-windows, build-linux, build-web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Display artifact structure
+        run: ls -R artifacts/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          tag_name: ${{ needs.prepare.outputs.version }}
+          name: ${{ needs.prepare.outputs.version }} - ${{ inputs.codename }}
+          body_path: artifacts/changelog/release_notes.md
+          files: |
+            artifacts/**/*.apk
+            artifacts/**/*.exe
+            artifacts/**/*.tar.gz
+            artifacts/**/*.AppImage
+            artifacts/**/*.AppImage.zsync
+            artifacts/**/*.zip
+          draft: false
+          prerelease: false

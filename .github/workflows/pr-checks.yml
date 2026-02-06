@@ -1,0 +1,61 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+
+      - name: Get Bearitone User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.head_ref }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run dart format
+        run: dart format .
+
+      - name: Run dart fix
+        run: dart fix --apply
+
+      - name: Commit formatting changes
+        run: |
+          git config --local user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --local user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: apply dart format and dart fix"
+
+      - name: Push formatting changes
+        run: git push origin HEAD:${{ github.head_ref }}
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos --fatal-warnings
+
+      - name: Run tests
+        run: flutter test
