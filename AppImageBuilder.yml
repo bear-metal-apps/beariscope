@@ -1,5 +1,5 @@
 # appimage-builder recipe see https://appimage-builder.readthedocs.io for details
-version: !ENV ${APP_VERSION}
+version: 1
 script:
   - rm -rf AppDir || true
   - cp -r build/linux/x64/release/bundle AppDir
@@ -67,4 +67,4 @@ AppDir:
       command: ./AppRun
 AppImage:
   arch: x86_64
-  update-information: gh-releases-zsync|betterbearmetalcode|beariscope|v${APP_VERSION}|beariscope-linux-${APP_VERSION}-x86_64.AppImage.zsync
+  update-information: gh-releases-zsync|betterbearmetalcode|beariscope|${APP_VERSION}|beariscope-linux-${APP_VERSION}.AppImage.zsync
