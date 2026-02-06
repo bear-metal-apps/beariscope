@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.0
+- Update Interface
+- Add many features, too much to write here, check the commit history for more details
+
 ## v0.2.0
 
 ### What's new

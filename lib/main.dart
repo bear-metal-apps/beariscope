@@ -11,10 +11,10 @@ import 'package:beariscope/pages/picklists/picklists_page.dart';
 import 'package:beariscope/pages/settings/about_settings_page.dart';
 import 'package:beariscope/pages/settings/account_settings_page.dart';
 import 'package:beariscope/pages/settings/appearance_settings_page.dart';
-import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
+import 'package:beariscope/utilities/utilities_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -29,6 +29,7 @@ import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/libkoala.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:beariscope/pages/settings/team_role.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +90,26 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create',
                 builder: (_, _) => const PicklistsCreatePage(),
               ),
+              GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
+              GoRoute(
+                path: 'about',
+                builder: (_, _) => const AboutSettingsPage(),
+              ),
+              GoRoute(
+                path: 'licenses',
+                builder: (_, _) {
+                  return FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      final version = snapshot.data?.version ?? '...';
+                      return LicensePage(
+                        applicationName: 'Beariscope',
+                        applicationVersion: version,
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
           GoRoute(
@@ -100,6 +121,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/pits_scouting',
             pageBuilder:
                 (_, _) => const NoTransitionPage(child: PitsScoutingHomePage()),
+          ),
+          GoRoute(
+            path: '/utilities',
+            builder: (context, state) => const UtilitiesPage(),
           ),
         ],
       ),
@@ -123,6 +148,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'user_selection',
             builder: (_, _) => const UserSelectionPage(),
           ),
+          GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',
@@ -137,15 +163,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                   );
                 },
               );
-            },
-          ),
-          GoRoute(
-            path: 'manage_team/:teamId',
-            builder: (_, state) {
-              final teamId = state.pathParameters['teamId'] ?? '';
-              return teamId.isEmpty
-                  ? const Center(child: Text('Team ID is empty'))
-                  : ManageTeamPage(teamId: teamId);
             },
           ),
         ],

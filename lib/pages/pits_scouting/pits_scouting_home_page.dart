@@ -181,7 +181,7 @@ class _PitsScoutingTeamCardState extends State<PitsScoutingTeamCard> {
             child: Container(
               padding: const EdgeInsets.all(16),
               width: double.infinity,
-              height: widget.height ?? 90,
+              height: widget.height ?? 93,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -35,14 +35,22 @@ class WelcomePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FilledButton.icon(
-                    onPressed: () {
-                      auth.login([
-                        'openid',
-                        'profile',
-                        'offline_access',
-                        'User.Read',
-                        'api://bearmet.al/honeycomb/access',
-                      ]);
+                    onPressed: () async {
+                      try {
+                        await auth.login([
+                          'openid',
+                          'profile',
+                          'offline_access',
+                          'User.Read',
+                          'api://bearmet.al/honeycomb/access',
+                        ]);
+                      } on OfflineAuthException {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('No internet connection')),
+                          );
+                        }
+                      }
                     },
                     label: const Text('Sign In With BMBC Account'),
                     icon: const Icon(Symbols.login_rounded),

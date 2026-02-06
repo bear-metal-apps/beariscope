@@ -2,7 +2,7 @@ name: beariscope
 description: "The ultimate FRC scouting app developed by Bear Metal, team 2046"
 publish_to: 'none'
 
-version: 0.2.0+1
+version: 0.3.0
 
 environment:
   sdk: ^3.7.0
@@ -18,22 +18,22 @@ dependencies:
   flutter_svg: ^2.2.1
   flutter_web_plugins:
     sdk: flutter
-  go_router: ^16.2.2
+  go_router: ^17.1.0
   libkoala:
     git: 
       url: https://github.com/betterbearmetalcode/libkoala.git
-      ref: v2.0.0
+      ref: v3.0.0
   logger: ^2.6.2
   material_symbols_icons: ^4.2808.1
-  package_info_plus: ^8.3.1
+  package_info_plus: ^9.0.0
   provider: ^6.1.2
-  riverpod_annotation: ^3.0.0
+  riverpod_annotation: ^4.0.0
   shared_preferences: ^2.5.2
   simple_icons: ^14.6.1
   url_launcher: ^6.3.1
   window_size: ^0.1.0
   hive_ce_flutter: ^2.3.3
-  google_fonts: ^6.3.3
+  google_fonts: ^8.0.0
   animations: ^2.1.1
   dots_indicator: ^4.0.1
   intl: ^0.20.2
@@ -45,7 +45,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  riverpod_generator: ^3.0.0
+  riverpod_generator: ^4.0.0+1
   build_runner: ^2.5.4
   custom_lint: ^0.8.0
   riverpod_lint: ^3.0.0
