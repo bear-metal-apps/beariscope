@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/libkoala.dart';
 
-
 // Riverpod preparation
 class User {
   String username;
@@ -117,9 +116,7 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
   Widget build(BuildContext context) {
     final allUsers = ref.watch(usersNotifierProvider);
     final currentUser = ref.watch(currentUserNotifierProvider);
-    final usersProvider = getDataProvider(
-      endpoint: '/scouts'
-    );
+    final usersProvider = getDataProvider(endpoint: '/scouts');
     final usersAsync = ref.watch(usersProvider);
     return Scaffold(
       appBar: AppBar(
