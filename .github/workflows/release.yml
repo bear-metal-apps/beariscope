@@ -61,7 +61,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           
       - name: Generate Changelog
-        uses: orhun/git-cliff-action@v3
+        uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
           args: --latest --tag ${{ steps.normalize.outputs.version }}
