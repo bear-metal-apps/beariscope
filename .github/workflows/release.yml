@@ -107,6 +107,13 @@ jobs:
     needs: [prepare, build-android, build-windows, build-linux, build-web]
     runs-on: ubuntu-latest
     steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.BEARITONE_APP_ID }}
+          private-key: ${{ secrets.BEARITONE_APP_KEY }}
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -118,6 +125,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ steps.app-token.outputs.token }}
           tag_name: ${{ needs.prepare.outputs.version }}
           name: ${{ needs.prepare.outputs.version }} - ${{ inputs.codename }}
           body_path: artifacts/changelog/release_notes.md
@@ -130,5 +138,3 @@ jobs:
             artifacts/**/*.zip
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
