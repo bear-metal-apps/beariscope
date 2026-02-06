@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/libkoala.dart';
 
-// Widget and Riverpod preparation
+
+// Riverpod preparation
 class User {
   String username;
 
   User(this.username);
 }
 
+// Widget preparation
 class UserSelectionNameCard extends ConsumerStatefulWidget {
   final String userName;
   final double? height;
@@ -114,6 +117,10 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
   Widget build(BuildContext context) {
     final allUsers = ref.watch(usersNotifierProvider);
     final currentUser = ref.watch(currentUserNotifierProvider);
+    final usersProvider = getDataProvider(
+      endpoint: '/scouts'
+    );
+    final usersAsync = ref.watch(usersProvider);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
