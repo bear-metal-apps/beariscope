@@ -196,8 +196,6 @@ class _MainViewState extends State<MainView> {
     for (final entry in _navItems.indexed) {
       final index = entry.$1;
       final item = entry.$2;
-      final isSelected = index == _selectedIndex && _selectedIndex >= 0;
-
       if (item.group != currentGroup) {
         if (currentGroup != null) {
           children.add(
@@ -250,8 +248,7 @@ class _MainViewState extends State<MainView> {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: SizedBox(
           width: double.infinity,
-          height: 50,
-          child: OutlinedButton(
+          height: 50, child: OutlinedButton(
             onPressed: () => context.go('/utilities'),
             style: OutlinedButton.styleFrom(
               alignment: Alignment.center,
