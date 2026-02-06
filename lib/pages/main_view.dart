@@ -248,7 +248,8 @@ class _MainViewState extends State<MainView> {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: SizedBox(
           width: double.infinity,
-          height: 50, child: OutlinedButton(
+          height: 50,
+          child: OutlinedButton(
             onPressed: () => context.go('/utilities'),
             style: OutlinedButton.styleFrom(
               alignment: Alignment.center,
