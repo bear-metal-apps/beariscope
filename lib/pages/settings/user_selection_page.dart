@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 
-// Riverpod preparation
-class User {
-  String username;
-
-  User(this.username);
-}
-
 // Widget preparation
 class UserSelectionNameCard extends ConsumerStatefulWidget {
   final String userName;
@@ -90,127 +83,6 @@ class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
   }
 }
 
-// NotifierProvider
-class CurrentUser extends Notifier<String> {
-  @override
-  String build() => 'None';
-
-  void newUser(String user) => state = user;
-}
-
-final currentUserNotifierProvider = NotifierProvider<CurrentUser, String>(
-  CurrentUser.new,
-);
-
-// Widget tree
-class UserSelectionPage extends ConsumerStatefulWidget {
-  const UserSelectionPage({super.key});
-
-  @override
-  ConsumerState<UserSelectionPage> createState() => _UserSelectionPageState();
-}
-
-class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
-  final TextEditingController _newUserTEC = TextEditingController();
-  final TextEditingController newNameTEC = TextEditingController();
-  final usersProvider = getListDataProvider(
-    endpoint: '/scouts',
-    forceRefresh: true,
-  );
-
-  List<Widget> buildUserList(List<Map<String, String>> users) {
-    return users.map((user) {
-      final name = user["name"]!;
-      final id = user["uuid"]!;
-
-      return UserSelectionNameCard(
-        userName: name,
-        editFunction: () async {
-          newNameTEC.clear();
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => RenamePage(
-                    renameFunction: () async {
-                      await ref
-                          .read(honeycombClientProvider)
-                          .put('/scouts/$id', data: {"name": newNameTEC.text});
-                      ref.invalidate(usersProvider);
-                    },
-                    tEC: newNameTEC,
-                  ),
-            ),
-          );
-        },
-        deleteFunction: () async {
-          await ref.read(honeycombClientProvider).delete('/scouts/$id');
-          ref.invalidate(usersProvider);
-        },
-      );
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final currentUser = ref.watch(currentUserNotifierProvider);
-    final usersAsync = ref.watch(usersProvider);
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        titleSpacing: 8.0,
-        title: SearchBar(
-          controller: _newUserTEC,
-          hintText: 'Type Your Name Here',
-          trailing: [
-            IconButton(
-              icon: Icon(Icons.add),
-              tooltip: 'Add User',
-              onPressed: () {
-                ref
-                    .read(honeycombClientProvider)
-                    .post('/scouts', data: {"name": _newUserTEC.text});
-                ref.invalidate(usersProvider);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Text('Current User: $currentUser'),
-              ),
-              usersAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error:
-                    (err, stack) => FilledButton(
-                      onPressed: () => ref.invalidate(usersProvider),
-                      child: const Text('Retry'),
-                    ),
-                data: (data) {
-                  final userData =
-                      data.map((item) {
-                        return {
-                          "name": item["name"] as String,
-                          "uuid": item["uuid"] as String,
-                        };
-                      }).toList();
-                  return Column(children: buildUserList(userData));
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class RenamePage extends ConsumerStatefulWidget {
   final Future<void> Function() renameFunction;
   final TextEditingController tEC;
@@ -236,22 +108,151 @@ class _RenamePageState extends ConsumerState<RenamePage> {
           children: [
             SizedBox(
               width: 300,
-              child: TextField(
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter new name',
+                ),
                 controller: widget.tEC,
-                decoration: const InputDecoration(labelText: 'Enter new name'),
               ),
             ),
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () async {
-                if (widget.tEC.text.isNotEmpty) {
+                if (widget.tEC.text != '') {
                   await widget.renameFunction();
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Rename'),
+              child: const Text('Submit'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// NotifierProvider
+class CurrentUser extends Notifier<String> {
+  @override
+  String build() => 'None';
+
+  void newUser(String user) => state = user;
+}
+
+final currentUserNotifierProvider = NotifierProvider<CurrentUser, String>(
+  CurrentUser.new,
+);
+
+// Widget tree
+class UserSelectionPage extends ConsumerStatefulWidget {
+  const UserSelectionPage({super.key});
+
+  @override
+  ConsumerState<UserSelectionPage> createState() => _UserSelectionPageState();
+}
+
+class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
+  final TextEditingController _newUserTEC = TextEditingController();
+  final TextEditingController newNameTEC = TextEditingController();
+  final _usersProvider = getListDataProvider(
+    endpoint: '/scouts',
+    forceRefresh: true,
+  );
+
+  // Reloads the List<Card>
+  List<Widget> buildUserList(List<Map<String, String>> users) {
+    return users.map((user) {
+      // Pulls user values from users
+      final name = user["name"]!;
+      final id = user["uuid"]!;
+
+      // Initializes for every user in users
+      return UserSelectionNameCard(
+        userName: name,
+        editFunction: () async {
+          newNameTEC.clear();
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => RenamePage(
+                    renameFunction: () async {
+                      await ref
+                          .read(honeycombClientProvider)
+                          .put('/scouts/$id', data: {"name": newNameTEC.text});
+                      ref.invalidate(_usersProvider);
+                    },
+                    tEC: newNameTEC,
+                  ),
+            ),
+          );
+        },
+        deleteFunction: () async {
+          await ref.read(honeycombClientProvider).delete('/scouts/$id');
+          ref.invalidate(_usersProvider);
+        },
+      );
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserNotifierProvider);
+    final usersAsync = ref.watch(_usersProvider);
+    return Scaffold(
+      // Page input
+      appBar: AppBar(
+        centerTitle: true,
+        titleSpacing: 8.0,
+        title: SearchBar(
+          controller: _newUserTEC,
+          hintText: 'Type Your Name Here',
+          trailing: [
+            IconButton(
+              icon: Icon(Icons.add),
+              tooltip: 'Add User',
+              onPressed: () {
+                ref
+                    .read(honeycombClientProvider)
+                    .post('/scouts', data: {"name": _newUserTEC.text});
+                ref.invalidate(_usersProvider);
+              },
+            ),
+          ],
+        ),
+      ),
+      // Column of Widget
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Text('Current User: $currentUser'),
+              ),
+              usersAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error:
+                    (err, stack) => FilledButton(
+                      onPressed: () => ref.invalidate(_usersProvider),
+                      child: const Text('Retry'),
+                    ),
+                data: (data) {
+                  final userData =
+                      data.map((item) {
+                        return {
+                          "name": item["name"] as String,
+                          "uuid": item["uuid"] as String,
+                        };
+                      }).toList();
+                  return Column(children: buildUserList(userData));
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
