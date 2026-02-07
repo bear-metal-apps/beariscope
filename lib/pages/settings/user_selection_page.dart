@@ -14,8 +14,16 @@ class User {
 class UserSelectionNameCard extends ConsumerStatefulWidget {
   final String userName;
   final double? height;
+  final Future<void> Function()? editFunction;
+  final Future<void> Function()? deleteFunction;
 
-  const UserSelectionNameCard({super.key, required this.userName, this.height});
+  const UserSelectionNameCard({
+    super.key,
+    required this.userName,
+    this.height,
+    this.editFunction,
+    this.deleteFunction,
+  });
   @override
   ConsumerState<UserSelectionNameCard> createState() =>
       _UserSelectionNameCardState();
@@ -58,14 +66,18 @@ class _UserSelectionNameCardState extends ConsumerState<UserSelectionNameCard> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await widget.editFunction!();
+                      },
                       child: Text('Rename'),
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 2),
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await widget.deleteFunction!();
+                      },
                       child: Text('Delete'),
                     ),
                   ),
@@ -101,25 +113,48 @@ class UserSelectionPage extends ConsumerStatefulWidget {
 
 class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
   final TextEditingController _newUserTEC = TextEditingController();
-  final usersProvider = FutureProvider<List<dynamic>>((ref) async {
-    final client = ref.watch(honeycombClientProvider);
-    return client.get<List<dynamic>>('/scouts');
-  });
+  final TextEditingController newNameTEC = TextEditingController();
+  final usersProvider = getListDataProvider(
+    endpoint: '/scouts',
+    forceRefresh: true,
+  );
 
-  List<Widget> buildUserList(List<String> users) {
-    List<Widget> userList = [];
+  List<Widget> buildUserList(List<Map<String, String>> users) {
+    return users.map((user) {
+      final name = user["name"]!;
+      final id = user["uuid"]!;
 
-    for (var i = 0; i < users.length; i++) {
-      userList.add(UserSelectionNameCard(userName: users[i]));
-    }
-
-    return userList;
+      return UserSelectionNameCard(
+        userName: name,
+        editFunction: () async {
+          newNameTEC.clear();
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => RenamePage(
+                    renameFunction: () async {
+                      await ref
+                          .read(honeycombClientProvider)
+                          .put('/scouts/$id', data: {"name": newNameTEC.text});
+                      ref.invalidate(usersProvider);
+                    },
+                    tEC: newNameTEC,
+                  ),
+            ),
+          );
+        },
+        deleteFunction: () async {
+          await ref.read(honeycombClientProvider).delete('/scouts/$id');
+          ref.invalidate(usersProvider);
+        },
+      );
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = ref.watch(currentUserNotifierProvider);
-    // final usersProvider = getDataProvider(endpoint: '/scouts');
     final usersAsync = ref.watch(usersProvider);
     return Scaffold(
       appBar: AppBar(
@@ -132,7 +167,12 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
             IconButton(
               icon: Icon(Icons.add),
               tooltip: 'Add User',
-              onPressed: () {},
+              onPressed: () {
+                ref
+                    .read(honeycombClientProvider)
+                    .post('/scouts', data: {"name": _newUserTEC.text});
+                ref.invalidate(usersProvider);
+              },
             ),
           ],
         ),
@@ -147,22 +187,72 @@ class _UserSelectionPageState extends ConsumerState<UserSelectionPage> {
                 child: Text('Current User: $currentUser'),
               ),
               usersAsync.when(
-                data: (data) {
-                  final userData =
-                      data.map((item) => item['name'] as String).toList();
-                  return Column(children: buildUserList(userData));
-                },
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error:
                     (err, stack) => FilledButton(
-                      onPressed:
-                          () =>
-                              ref.invalidate(usersProvider as ProviderOrFamily),
+                      onPressed: () => ref.invalidate(usersProvider),
                       child: const Text('Retry'),
                     ),
-                loading: () => const Center(child: CircularProgressIndicator()),
+                data: (data) {
+                  final userData =
+                      data.map((item) {
+                        return {
+                          "name": item["name"] as String,
+                          "uuid": item["uuid"] as String,
+                        };
+                      }).toList();
+                  return Column(children: buildUserList(userData));
+                },
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class RenamePage extends ConsumerStatefulWidget {
+  final Future<void> Function() renameFunction;
+  final TextEditingController tEC;
+
+  const RenamePage({
+    super.key,
+    required this.renameFunction,
+    required this.tEC,
+  });
+
+  @override
+  ConsumerState<RenamePage> createState() => _RenamePageState();
+}
+
+class _RenamePageState extends ConsumerState<RenamePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Rename User')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: widget.tEC,
+                decoration: const InputDecoration(labelText: 'Enter new name'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () async {
+                if (widget.tEC.text.isNotEmpty) {
+                  await widget.renameFunction;
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Rename'),
+            ),
+          ],
         ),
       ),
     );
