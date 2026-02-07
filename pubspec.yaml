@@ -2,7 +2,7 @@ name: beariscope
 description: "The ultimate FRC scouting app developed by Bear Metal, team 2046"
 publish_to: 'none'
 
-version: 26.0.0+2
+version: 26.0.0+3
 
 environment:
   sdk: ^3.7.0
