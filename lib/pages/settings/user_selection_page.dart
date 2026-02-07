@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
-import 'package:riverpod/src/framework.dart';
 
 // Riverpod preparation
 class User {
@@ -246,7 +245,7 @@ class _RenamePageState extends ConsumerState<RenamePage> {
             FilledButton(
               onPressed: () async {
                 if (widget.tEC.text.isNotEmpty) {
-                  await widget.renameFunction;
+                  await widget.renameFunction();
                   Navigator.pop(context);
                 }
               },
