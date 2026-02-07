@@ -64,7 +64,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --latest --tag ${{ steps.normalize.outputs.version }}
+          args: --unreleased --tag ${{ steps.normalize.outputs.version }}
         env:
           OUTPUT: release_notes.md
 

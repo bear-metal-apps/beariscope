@@ -23,6 +23,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Accept Android Licenses
+        run: |
+          yes | sdkmanager --licenses
+
       - name: Build Android APK
         run: flutter build apk --release
 
