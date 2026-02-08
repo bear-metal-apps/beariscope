@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/providers/auth_provider.dart';
-import 'package:libkoala/providers/user_info_provider.dart';
+import 'package:libkoala/libkoala.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 

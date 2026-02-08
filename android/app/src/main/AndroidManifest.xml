@@ -29,7 +29,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="msauth" android:host="org.tahomarobotics.beariscope" android:path="/VzSiQcXRmi2kyjzcA+mYLEtbGVs="/>
+                <data android:scheme="org.tahomarobotics.beariscope" android:host="callback"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

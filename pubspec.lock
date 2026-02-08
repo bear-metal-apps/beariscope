@@ -683,11 +683,9 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v3.0.0"
-      resolved-ref: "77863a360074c29f51df0a5f7d5a213655000e97"
-      url: "https://github.com/betterbearmetalcode/libkoala.git"
-    source: git
+      path: "../libkoala"
+      relative: true
+    source: path
     version: "3.0.0"
   lints:
     dependency: transitive
@@ -746,7 +744,7 @@ packages:
     source: hosted
     version: "1.17.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
