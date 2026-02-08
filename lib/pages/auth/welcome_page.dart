@@ -16,9 +16,9 @@ class WelcomePage extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16,
-          children: <Widget>[
+          children: [
             SvgPicture.asset(
-              'lib/assets/scuffed_logo.svg',
+              'assets/beariscope_head.svg',
               height: 128,
               colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary,
@@ -31,12 +31,26 @@ class WelcomePage extends ConsumerWidget {
             ),
             IntrinsicWidth(
               child: Column(
-                spacing: 12,
+                spacing: 16,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   FilledButton.icon(
-                    onPressed: () {
-                      auth.login();
+                    onPressed: () async {
+                      try {
+                        await auth.login([
+                          'openid',
+                          'profile',
+                          'offline_access',
+                          'User.Read',
+                          'api://bearmet.al/honeycomb/access',
+                        ]);
+                      } on OfflineAuthException {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('No internet connection')),
+                          );
+                        }
+                      }
                     },
                     label: const Text('Sign In With BMBC Account'),
                     icon: const Icon(Symbols.login_rounded),
