@@ -156,9 +156,10 @@ class _EventList extends StatelessWidget {
     }
 
     return BeariscopeCardList(
-      children: items.map((item) {
-        return _EventSection(data: item, timeFormat: timeFormat);
-      }).toList(),
+      children:
+          items.map((item) {
+            return _EventSection(data: item, timeFormat: timeFormat);
+          }).toList(),
     );
   }
 }

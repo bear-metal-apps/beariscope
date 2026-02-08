@@ -159,19 +159,23 @@ class _TeamMemberCardState extends State<TeamMemberCard> {
                     Wrap(
                       spacing: 8,
                       runSpacing: 4,
-                      children: roles.map((role) {
-                        return Chip(
-                          label: Text(role),
-                          onDeleted: () {
-                            setState(() {
-                              roles.remove(role);
-                            });
-                          },
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        );
-                      }).toList(),
+                      children:
+                          roles.map((role) {
+                            return Chip(
+                              label: Text(role),
+                              onDeleted: () {
+                                setState(() {
+                                  roles.remove(role);
+                                });
+                              },
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 3,
+                              ),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            );
+                          }).toList(),
                     ),
                   ],
                 ],

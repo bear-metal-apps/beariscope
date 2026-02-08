@@ -48,14 +48,16 @@ class UpNextEventCard extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onTap: () async {
-        final uri = Uri.parse('https://www.thebluealliance.com/event/$eventKey');
+        final uri = Uri.parse(
+          'https://www.thebluealliance.com/event/$eventKey',
+        );
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Could not open TBA')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Could not open TBA')));
           }
         }
       },
