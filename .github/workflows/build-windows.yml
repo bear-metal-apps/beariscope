@@ -1,0 +1,46 @@
+name: Build Windows
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Create installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: windows/inno_setup.iss
+          options: /DMyAppVersion=${{ inputs.version }} /O+
+
+      - name: Prepare artifacts
+        run: |
+          mkdir artifacts
+          Copy-Item -Path build\inno_setup\beariscope-installer.exe `
+                    -Destination artifacts\beariscope-windows-${{ inputs.version }}.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: artifacts/beariscope-windows-${{ inputs.version }}.exe
+          retention-days: 7

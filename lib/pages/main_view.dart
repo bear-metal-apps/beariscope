@@ -196,7 +196,6 @@ class _MainViewState extends State<MainView> {
     for (final entry in _navItems.indexed) {
       final index = entry.$1;
       final item = entry.$2;
-      
       if (item.group != currentGroup) {
         if (currentGroup != null) {
           children.add(
