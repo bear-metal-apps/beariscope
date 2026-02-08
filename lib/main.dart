@@ -1,7 +1,7 @@
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/settings/user_selection_page.dart';
+import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
@@ -146,7 +146,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: 'user_selection',
-            builder: (_, _) => const UserSelectionPage(),
+            builder: (_, _) => const ScoutSelectionPage(),
           ),
           GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
