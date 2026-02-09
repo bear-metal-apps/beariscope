@@ -39,7 +39,7 @@ Future<void> main() async {
   await Hive.openBox('api_cache');
 
   if (PlatformUtils.isDesktop()) {
-    setWindowMinSize(const Size(500, 600));
+    // setWindowMinSize(const Size(500, 600));
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }

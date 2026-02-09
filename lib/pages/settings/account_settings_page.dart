@@ -1,10 +1,12 @@
 import 'package:beariscope/pages/settings/image_crop_dialog.dart';
 import 'package:beariscope/components/settings_group.dart';
+import 'package:beariscope/utils/image_processor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mime/mime.dart';
 
 class AccountSettingsPage extends ConsumerStatefulWidget {
   const AccountSettingsPage({super.key});
@@ -92,7 +94,6 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('Profile updated')));
       }
     } catch (error) {
-      debugPrint('Profile update failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to update profile: $error')),
@@ -123,8 +124,27 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return;
     }
 
+    final mimeType = file.extension != null
+        ? lookupMimeType('', headerBytes: bytes) ??
+            lookupMimeType('file.${file.extension}')
+        : lookupMimeType('', headerBytes: bytes);
+    
+    final convertedBytes =
+        await ImageProcessor.convertToSupportedFormat(bytes, mimeType);
+
+    if (convertedBytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to process image format'),
+          ),
+        );
+      }
+      return;
+    }
+
     if (!mounted) return;
-    final processedBytes = await ImageCropDialog.show(context, bytes);
+    final processedBytes = await ImageCropDialog.show(context, convertedBytes);
 
     if (processedBytes == null) {
       // cancelled
@@ -146,7 +166,6 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('Profile photo updated')));
       }
     } catch (error) {
-      debugPrint('Photo upload failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to upload photo: $error')),
@@ -203,9 +222,6 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
                 child: const Text('Send'),
               ),
             ],
@@ -223,7 +239,6 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         );
       }
     } catch (error) {
-      debugPrint('Password reset failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to send reset email: $error')),
@@ -251,86 +266,76 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Row(
-                      children: [
-                        Tooltip(
-                          message: 'Change profile photo',
-                          child: InkWell(
-                            onTap: _isUploadingPhoto ? null : _changePhoto,
-                            borderRadius: BorderRadius.circular(100),
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                const ProfilePicture(size: 28),
-                                Positioned(
-                                  bottom: -2,
-                                  right: -2,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.tertiaryContainer,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.surfaceContainer,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Symbols.photo_camera_rounded,
-                                      size: 12,
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.onTertiaryContainer,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                userInfo.value?.name ?? 'No Name',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                userInfo.value?.email ?? 'No Email',
-                                style: TextStyle(
+                child: Row(
+                  children: [
+                    Tooltip(
+                      message: 'Change profile photo',
+                      child: InkWell(
+                        onTap: _isUploadingPhoto ? null : _changePhoto,
+                        borderRadius: BorderRadius.circular(100),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const ProfilePicture(size: 28),
+                            Positioned(
+                              bottom: -2,
+                              right: -2,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
                                   color:
                                       Theme.of(
                                         context,
-                                      ).colorScheme.onSurfaceVariant,
+                                      ).colorScheme.tertiaryContainer,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.surfaceContainer,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Symbols.photo_camera_rounded,
+                                  size: 12,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onTertiaryContainer,
                                 ),
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userInfo.value?.name ?? 'No Name',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        FilledButton.icon(
-                          onPressed: () => _signOut(context),
-                          icon: const Icon(Symbols.logout_rounded),
-                          label: const Text('Sign Out'),
-                        ),
-                      ],
-                    );
-                  },
+                          const SizedBox(height: 4),
+                          Text(
+                            userInfo.value?.email ?? 'No Email',
+                            style: TextStyle(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -399,6 +404,20 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                         )
                         : null,
                 onTap: _isSendingReset ? null : _sendPasswordReset,
+              ),
+              ListTile(
+                leading: Icon(
+                  Symbols.logout_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  'Sign Out',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                subtitle: Text('Sign out of your account', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                onTap: () => _signOut(context),
               ),
             ],
           ),

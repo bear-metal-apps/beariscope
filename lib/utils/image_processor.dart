@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -81,5 +83,36 @@ class ImageProcessor {
       return '${(bytes / 1024).toStringAsFixed(1)} KB';
     }
     return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+  }
+
+  static Future<Uint8List?> convertToSupportedFormat(
+    Uint8List bytes,
+    String? mimeType,
+  ) async {
+    try {
+      final needsConversion = mimeType != null &&
+          (mimeType.toLowerCase().contains('heif') ||
+              mimeType.toLowerCase().contains('heic'));
+
+      if (!needsConversion) {
+        final decoded = img.decodeImage(bytes);
+        if (decoded != null) {
+          return bytes;
+        }
+      }
+
+      final codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return null;
+      
+      final pngBytes = byteData.buffer.asUint8List();
+
+      return pngBytes;
+    } catch (e) {
+      return null;
+    }
   }
 }
