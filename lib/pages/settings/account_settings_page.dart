@@ -1,11 +1,10 @@
+import 'package:beariscope/pages/settings/image_crop_dialog.dart';
 import 'package:beariscope/components/settings_group.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:mime/mime.dart';
 
 class AccountSettingsPage extends ConsumerStatefulWidget {
   const AccountSettingsPage({super.key});
@@ -23,6 +22,8 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   bool _isUploadingPhoto = false;
   bool _isSendingReset = false;
   bool _suppressDirty = false;
+  String? _originalName;
+  String? _originalEmail;
 
   @override
   void initState() {
@@ -40,8 +41,11 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
 
   void _markDirty() {
     if (_suppressDirty) return;
-    if (!_isDirty) {
-      setState(() => _isDirty = true);
+    final isDirty =
+        (_nameController.text != (_originalName ?? '')) ||
+        (_emailController.text != (_originalEmail ?? ''));
+    if (_isDirty != isDirty) {
+      setState(() => _isDirty = isDirty);
     }
   }
 
@@ -57,21 +61,35 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     if (_emailController.text != email) {
       _emailController.text = email;
     }
+    _originalName = name;
+    _originalEmail = email;
     _suppressDirty = false;
   }
 
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
     try {
-      await ref.read(userProfileServiceProvider).updateProfile(
-            name: _nameController.text,
-            email: _emailController.text,
-          );
+      final updates = <String, String>{};
+      if (_nameController.text != (_originalName ?? '')) {
+        updates['name'] = _nameController.text;
+      }
+      if (_emailController.text != (_originalEmail ?? '')) {
+        updates['email'] = _emailController.text;
+      }
+      if (updates.isNotEmpty) {
+        await ref
+            .read(userProfileServiceProvider)
+            .updateProfile(name: updates['name'], email: updates['email']);
+      }
       if (mounted) {
-        setState(() => _isDirty = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated')),
-        );
+        setState(() {
+          _isDirty = false;
+          _originalName = _nameController.text;
+          _originalEmail = _emailController.text;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile updated')));
       }
     } catch (error) {
       debugPrint('Profile update failed: $error');
@@ -87,6 +105,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
 
   Future<void> _changePhoto() async {
     final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select Photo',
       type: FileType.image,
       withData: true,
     );
@@ -104,17 +123,27 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return;
     }
 
+    if (!mounted) return;
+    final processedBytes = await ImageCropDialog.show(context, bytes);
+
+    if (processedBytes == null) {
+      // cancelled
+      return;
+    }
+
     setState(() => _isUploadingPhoto = true);
     try {
-      await ref.read(userProfileServiceProvider).uploadProfilePhoto(
-            bytes,
-            contentType: lookupMimeType(file.name) ?? 'application/octet-stream',
-            fileExtension: file.extension,
+      await ref
+          .read(userProfileServiceProvider)
+          .uploadProfilePhoto(
+            processedBytes,
+            contentType: 'image/jpeg',
+            fileExtension: 'jpg',
           );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile photo updated')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile photo updated')));
       }
     } catch (error) {
       debugPrint('Photo upload failed: $error');
@@ -128,7 +157,63 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     }
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Sign Out'),
+                content: const Text('Are you sure you want to sign out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    child: const Text('Sign Out'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
+
+    if (confirmed && context.mounted) {
+      await ref.read(authProvider).logout();
+    }
+  }
+
   Future<void> _sendPasswordReset() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Reset Password'),
+            content: const Text(
+              'Are you sure you want to send a password reset email?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Send'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm != true) return;
+
     setState(() => _isSendingReset = true);
     try {
       await ref.read(userProfileServiceProvider).requestPasswordReset();
@@ -161,51 +246,91 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          const SizedBox(height: 16),
           SettingsGroup(
             title: 'Profile',
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const ProfilePicture(size: 28),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userInfo.value?.name ?? 'No Name',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Row(
+                      children: [
+                        Tooltip(
+                          message: 'Change profile photo',
+                          child: InkWell(
+                            onTap: _isUploadingPhoto ? null : _changePhoto,
+                            borderRadius: BorderRadius.circular(100),
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                const ProfilePicture(size: 28),
+                                Positioned(
+                                  bottom: -2,
+                                  right: -2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.tertiaryContainer,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.surfaceContainer,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Symbols.photo_camera_rounded,
+                                      size: 12,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onTertiaryContainer,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            userInfo.value?.email ?? 'No Email',
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userInfo.value?.name ?? 'No Name',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                userInfo.value?.email ?? 'No Email',
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    FilledButton.icon(
-                      onPressed: _isUploadingPhoto ? null : _changePhoto,
-                      icon: _isUploadingPhoto
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Symbols.photo_camera_rounded),
-                      label: const Text('Change Photo'),
-                    ),
-                  ],
+                        ),
+                        const SizedBox(width: 8),
+                        FilledButton.icon(
+                          onPressed: () => _signOut(context),
+                          icon: const Icon(Symbols.logout_rounded),
+                          label: const Text('Sign Out'),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -238,17 +363,17 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: FilledButton.icon(
-                        onPressed:
-                            _isSaving || !_isDirty ? null : _saveProfile,
-                        icon: _isSaving
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Symbols.save_rounded),
+                        onPressed: _isSaving || !_isDirty ? null : _saveProfile,
+                        icon:
+                            _isSaving
+                                ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : const Icon(Symbols.save_rounded),
                         label: const Text('Save Changes'),
                       ),
                     ),
@@ -265,13 +390,14 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                 leading: const Icon(Symbols.lock_reset_rounded),
                 title: const Text('Reset Password'),
                 subtitle: const Text('Send a password reset email'),
-                trailing: _isSendingReset
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : null,
+                trailing:
+                    _isSendingReset
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : null,
                 onTap: _isSendingReset ? null : _sendPasswordReset,
               ),
             ],

@@ -2,9 +2,7 @@ import 'package:beariscope/components/settings_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/auth_provider.dart';
 import 'package:libkoala/libkoala.dart';
-import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -19,63 +17,6 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          const SizedBox(height: 16),
-          Center(child: ProfilePicture(size: 72)),
-          const SizedBox(height: 12),
-          Text(
-            userInfo.value?.name ?? 'No Name',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            userInfo.value?.email ?? 'No Email',
-            style: TextStyle(fontSize: 14),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: FilledButton.icon(
-              onPressed: () async {
-                final bool confirmed =
-                    await showDialog(
-                      context: context,
-                      builder:
-                          (context) => AlertDialog(
-                            title: const Text('Sign Out'),
-                            content: const Text(
-                              'Are you sure you want to sign out?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed:
-                                    () => Navigator.of(context).pop(false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(true);
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.error,
-                                ),
-                                child: const Text('Sign Out'),
-                              ),
-                            ],
-                          ),
-                    ) ??
-                    false;
-                if (confirmed && context.mounted) {
-                  await ref.read(authProvider).logout();
-                }
-              },
-              icon: const Icon(Symbols.logout_rounded),
-              label: const Text('Sign Out'),
-            ),
-          ),
-          const SizedBox(height: 16),
-
           SettingsGroup(
             title: 'General',
             children: [
