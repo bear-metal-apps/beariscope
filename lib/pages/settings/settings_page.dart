@@ -97,10 +97,24 @@ class SettingsPage extends ConsumerWidget {
                 subtitle: const Text('Theme, UI Options'),
                 onTap: () => context.push('/settings/appearance'),
               ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          SettingsGroup(
+            title: 'Team',
+            children: [
+              ListTile(
+                leading: const Icon(Symbols.person_add),
+                title: const Text('Scouts'),
+                subtitle: const Text('Add, Remove Scouts'),
+                onTap: () => context.push('/settings/user_selection'),
+              ),
               ListTile(
                 leading: const Icon(Symbols.group),
-                title: const Text('Members'),
-                subtitle: const Text('Roles'),
+                title: const Text('Beariscope Users'),
+                subtitle: const Text('Edit Roles'),
                 onTap: () => context.push('/settings/roles'),
               ),
             ],

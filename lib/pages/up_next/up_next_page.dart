@@ -1,3 +1,4 @@
+import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/up_next/up_next_provider.dart';
 import 'package:beariscope/pages/up_next/up_next_widget.dart';
@@ -5,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
-// --- 2. The Page ---
 
 class UpNextPage extends ConsumerWidget {
   const UpNextPage({super.key});
@@ -153,22 +152,14 @@ class _EventList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return ListView(children: [Center(child: Text(emptyMessage))]);
+      return Center(child: Text(emptyMessage));
     }
 
-    return ListView.separated(
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      padding: const EdgeInsets.all(16),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: _EventSection(data: item, timeFormat: timeFormat),
-          ),
-        );
-      },
+    return BeariscopeCardList(
+      children:
+          items.map((item) {
+            return _EventSection(data: item, timeFormat: timeFormat);
+          }).toList(),
     );
   }
 }
