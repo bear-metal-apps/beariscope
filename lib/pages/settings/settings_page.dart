@@ -2,7 +2,6 @@ import 'package:beariscope/components/settings_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class SettingsPage extends ConsumerWidget {

@@ -124,20 +124,21 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return;
     }
 
-    final mimeType = file.extension != null
-        ? lookupMimeType('', headerBytes: bytes) ??
-            lookupMimeType('file.${file.extension}')
-        : lookupMimeType('', headerBytes: bytes);
-    
-    final convertedBytes =
-        await ImageProcessor.convertToSupportedFormat(bytes, mimeType);
+    final mimeType =
+        file.extension != null
+            ? lookupMimeType('', headerBytes: bytes) ??
+                lookupMimeType('file.${file.extension}')
+            : lookupMimeType('', headerBytes: bytes);
+
+    final convertedBytes = await ImageProcessor.convertToSupportedFormat(
+      bytes,
+      mimeType,
+    );
 
     if (convertedBytes == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to process image format'),
-          ),
+          const SnackBar(content: Text('Unable to process image format')),
         );
       }
       return;
@@ -412,11 +413,12 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                 ),
                 title: Text(
                   'Sign Out',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-                subtitle: Text('Sign out of your account', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                subtitle: Text(
+                  'Sign out of your account',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
                 onTap: () => _signOut(context),
               ),
             ],

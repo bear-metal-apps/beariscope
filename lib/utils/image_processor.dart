@@ -90,7 +90,8 @@ class ImageProcessor {
     String? mimeType,
   ) async {
     try {
-      final needsConversion = mimeType != null &&
+      final needsConversion =
+          mimeType != null &&
           (mimeType.toLowerCase().contains('heif') ||
               mimeType.toLowerCase().contains('heic'));
 
@@ -107,7 +108,7 @@ class ImageProcessor {
 
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return null;
-      
+
       final pngBytes = byteData.buffer.asUint8List();
 
       return pngBytes;
