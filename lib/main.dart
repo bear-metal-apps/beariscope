@@ -14,7 +14,7 @@ import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
-import 'package:beariscope/utilities/utilities_page.dart';
+import 'package:beariscope/pages/utilities/utilities_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -27,6 +27,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/libkoala.dart';
+import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
@@ -45,7 +46,29 @@ Future<void> main() async {
     setWindowTitle('Beariscope');
   }
 
-  runApp(const ProviderScope(child: Beariscope()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        auth0ConfigProvider.overrideWith((ref) {
+          return const Auth0Config(
+            domain: 'bearmetal2046.us.auth0.com',
+            clientId: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            redirectUris: {
+              DeviceOS.ios: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.macos: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.android: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.web: 'https://scout.bearmet.al/auth.html',
+              DeviceOS.windows: 'http://localhost:4000/auth',
+              DeviceOS.linux: 'http://localhost:4000/auth',
+            },
+            storageKeyPrefix: 'beariscope_',
+          );
+        }),
+      ],
+      child: const Beariscope(),
+    ),
+  );
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -124,7 +147,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/utilities',
-            builder: (context, state) => const UtilitiesPage(),
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: UtilitiesPage()),
           ),
         ],
       ),

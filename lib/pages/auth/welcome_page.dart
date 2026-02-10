@@ -40,9 +40,9 @@ class WelcomePage extends ConsumerWidget {
                         await auth.login([
                           'openid',
                           'profile',
+                          'email',
                           'offline_access',
-                          'User.Read',
-                          'api://bearmet.al/honeycomb/access',
+                          'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
                         ]);
                       } on OfflineAuthException {
                         if (context.mounted) {
@@ -52,8 +52,8 @@ class WelcomePage extends ConsumerWidget {
                         }
                       }
                     },
-                    label: const Text('Sign In With BMBC Account'),
-                    icon: const Icon(Symbols.login_rounded),
+                    label: const Text('Sign In'),
+                    icon: const Icon(Symbols.open_in_new_rounded),
                   ),
                   // OutlinedButton.icon(
                   //   onPressed: () {

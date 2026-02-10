@@ -83,8 +83,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
-          const SizedBox(height: 16),
-
           SettingsGroup(
             title: 'Interface',
             children: [

@@ -9,6 +9,7 @@ environment:
   flutter: ^3.0.0
 
 dependencies:
+  crop_your_image: ^2.0.0
   cupertino_icons: ^1.0.8
   file_picker: ^10.3.3
   flutter:
@@ -21,8 +22,8 @@ dependencies:
   go_router: ^17.1.0
   libkoala:
     git: 
-      url: https://github.com/betterbearmetalcode/libkoala.git
-      ref: v3.0.0
+      url: https://github.com/bear-metal-apps/libkoala.git
+      ref: v4.0.0
   logger: ^2.6.2
   material_symbols_icons: ^4.2808.1
   package_info_plus: ^9.0.0
@@ -33,10 +34,13 @@ dependencies:
   url_launcher: ^6.3.1
   window_size: ^0.1.0
   hive_ce_flutter: ^2.3.3
+  image: ^4.3.0
   google_fonts: ^8.0.0
   animations: ^2.1.1
   dots_indicator: ^4.0.1
   intl: ^0.20.2
+  mime: ^2.0.0
+  internet_connection_checker_plus: ^2.9.1+2
 
 dependency_overrides:
   flutter_web_auth_2: 5.0.0-alpha.3

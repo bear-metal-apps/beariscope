@@ -233,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
+  crop_your_image:
+    dependency: "direct main"
+    description:
+      name: crop_your_image
+      sha256: "14c8977b11a009dc5e73e0f6522970f93363e38183f1b2ffefe1676dc9c3f49d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   cross_file:
     dependency: transitive
     description:
@@ -601,7 +609,7 @@ packages:
     source: hosted
     version: "4.1.2"
   image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image
       sha256: "492bd52f6c4fbb6ee41f781ff27765ce5f627910e1e0cbecfa3d9add5562604c"
@@ -609,7 +617,7 @@ packages:
     source: hosted
     version: "4.7.2"
   internet_connection_checker_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: internet_connection_checker_plus
       sha256: ef43530f24de6309f99802358f8a543ea1f2babc153effc84a75133751716892
@@ -684,9 +692,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v3.0.0"
-      resolved-ref: "77863a360074c29f51df0a5f7d5a213655000e97"
-      url: "https://github.com/betterbearmetalcode/libkoala.git"
+      ref: "v4.0.0"
+      resolved-ref: f1c869fbe039dcac01aa5f8edb135a80dd95d216
+      url: "https://github.com/bear-metal-apps/libkoala.git"
     source: git
     version: "3.0.0"
   lints:
@@ -746,7 +754,7 @@ packages:
     source: hosted
     version: "1.17.0"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
