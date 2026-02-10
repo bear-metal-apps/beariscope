@@ -26,6 +26,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/libkoala.dart';
+import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
@@ -39,12 +40,34 @@ Future<void> main() async {
   await Hive.openBox('api_cache');
 
   if (PlatformUtils.isDesktop()) {
-    // setWindowMinSize(const Size(500, 600));
+    setWindowMinSize(const Size(500, 600));
     setWindowMaxSize(Size.infinite);
     setWindowTitle('Beariscope');
   }
 
-  runApp(const ProviderScope(child: Beariscope()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        auth0ConfigProvider.overrideWith((ref) {
+          return const Auth0Config(
+            domain: 'bearmetal2046.us.auth0.com',
+            clientId: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            redirectUris: {
+              DeviceOS.ios: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.macos: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.android: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.web: 'https://scout.bearmet.al/auth.html',
+              DeviceOS.windows: 'http://localhost:4000/auth',
+              DeviceOS.linux: 'http://localhost:4000/auth',
+            },
+            storageKeyPrefix: 'beariscope_',
+          );
+        }),
+      ],
+      child: const Beariscope(),
+    ),
+  );
 }
 
 final routerProvider = Provider<GoRouter>((ref) {

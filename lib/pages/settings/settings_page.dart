@@ -10,8 +10,6 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userInfo = ref.watch(userInfoProvider);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
