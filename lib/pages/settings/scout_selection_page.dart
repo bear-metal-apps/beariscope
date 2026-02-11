@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:beariscope/components/beariscope_card.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class CurrentScout extends Notifier<String> {
   @override
@@ -65,6 +69,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                           content: TextField(
                             controller: newNameTEC,
                             decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
                               labelText: 'New name',
                             ),
                           ),
@@ -95,7 +100,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                   );
                 },
                 icon: Icon(
-                  Icons.edit_rounded,
+                  Symbols.edit_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -136,7 +141,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                   }
                 },
                 icon: Icon(
-                  Icons.delete_rounded,
+                  Symbols.delete_rounded,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -147,6 +152,45 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
     }).toList();
   }
 
+  List<String> _parseCsvNames(String input) {
+    final normalized = input.replaceAll(RegExp(r',\s+'), ',');
+    return normalized
+      .split(RegExp(r'[\r\n,]+'))
+        .map((name) => name.trim())
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
+  Future<void> _importFromCsv() async {
+    final result = await showDialog<_CsvImportResult>(
+      context: context,
+      builder: (context) => const _CsvImportDialog(),
+    );
+
+    if (!mounted || result == null) return;
+
+    final names = _parseCsvNames(result.csvText);
+    if (names.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No names found in CSV.')));
+      return;
+    }
+
+    for (final name in names) {
+      await ref.read(honeycombClientProvider).post(
+        '/scouts',
+        data: {"name": name},
+      );
+    }
+
+    ref.invalidate(_scoutsProvider);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Imported ${names.length} scouts.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scoutsAsync = ref.watch(_scoutsProvider);
@@ -154,8 +198,35 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
       appBar: AppBar(
         centerTitle: true,
         titleSpacing: 8.0,
-        title: SearchBar(controller: _searchTEC, hintText: 'Search Scouts'),
-        actions: [SizedBox(width: 48)],
+        title: SearchBar(
+          controller: _searchTEC,
+          elevation: WidgetStateProperty.all(0.0),
+          padding: const WidgetStatePropertyAll<EdgeInsets>(
+            EdgeInsets.symmetric(horizontal: 16.0),
+          ),
+          leading: Icon(Symbols.search_rounded),
+          hintText: 'Search Scouts',
+        ),
+        actionsPadding: EdgeInsets.symmetric(horizontal: 8.0),
+        actions: [
+          PopupMenuButton(itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'import',
+              child: Row(
+                children: [
+                  Icon(Symbols.file_upload_rounded,
+                      color: Theme.of(context).colorScheme.onSurface),
+                  const SizedBox(width: 8),
+                  const Text('Import From CSV'),
+                ],
+              ),
+            ),
+          ], onSelected: (value) {
+            if (value == 'import') {
+              _importFromCsv();
+            }
+          }),
+        ],
       ),
       body: scoutsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -227,8 +298,143 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
           );
         },
         tooltip: 'Add Scout',
-        child: const Icon(Icons.add),
+        child: const Icon(Symbols.add),
       ),
+    );
+  }
+}
+
+enum _CsvImportMode { file, paste }
+
+class _CsvImportResult {
+  const _CsvImportResult(this.csvText);
+
+  final String csvText;
+}
+
+class _CsvImportDialog extends StatefulWidget {
+  const _CsvImportDialog();
+
+  @override
+  State<_CsvImportDialog> createState() => _CsvImportDialogState();
+}
+
+class _CsvImportDialogState extends State<_CsvImportDialog> {
+  _CsvImportMode _mode = _CsvImportMode.file;
+  PlatformFile? _selectedFile;
+  String? _fileContents;
+  final TextEditingController _pasteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pasteController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select CSV',
+      type: FileType.custom,
+      allowedExtensions: ['csv', 'txt'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.single;
+    final bytes = file.bytes;
+    if (bytes == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to read file contents.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _selectedFile = file;
+      _fileContents = utf8.decode(bytes);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canImport =
+        _mode == _CsvImportMode.file
+            ? (_fileContents?.trim().isNotEmpty ?? false)
+            : _pasteController.text.trim().isNotEmpty;
+
+    return AlertDialog(
+      title: const Text('Import From CSV'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SegmentedButton<_CsvImportMode>(
+            segments: const [
+              ButtonSegment<_CsvImportMode>(
+                value: _CsvImportMode.file,
+                label: Text('File'),
+              ),
+              ButtonSegment<_CsvImportMode>(
+                value: _CsvImportMode.paste,
+                label: Text('Paste'),
+              ),
+            ],
+            selected: {_mode},
+            onSelectionChanged: (selection) {
+              setState(() => _mode = selection.first);
+            },
+          ),
+          const SizedBox(height: 16),
+          if (_mode == _CsvImportMode.file) ...[
+            const Text('Upload a CSV file from your device'),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.upload_file),
+              label: const Text('Select file'),
+              onPressed: _pickFile,
+            ),
+            const SizedBox(height: 8),
+            if (_selectedFile != null)
+              Text(
+                _selectedFile!.name,
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              ),
+          ] else ...[
+            const Text('Paste a comma-separated list of scout names'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _pasteController,
+              minLines: 3,
+              maxLines: 6,
+              decoration: const InputDecoration(
+                hintText: 'John Scout,Jane Scout',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed:
+              canImport
+                  ? () {
+                    final csvText =
+                        _mode == _CsvImportMode.file
+                            ? _fileContents ?? ''
+                            : _pasteController.text;
+                    Navigator.of(context).pop(_CsvImportResult(csvText));
+                  }
+                  : null,
+          child: const Text('Import'),
+        ),
+      ],
     );
   }
 }
