@@ -25,7 +25,7 @@ class ScoutedNotifier extends Notifier<List<bool>> {
   void replaceValue(int index) {
     if (index < 0 || index >= state.length) return;
 
-        {
+    {
       final newList = [...state];
       newList[index] = true;
       state = newList;
@@ -39,5 +39,6 @@ class ScoutedNotifier extends Notifier<List<bool>> {
   }
 }
 
-final scoutedNotifierProvider =
-NotifierProvider<ScoutedNotifier, List<bool>>(ScoutedNotifier.new);
+final scoutedNotifierProvider = NotifierProvider<ScoutedNotifier, List<bool>>(
+  ScoutedNotifier.new,
+);

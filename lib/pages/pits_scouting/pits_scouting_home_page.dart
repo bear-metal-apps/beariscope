@@ -63,7 +63,9 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
 
   List<Team> byName(String name, List<Team> list) {
     final modifiedName = name.toLowerCase();
-    return list.where((t) => t.teamName.toLowerCase().contains(modifiedName)).toList();
+    return list
+        .where((t) => t.teamName.toLowerCase().contains(modifiedName))
+        .toList();
   }
 
   List<Team> byNumber(int number, List<Team> list) {
@@ -130,24 +132,26 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
             setState(() => filter(value, teams));
           },
         ),
-        leading: main.isDesktop
-            ? SizedBox(width: 40)
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
-        ),
+        leading:
+            main.isDesktop
+                ? SizedBox(width: 40)
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: main.openDrawer,
+                ),
       ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: filteredTeams.map((team) {
-              return PitsScoutingTeamCard(
-                teamName: team.teamName,
-                teamNumber: team.teamNumber,
-                cardID: teams.indexOf(team),
-              );
-            }).toList(),
+            children:
+                filteredTeams.map((team) {
+                  return PitsScoutingTeamCard(
+                    teamName: team.teamName,
+                    teamNumber: team.teamNumber,
+                    cardID: teams.indexOf(team),
+                  );
+                }).toList(),
           ),
         ),
       ),

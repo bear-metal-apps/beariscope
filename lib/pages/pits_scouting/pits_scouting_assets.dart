@@ -126,7 +126,6 @@ class _ScoutingPage extends ConsumerStatefulWidget {
 }
 
 class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
