@@ -8,7 +8,7 @@ class CurrentEvent extends _$CurrentEvent {
   static const _storageKey = 'current_event_key';
   static const _defaultEventKey = '2026wabon';
 
-	@override
+  @override
   String build() {
     _loadEventKey();
     return _defaultEventKey;
@@ -34,10 +34,7 @@ class CurrentEvent extends _$CurrentEvent {
     await _setAndPersist(value, prefs);
   }
 
-  Future<void> _setAndPersist(
-    String value,
-    SharedPreferences prefs,
-  ) async {
+  Future<void> _setAndPersist(String value, SharedPreferences prefs) async {
     state = value;
     await prefs.setString(_storageKey, value);
   }
