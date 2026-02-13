@@ -155,7 +155,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   List<String> _parseCsvNames(String input) {
     final normalized = input.replaceAll(RegExp(r',\s+'), ',');
     return normalized
-      .split(RegExp(r'[\r\n,]+'))
+        .split(RegExp(r'[\r\n,]+'))
         .map((name) => name.trim())
         .where((name) => name.isNotEmpty)
         .toList();
@@ -178,17 +178,16 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
     }
 
     for (final name in names) {
-      await ref.read(honeycombClientProvider).post(
-        '/scouts',
-        data: {"name": name},
-      );
+      await ref
+          .read(honeycombClientProvider)
+          .post('/scouts', data: {"name": name});
     }
 
     ref.invalidate(_scoutsProvider);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Imported ${names.length} scouts.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Imported ${names.length} scouts.')));
   }
 
   @override
@@ -209,23 +208,29 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
         ),
         actionsPadding: EdgeInsets.symmetric(horizontal: 8.0),
         actions: [
-          PopupMenuButton(itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'import',
-              child: Row(
-                children: [
-                  Icon(Symbols.file_upload_rounded,
-                      color: Theme.of(context).colorScheme.onSurface),
-                  const SizedBox(width: 8),
-                  const Text('Import From CSV'),
+          PopupMenuButton(
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    value: 'import',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Symbols.file_upload_rounded,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Import From CSV'),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ], onSelected: (value) {
-            if (value == 'import') {
-              _importFromCsv();
-            }
-          }),
+            onSelected: (value) {
+              if (value == 'import') {
+                _importFromCsv();
+              }
+            },
+          ),
         ],
       ),
       body: scoutsAsync.when(

@@ -99,13 +99,13 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children:
-                filteredTeams.map((team) {
-                  return PitsScoutingTeamCard(
-                    teamName: team.teamName,
-                    teamNumber: team.teamNumber,
-                    cardID: teams.indexOf(team),
-                  );
-                }).toList(),
+                    filteredTeams.map((team) {
+                      return PitsScoutingTeamCard(
+                        teamName: team.teamName,
+                        teamNumber: team.teamNumber,
+                        cardID: teams.indexOf(team),
+                      );
+                    }).toList(),
               ),
             ),
           );
