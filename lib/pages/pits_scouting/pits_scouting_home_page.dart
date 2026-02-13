@@ -24,8 +24,7 @@ class PitsScoutingHomePage extends ConsumerStatefulWidget {
 }
 
 class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
-  late List<Team> teams;
-
+  List<Team> teams = [];
   List<Team> filteredTeams = [];
   List<PitsScoutingTeamCard> teamCards = [];
 
@@ -63,7 +62,20 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     }
   }
 
-  Widget constructList(
+  List<Widget> constructList(List<Map<String, String>> teams) {
+    return teams.map((team) {
+      final name = team["nickname"];
+      final number = team["teamNumber"];
+
+      return PitsScoutingTeamCard(
+        teamName: name ?? 'None',
+        teamNumber: int.tryParse(number!) ?? 0,
+        cardID: int.tryParse(number) ?? 0,
+      );
+    }).toList();
+  }
+
+  Widget filterList(
     AsyncValue<List<dynamic>> allTeams,
     AsyncValue<List<dynamic>> currentEventTeams,
     GetListDataProvider allTeamsProvider,
@@ -80,7 +92,22 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               ),
             ),
         data: (data) {
-          return Center();
+          final allTeamData =
+              data.map((item) {
+                  return {
+                    "teamNumber": item["teamNumber"] as String,
+                    "nickname": item["nickname"] as String,
+                  };
+                }).toList()
+                ..sort((a, b) => a["teamNumber"]!.compareTo(b["teamNumber"]!));
+          return Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: constructList(allTeamData),
+              ),
+            ),
+          );
         },
       );
     } else {
@@ -94,41 +121,25 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               ),
             ),
         data: (data) {
+          final currentEventTeamData =
+              data.map((item) {
+                  return {
+                    "teamNumber": item["teamNumber"] as String,
+                    "nickname": item["nickname"] as String,
+                  };
+                }).toList()
+                ..sort((a, b) => a["teamNumber"]!.compareTo(b["teamNumber"]!));
           return Center(
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                    filteredTeams.map((team) {
-                      return PitsScoutingTeamCard(
-                        teamName: team.teamName,
-                        teamNumber: team.teamNumber,
-                        cardID: teams.indexOf(team),
-                      );
-                    }).toList(),
+                children: constructList(currentEventTeamData),
               ),
             ),
           );
         },
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    for (int i = 0; i < teams.length; i++) {
-      teamCards.add(
-        PitsScoutingTeamCard(
-          teamName: teams[i].teamName,
-          teamNumber: teams[i].teamNumber,
-          cardID: i,
-        ),
-      );
-    }
-
-    filteredTeams = teams;
   }
 
   final TextEditingController searchTermTEC = TextEditingController();
@@ -188,7 +199,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                   onPressed: main.openDrawer,
                 ),
       ),
-      body: constructList(
+      body: filterList(
         allTeamsAsync,
         currentEventTeamsAsync,
         allTeamsProvider,
