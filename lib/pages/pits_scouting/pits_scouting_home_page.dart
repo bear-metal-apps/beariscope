@@ -1,9 +1,12 @@
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
+import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
 
 class Team {
   String teamName;
@@ -21,39 +24,12 @@ class PitsScoutingHomePage extends ConsumerStatefulWidget {
 }
 
 class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
-  final List<Team> teams = [
-    Team('Bear Metal', 2046),
-    Team('SPARX', 1126),
-    Team('KB Bot', 3311),
-    Team('ASSIT', 2214),
-    Team('iDeer', 9427),
-    Team('Team R.O.B.O.T.I.C.S.', 107),
-    Team('Scared Heart Outlanders', 10285),
-    Team('The Wolfbotz', 4634),
-    Team('The Ninjaneers', 1068),
-    Team('ASCTE', 8605),
-    Team('Mets Robotics', 4745),
-    Team('Tiger-OPS Robotics', 7214),
-    Team('ROBOLYNX', 10907),
-    Team('Clarksville Cyber Storm', 11037),
-    Team('Power Struck Girls', 5965),
-    Team('Team Terminator', 5576),
-    Team('Robot Dolphins From Outer Space', 5199),
-    Team('Cyber Courgars', 6089),
-    Team('Manic Mechanics', 1851),
-    Team('Wildcogs', 3123),
-    Team('Weber Fever', 1724),
-    Team('--', 1364),
-    Team('The Marist Manta Rays', 6772),
-    Team('SpicyBots', 8138),
-    Team('Panteras', 2283),
-    Team('The Ducksons', 10508),
-    Team('Rambots', 2204),
-    Team('Greased Lightning', 4379),
-  ];
+  late List<Team> teams;
 
   List<Team> filteredTeams = [];
   List<PitsScoutingTeamCard> teamCards = [];
+
+  Filter pitsFilter = Filter.allEvents;
 
   bool isInt(String input) => int.tryParse(input) != null;
 
@@ -87,6 +63,57 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     }
   }
 
+  Widget constructList(
+    AsyncValue<List<dynamic>> allTeams,
+    AsyncValue<List<dynamic>> currentEventTeams,
+    GetListDataProvider allTeamsProvider,
+    GetListDataProvider currentEventTeamsProvider,
+  ) {
+    if (pitsFilter == Filter.currentEventsOnly) {
+      return currentEventTeams.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error:
+            (err, stack) => Center(
+              child: FilledButton(
+                onPressed: () => ref.invalidate(currentEventTeamsProvider),
+                child: const Text('Retry'),
+              ),
+            ),
+        data: (data) {
+          return Center();
+        },
+      );
+    } else {
+      return allTeams.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error:
+            (err, stack) => Center(
+              child: FilledButton(
+                onPressed: () => ref.invalidate(allTeamsProvider),
+                child: const Text('Retry'),
+              ),
+            ),
+        data: (data) {
+          return Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:
+                filteredTeams.map((team) {
+                  return PitsScoutingTeamCard(
+                    teamName: team.teamName,
+                    teamNumber: team.teamNumber,
+                    cardID: teams.indexOf(team),
+                  );
+                }).toList(),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +136,12 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
+    final allTeamsProvider = getListDataProvider(endpoint: '/teams');
+    final currentEventTeamsProvider = getListDataProvider(
+      endpoint: '/teams?event=${ref.read(currentEventProvider)}',
+    );
+    final allTeamsAsync = ref.watch(allTeamsProvider);
+    final currentEventTeamsAsync = ref.watch(currentEventTeamsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -122,10 +155,25 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
           ),
           leading: const Icon(Icons.search_rounded),
           trailing: [
-            IconButton(
+            PopupMenuButton(
               icon: Icon(Icons.filter_list_rounded),
               tooltip: 'Filter & Sort',
-              onPressed: () {},
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      value: Filter.allEvents,
+                      child: Text('All Events'),
+                    ),
+                    PopupMenuItem(
+                      value: Filter.currentEventsOnly,
+                      child: Text('Current Event Only'),
+                    ),
+                  ],
+              onSelected: (Filter newValue) {
+                setState(() {
+                  pitsFilter = newValue;
+                });
+              },
             ),
           ],
           onChanged: (value) {
@@ -140,20 +188,11 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
                   onPressed: main.openDrawer,
                 ),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:
-                filteredTeams.map((team) {
-                  return PitsScoutingTeamCard(
-                    teamName: team.teamName,
-                    teamNumber: team.teamNumber,
-                    cardID: teams.indexOf(team),
-                  );
-                }).toList(),
-          ),
-        ),
+      body: constructList(
+        allTeamsAsync,
+        currentEventTeamsAsync,
+        allTeamsProvider,
+        currentEventTeamsProvider,
       ),
     );
   }
