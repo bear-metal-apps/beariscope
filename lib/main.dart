@@ -194,6 +194,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
     redirect: (_, state) {
       final auth = ref.watch(authStatusProvider);
+      final authMe = ref.watch(authMeProvider);
+      final permissionChecker = ref.watch(permissionCheckerProvider);
       final location = state.matchedLocation;
 
       // splash while authing
@@ -208,6 +210,47 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
+        final isRoleManagementRoute =
+            location == '/settings/roles' || location == '/picklists/roles';
+        final isScoutManagementRoute = location == '/settings/user_selection';
+        final isPicklistCreateRoute = location == '/picklists/create';
+
+        if (isRoleManagementRoute || isScoutManagementRoute || isPicklistCreateRoute) {
+          if (authMe.isLoading) {
+            return location == '/splash' ? null : '/splash';
+          }
+
+          final checker = permissionChecker;
+
+          if (isRoleManagementRoute) {
+            final canManageRoles =
+                checker?.hasPermission(PermissionKey.usersRolesManage) ?? false;
+            if (!canManageRoles) {
+              return '/settings';
+            }
+          }
+
+          if (isScoutManagementRoute) {
+            final canViewScouts =
+                checker?.hasAnyPermission([
+                  PermissionKey.scoutsRead,
+                  PermissionKey.scoutsManage,
+                ]) ??
+                false;
+            if (!canViewScouts) {
+              return '/settings';
+            }
+          }
+
+          if (isPicklistCreateRoute) {
+            final canManagePicklists =
+                checker?.hasPermission(PermissionKey.picklistsManage) ?? false;
+            if (!canManagePicklists) {
+              return '/picklists';
+            }
+          }
+        }
+
         if (location == '/welcome' || location == '/splash') {
           return '/up_next';
         }
@@ -275,9 +318,15 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
   );
 
   return baseTheme.copyWith(
-    appBarTheme: AppBarTheme(
+    appBarTheme: baseTheme.appBarTheme.copyWith(
       centerTitle: false,
       titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
+        fontFamily: 'Xolonium',
+        fontSize: 20,
+      ),
+    ),
+    dialogTheme: baseTheme.dialogTheme.copyWith(
+      titleTextStyle: baseTheme.textTheme.headlineSmall!.copyWith(
         fontFamily: 'Xolonium',
         fontSize: 20,
       ),

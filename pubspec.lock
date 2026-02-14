@@ -691,11 +691,9 @@ packages:
   libkoala:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v4.0.0"
-      resolved-ref: f1c869fbe039dcac01aa5f8edb135a80dd95d216
-      url: "https://github.com/bear-metal-apps/libkoala.git"
-    source: git
+      path: "../libkoala"
+      relative: true
+    source: path
     version: "3.0.0"
   lints:
     dependency: transitive
