@@ -3,6 +3,7 @@ import 'package:beariscope/components/team_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/device_info_provider.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/components/team_providers.dart';
 
@@ -146,7 +147,7 @@ class TeamDetailsPage extends ConsumerWidget {
             appBar: AppBar(
               title: Text('$teamName - $teamNumber'),
               leading: IconButton(
-                icon: const Icon(Icons.close),
+                icon: const Icon(Symbols.close),
                 onPressed: () => Navigator.pop(context),
               ),
               bottom: const TabBar(
