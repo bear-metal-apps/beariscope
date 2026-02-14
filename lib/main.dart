@@ -210,12 +210,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
-        final isRoleManagementRoute =
-            location == '/settings/roles' || location == '/picklists/roles';
+        final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
         final isPicklistCreateRoute = location == '/picklists/create';
 
-        if (isRoleManagementRoute || isScoutManagementRoute || isPicklistCreateRoute) {
+        if (isRoleManagementRoute ||
+            isScoutManagementRoute ||
+            isPicklistCreateRoute) {
           if (authMe.isLoading) {
             return location == '/splash' ? null : '/splash';
           }
@@ -311,7 +312,11 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
     brightness: brightness,
     useMaterial3: true,
     colorScheme: colorScheme,
-    iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+    iconTheme: IconThemeData(
+      fill: 0.0,
+      weight: 600,
+      color: colorScheme.onSurface,
+    ),
     textTheme: GoogleFonts.nunitoSansTextTheme(
       ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
     ),

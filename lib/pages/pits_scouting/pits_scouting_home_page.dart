@@ -26,11 +26,11 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
-          leading: const Icon(Icons.search_rounded),
+          leading: const Icon(Symbols.search_rounded),
 
           trailing: [
             IconButton(
-              icon: Icon(Icons.filter_list_rounded),
+              icon: Icon(Symbols.filter_list_rounded),
               tooltip: 'Filter & Sort',
               onPressed: () {},
             ),

@@ -46,11 +46,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final selectedKey = ref.watch(currentEventProvider);
     final permissionChecker = ref.watch(permissionCheckerProvider);
     final canViewScouts =
-        permissionChecker?.hasAnyPermission([
-          PermissionKey.scoutsRead,
-          PermissionKey.scoutsManage,
-        ]) ??
+        permissionChecker?.hasAnyPermission([PermissionKey.scoutsRead]) ??
         false;
+    final canEditScouts =
+        permissionChecker?.hasPermission(PermissionKey.scoutsManage) ?? false;
     final canManageUsersRoles =
         permissionChecker?.hasPermission(PermissionKey.usersRolesManage) ??
         false;
@@ -160,27 +159,31 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
               const SizedBox(height: 16),
 
-              SettingsGroup(
-                title: 'Team',
-                children: [
-                  if (canViewScouts)
-                    ListTile(
-                      leading: const Icon(Symbols.person_add),
-                      title: const Text('Scouts'),
-                      subtitle: const Text('Add, Remove Scouts'),
-                      onTap: () => context.push('/settings/user_selection'),
-                    ),
-                  if (canManageUsersRoles)
-                    ListTile(
-                      leading: const Icon(Symbols.group),
-                      title: const Text('Beariscope Users'),
-                      subtitle: const Text('Edit Roles'),
-                      onTap: () => context.push('/settings/roles'),
-                    ),
-                ],
-              ),
+              if (canViewScouts || canEditScouts || canManageUsersRoles)
+                SettingsGroup(
+                  title: 'Team',
+                  children: [
+                    if (canViewScouts || canEditScouts)
+                      ListTile(
+                        leading: const Icon(Symbols.group_rounded),
+                        title: const Text('Scouts'),
+                        subtitle: Text(
+                          canEditScouts ? 'Add, Remove Scouts' : 'View Scouts',
+                        ),
+                        onTap: () => context.push('/settings/user_selection'),
+                      ),
+                    if (canManageUsersRoles)
+                      ListTile(
+                        leading: const Icon(Symbols.groups_rounded),
+                        title: const Text('Beariscope Users, Roles'),
+                        subtitle: const Text('Edit Roles, Permissions, Users'),
+                        onTap: () => context.push('/settings/roles'),
+                      ),
+                  ],
+                ),
 
-              const SizedBox(height: 16),
+              if (canViewScouts || canEditScouts || canManageUsersRoles)
+                const SizedBox(height: 16),
 
               // About Section
               SettingsGroup(

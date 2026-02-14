@@ -59,10 +59,10 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
-          leading: const Icon(Icons.search_rounded),
+          leading: const Icon(Symbols.search_rounded),
           trailing: [
             PopupMenuButton(
-              icon: Icon(Icons.filter_list_rounded),
+              icon: Icon(Symbols.filter_list_rounded),
               tooltip: 'Filter & Sort',
               itemBuilder:
                   (context) => [

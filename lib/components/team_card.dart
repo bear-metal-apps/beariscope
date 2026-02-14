@@ -2,6 +2,7 @@ import 'package:animations/animations.dart'; // Import this package
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/device_info_provider.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class TeamCard extends StatelessWidget {
   final String teamName;
@@ -98,7 +99,7 @@ class TeamDetailsPage extends ConsumerWidget {
             appBar: AppBar(
               title: Text('$teamName - $teamNumber'),
               leading: IconButton(
-                icon: const Icon(Icons.close),
+                icon: const Icon(Symbols.close),
                 onPressed: () => Navigator.pop(context),
               ),
               bottom: const TabBar(

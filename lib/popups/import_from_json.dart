@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ImportFromJsonPopup extends StatefulWidget {
   const ImportFromJsonPopup({super.key});
@@ -22,7 +23,7 @@ class _ImportFromJsonPopupState extends State<ImportFromJsonPopup> {
           const Text('Upload a JSON file from your device'),
           const SizedBox(height: 16),
           OutlinedButton.icon(
-            icon: const Icon(Icons.upload_file),
+            icon: const Icon(Symbols.upload_file_rounded),
             label: const Text('Select file'),
             onPressed: () async {
               await FilePicker.platform

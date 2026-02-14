@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ImportFromSpreadsheetPopup extends StatefulWidget {
   const ImportFromSpreadsheetPopup({super.key});
@@ -24,7 +25,7 @@ class _ImportFromSpreadsheetPopupState
           const Text('Upload an Excel Spreadsheet from your device'),
           const SizedBox(height: 16),
           OutlinedButton.icon(
-            icon: const Icon(Icons.upload_file),
+            icon: const Icon(Symbols.upload_file_rounded),
             label: const Text('Select file'),
             onPressed: () async {
               final result = await FilePicker.platform.pickFiles(
