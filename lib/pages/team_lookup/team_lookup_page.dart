@@ -1,53 +1,28 @@
+import 'package:beariscope/components/team_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/components/team_model.dart';
 
-class TeamLookupPage extends StatefulWidget {
+class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
 
   @override
-  State<TeamLookupPage> createState() => _TeamLookupPageState();
+  ConsumerState<TeamLookupPage> createState() => _TeamLookupPageState();
 }
 
-class _TeamLookupPageState extends State<TeamLookupPage> {
+class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   final TextEditingController _searchTermTEC = TextEditingController();
-  List<Widget> filteredTeamCards = [
-    TeamCard(teamName: 'Bear Metal', teamNumber: '2046'),
-    TeamCard(teamName: 'Riptide Robotics', teamNumber: '8267'),
-    TeamCard(teamName: 'Madcows!', teamNumber: '276'),
-    TeamCard(teamName: 'Vikings', teamNumber: '9289'),
-    TeamCard(teamName: 'The Vo', teamNumber: '4650'),
-  ];
   Filter filter = Filter.allEvents;
-
-  // final allTeamCards = ref.read(teamCardListNotifierProvider);
-  // final filteredTeamCards = ref.read(filteredListNotifierProvider);
-  //
-  // void filter() {
-  //   int _intSearchTerm = int.tryParse(_searchTermTEC.text) ?? -1;
-  //   ref.read(filteredListNotifierProvider.notifier).reset();
-  //   if (_intSearchTerm < 0) {
-  //     for (TeamCard checkedCard in allTeamCards) {
-  //       if (checkedCard.teamNumber.contains('$_searchTermTEC')) {
-  //         ref.read(filteredListNotifierProvider.notifier).addCard(searchedCard);
-  //   } else {
-  //     for (TeamCard checkedCard in allTeamCards) {
-  //       if (checkedCard.teamName.contains('$_searchTermTEC')) {
-  //         ref.read(filteredListNotifierProvider.notifier).addCard(searchedCard);
-  //   }
-  // }
-
-  // void filter(String filterValue)
-  // Uses the values within a class Team and matches it with filterValue and
-  // changes filteredTeamCards based on if it matches
-  // Note: filteredTeamCards will eventually be a Provider<List<TeamCard>> so
-  // I can use a function addTeam(Team team) with state = [...state, team];
 
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
+    final teamsAsync = ref.watch(teamsProvider);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -64,17 +39,16 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
             PopupMenuButton(
               icon: Icon(Icons.filter_list_rounded),
               tooltip: 'Filter & Sort',
-              itemBuilder:
-                  (context) => [
-                    PopupMenuItem(
-                      value: Filter.allEvents,
-                      child: Text('All Events'),
-                    ),
-                    PopupMenuItem(
-                      value: Filter.currentEventsOnly,
-                      child: Text('Current Event Only'),
-                    ),
-                  ],
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: Filter.allEvents,
+                  child: Text('All Events'),
+                ),
+                PopupMenuItem(
+                  value: Filter.currentEventsOnly,
+                  child: Text('Current Event Only'),
+                ),
+              ],
               onSelected: (Filter newValue) {
                 setState(() {
                   filter = newValue;
@@ -83,22 +57,38 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
             ),
           ],
         ),
-        leading:
-            main.isDesktop
-                ? SizedBox(width: 48)
-                : IconButton(
-                  icon: const Icon(Symbols.menu_rounded),
-                  onPressed: main.openDrawer,
-                ),
+        leading: main.isDesktop
+            ? SizedBox(width: 48)
+            : IconButton(
+          icon: const Icon(Symbols.menu_rounded),
+          onPressed: main.openDrawer,
+        ),
         actions: [SizedBox(width: 48)],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(spacing: 16, children: filteredTeamCards),
-          ),
-        ),
+      body: teamsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (teams) {
+          // Convert raw maps into Team objects
+          final teamList = teams
+              .whereType<Map<String, dynamic>>()
+              .map((json) => Team.fromJson(json))
+              .toList();
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: teamList.map((team) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: TeamCard(teamKey: team.key),
+                  );
+                }).toList(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
