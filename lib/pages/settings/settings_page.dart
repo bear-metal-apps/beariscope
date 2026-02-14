@@ -44,6 +44,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(teamEventsProvider);
     final selectedKey = ref.watch(currentEventProvider);
+    final permissionChecker = ref.watch(permissionCheckerProvider);
+    final canViewScouts =
+        permissionChecker?.hasAnyPermission([
+          PermissionKey.scoutsRead,
+          PermissionKey.scoutsManage,
+        ]) ??
+        false;
+    final canManageUsersRoles =
+        permissionChecker?.hasPermission(PermissionKey.usersRolesManage) ??
+        false;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -153,18 +163,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               SettingsGroup(
                 title: 'Team',
                 children: [
-                  ListTile(
-                    leading: const Icon(Symbols.person_add),
-                    title: const Text('Scouts'),
-                    subtitle: const Text('Add, Remove Scouts'),
-                    onTap: () => context.push('/settings/user_selection'),
-                  ),
-                  ListTile(
-                    leading: const Icon(Symbols.group),
-                    title: const Text('Beariscope Users'),
-                    subtitle: const Text('Edit Roles'),
-                    onTap: () => context.push('/settings/roles'),
-                  ),
+                  if (canViewScouts)
+                    ListTile(
+                      leading: const Icon(Symbols.person_add),
+                      title: const Text('Scouts'),
+                      subtitle: const Text('Add, Remove Scouts'),
+                      onTap: () => context.push('/settings/user_selection'),
+                    ),
+                  if (canManageUsersRoles)
+                    ListTile(
+                      leading: const Icon(Symbols.group),
+                      title: const Text('Beariscope Users'),
+                      subtitle: const Text('Edit Roles'),
+                      onTap: () => context.push('/settings/roles'),
+                    ),
                 ],
               ),
 
