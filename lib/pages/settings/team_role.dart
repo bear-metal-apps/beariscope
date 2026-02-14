@@ -183,7 +183,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     controller: idController,
                     enabled: !isEdit,
                     onChanged: (_) => setDialogState(() {}),
-                    decoration: _outlinedInput(label: 'Role ID', hint: 'lead'),
+                    decoration: _outlinedInput(label: 'Role ID'),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -234,7 +234,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                         icon: const Icon(Symbols.close),
                       ),
                       actions: [
-                        FilledButton(
+                        TextButton(
                           onPressed: canSave ? handleSave : null,
                           child: const Text('Save'),
                         ),
@@ -261,7 +261,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     onPressed: () => Navigator.pop(dialogContext),
                     child: const Text('Cancel'),
                   ),
-                  FilledButton(
+                  TextButton(
                     onPressed: canSave ? handleSave : null,
                     child: const Text('Save'),
                   ),
@@ -301,15 +301,18 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
       context: context,
       builder:
           (_) => AlertDialog(
-            title: const Text('Delete role?'),
+            title: const Text('Delete Role'),
             content: Text('Delete ${role.name}?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: const Text('Cancel'),
               ),
-              FilledButton(
+              TextButton(
                 onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
                 child: const Text('Delete'),
               ),
             ],
@@ -426,7 +429,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                       icon: const Icon(Symbols.close),
                     ),
                     actions: [
-                      FilledButton(
+                      TextButton(
                         onPressed: canSave ? handleSave : null,
                         child: const Text('Save'),
                       ),
@@ -453,7 +456,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Cancel'),
                 ),
-                FilledButton(
+                TextButton(
                   onPressed: canSave ? handleSave : null,
                   child: const Text('Save'),
                 ),

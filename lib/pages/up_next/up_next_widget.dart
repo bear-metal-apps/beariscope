@@ -1,6 +1,7 @@
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpNextMatchCard extends StatelessWidget {
@@ -42,11 +43,7 @@ class UpNextEventCard extends StatelessWidget {
     return BeariscopeCard(
       title: name,
       subtitle: dateLabel,
-      trailing: Icon(
-        Icons.open_in_new,
-        size: 20,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
+      trailing: Icon(Symbols.open_in_new_rounded, size: 20),
       onTap: () async {
         final uri = Uri.parse(
           'https://www.thebluealliance.com/event/$eventKey',

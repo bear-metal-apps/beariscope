@@ -26,10 +26,11 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   final TextEditingController _searchTEC = TextEditingController();
   final TextEditingController _addScoutTEC = TextEditingController();
   final TextEditingController newNameTEC = TextEditingController();
-  final _scoutsProvider = getListDataProvider(
-    endpoint: '/scouts',
-    forceRefresh: true,
-  );
+  final _scoutsProvider = FutureProvider<List<dynamic>>((ref) {
+    return ref
+        .watch(honeycombClientProvider)
+        .get<List<dynamic>>('/scouts', forceRefresh: true);
+  });
 
   @override
   void initState() {
@@ -105,10 +106,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                           ),
                     );
                   },
-                  icon: Icon(
-                    Symbols.edit_rounded,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                  icon: Icon(Symbols.edit_rounded),
                 ),
               ),
             if (canManageScouts)
@@ -149,10 +147,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                       ref.invalidate(_scoutsProvider);
                     }
                   },
-                  icon: Icon(
-                    Symbols.delete_rounded,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                  icon: Icon(Symbols.delete_rounded),
                 ),
               ),
           ],
@@ -228,10 +223,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                       value: 'import',
                       child: Row(
                         children: [
-                          Icon(
-                            Symbols.file_upload_rounded,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          Icon(Symbols.file_upload_rounded),
                           const SizedBox(width: 8),
                           const Text('Import From CSV'),
                         ],
@@ -415,7 +407,7 @@ class _CsvImportDialogState extends State<_CsvImportDialog> {
             const Text('Upload a CSV file from your device'),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              icon: const Icon(Icons.upload_file),
+              icon: const Icon(Symbols.upload_file_rounded),
               label: const Text('Select file'),
               onPressed: _pickFile,
             ),

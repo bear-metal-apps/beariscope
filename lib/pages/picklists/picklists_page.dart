@@ -1,9 +1,9 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/permissions_provider.dart';
 import 'package:libkoala/ui/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/libkoala.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class PicklistsPage extends ConsumerStatefulWidget {

@@ -4,15 +4,12 @@ import 'package:libkoala/providers/api_provider.dart';
 final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref,
 ) async {
-  final eventsFuture = ref.watch(
-    getListDataProvider(
-      endpoint: '/events?team=2046&year=2026&year=2025',
-    ).future,
+  final client = ref.watch(honeycombClientProvider);
+  final eventsFuture = client.get<List<dynamic>>(
+    '/events?team=2046&year=2026&year=2025',
   );
-  final matchesFuture = ref.watch(
-    getListDataProvider(
-      endpoint: '/matches?team=2046&year=2026&year=2025',
-    ).future,
+  final matchesFuture = client.get<List<dynamic>>(
+    '/matches?team=2046&year=2026&year=2025',
   );
 
   final results = await Future.wait([eventsFuture, matchesFuture]);

@@ -4,6 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 
+final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
+  ref,
+  matchKey,
+) {
+  return ref
+      .watch(honeycombClientProvider)
+      .get<Map<String, dynamic>>('/matches?match=$matchKey');
+});
+
 class DriveTeamMatchPreviewPage extends ConsumerStatefulWidget {
   final String matchKey;
 
@@ -40,10 +49,8 @@ class _DriveTeamMatchPreviewPageState
 
   @override
   Widget build(BuildContext context) {
-    final matchProvider = getDataProvider(
-      endpoint: '/matches?match=${widget.matchKey}',
-    );
-    final matchAsync = ref.watch(matchProvider);
+    final requestProvider = matchProvider(widget.matchKey);
+    final matchAsync = ref.watch(requestProvider);
 
     return matchAsync.when(
       loading:
@@ -56,7 +63,7 @@ class _DriveTeamMatchPreviewPageState
             appBar: AppBar(title: Text('Match ${widget.matchKey}')),
             body: Center(
               child: FilledButton(
-                onPressed: () => ref.invalidate(matchProvider),
+                onPressed: () => ref.invalidate(requestProvider),
                 child: const Text('Retry'),
               ),
             ),

@@ -1,20 +1,21 @@
 import 'package:beariscope/components/settings_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-  (ref) => ThemeModeNotifier(),
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
 );
-final accentColorProvider = StateNotifierProvider<AccentColorNotifier, Color>(
-  (ref) => AccentColorNotifier(),
+final accentColorProvider = NotifierProvider<AccentColorNotifier, Color>(
+  AccentColorNotifier.new,
 );
 
-class AccentColorNotifier extends StateNotifier<Color> {
-  AccentColorNotifier() : super(Colors.lightBlue) {
+class AccentColorNotifier extends Notifier<Color> {
+  @override
+  Color build() {
     _loadColor();
+    return Colors.lightBlue;
   }
 
   Future<void> _loadColor() async {
@@ -32,9 +33,11 @@ class AccentColorNotifier extends StateNotifier<Color> {
   }
 }
 
-class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.system) {
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() {
     _loadThemeMode();
+    return ThemeMode.system;
   }
 
   Future<void> _loadThemeMode() async {
@@ -155,7 +158,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                         child:
                             isSelected
                                 ? Icon(
-                                  Icons.check_rounded,
+                                  Symbols.check_rounded,
                                   color:
                                       Theme.of(context).colorScheme.onSurface,
                                   size: 20,
