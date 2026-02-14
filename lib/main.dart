@@ -1,7 +1,7 @@
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
-import 'package:beariscope/pages/ui_creator/ui_creator.dart';
+
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
@@ -15,6 +15,7 @@ import 'package:beariscope/pages/settings/manage_team_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
+import 'package:beariscope/pages/ui_creator/ui_creator_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -104,7 +105,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/ui_creator',
             pageBuilder:
-                (_, _) => const NoTransitionPage(child: UICreatorPage()),
+                (_, _) => const NoTransitionPage(child: UiCreatorPage()),
           ),
         ],
       ),
