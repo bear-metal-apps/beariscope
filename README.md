@@ -30,5 +30,4 @@ Beariscope is a powerful data-viewing application for FRC, designed and maintain
 
 ## If you haven't checked out our..
 - [Scouting App](https://github.com/bear-metal-apps/pawfinder)
-- [Server/API](https://github.com/bear-metal-apps/honeycomb)
 - [Shared Library](https://github.com/bear-metal-apps/libkoala)
