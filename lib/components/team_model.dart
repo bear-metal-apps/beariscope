@@ -10,22 +10,23 @@ class Team {
   });
 
   factory Team.fromJson(Map<String, dynamic> json) {
-    // Map multiple possible field names from Honeycomb / libkoala responses
-    final key = (json['team_key'] ?? json['team'] ?? json['key'])?.toString() ?? '';
-    final number = (json['team_number'] ?? json['teamNumber'] ?? json['number']) is int
-        ? (json['team_number'] ?? json['teamNumber'] ?? json['number']) as int
-        : int.tryParse((json['team_number'] ?? json['teamNumber'] ?? json['number'])?.toString() ?? '') ?? 0;
-    var name = (json['nickname'] ?? json['team_name'] ?? json['name'])?.toString();
-    name ??= 'Unknown Team';
+    // extract number (try multiple field names and types)
+    dynamic numberRaw = json['team_number'] ?? json['teamNumber'] ?? json['number'];
+    int number = 0;
+    if (numberRaw is int) {
+      number = numberRaw;
+    } else if (numberRaw is String) {
+      number = int.tryParse(numberRaw) ?? 0;
+    }
 
-    // If API didn't provide a team_key but we have a number, create one
-    final resolvedKey = key.isNotEmpty ? key : (number != 0 ? 'frc$number' : '');
+    // extract key (try multiple names, or generate from number)
+    String? keyRaw = (json['team_key'] ?? json['team'] ?? json['key'])?.toString();
+    String key = (keyRaw != null && keyRaw.isNotEmpty) ? keyRaw : 'frc$number';
 
-    return Team(
-      key: resolvedKey,
-      number: number,
-      name: name,
-    );
+    // extract name
+    String name = (json['nickname'] ?? json['team_name'] ?? json['name'] ?? 'Unknown Team').toString();
+
+    return Team(key: key, number: number, name: name);
   }
 }
 

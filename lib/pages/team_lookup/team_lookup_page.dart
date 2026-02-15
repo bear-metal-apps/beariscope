@@ -2,7 +2,6 @@ import 'package:beariscope/components/team_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/team_card.dart';
 import 'package:beariscope/components/team_model.dart';
@@ -16,7 +15,6 @@ class TeamLookupPage extends ConsumerStatefulWidget {
 
 class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   final TextEditingController _searchTermTEC = TextEditingController();
-  Filter filter = Filter.allEvents;
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +39,19 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
               tooltip: 'Filter & Sort',
               itemBuilder: (context) => [
                 PopupMenuItem(
-                  value: Filter.allEvents,
+                  value: TeamFilter.allEvents,
                   child: Text('All Events'),
                 ),
                 PopupMenuItem(
-                  value: Filter.currentEventsOnly,
+                  value: TeamFilter.currentEventOnly,
                   child: Text('Current Event Only'),
                 ),
+
               ],
-              onSelected: (Filter newValue) {
-                setState(() {
-                  filter = newValue;
-                });
+              onSelected: (TeamFilter newFilter) {
+                ref.read(teamFilterProvider.notifier).setFilter(newFilter);
               },
+
             ),
           ],
         ),
@@ -69,7 +67,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (teams) {
-          // Convert raw maps into Team objects
+          // convert raw maps into Team objects
           final teamList = teams
               .whereType<Map<String, dynamic>>()
               .map((json) => Team.fromJson(json))

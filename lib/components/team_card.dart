@@ -2,9 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:beariscope/components/team_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/device_info_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 import 'package:beariscope/components/team_providers.dart';
 
 class TeamCard extends ConsumerWidget {
@@ -25,13 +23,13 @@ class TeamCard extends ConsumerWidget {
       loading: () => _loadingCard(context),
       error: (err, stack) => _errorCard(context, err),
       data: (teams) {
-        // Convert raw maps into Team objects
+        // convert raw maps into Team objects
         final teamList = teams
             .whereType<Map<String, dynamic>>()
             .map((json) => Team.fromJson(json))
             .toList();
 
-        // Find the matching team
+        // find the matching team
         Team? team;
         for (final t in teamList) {
           if (t.key == teamKey || t.number.toString() == teamKey) {
