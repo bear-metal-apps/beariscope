@@ -37,30 +37,30 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             PopupMenuButton(
               icon: Icon(Symbols.filter_list_rounded),
               tooltip: 'Filter & Sort',
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: TeamFilter.allEvents,
-                  child: Text('All Events'),
-                ),
-                PopupMenuItem(
-                  value: TeamFilter.currentEventOnly,
-                  child: Text('Current Event Only'),
-                ),
-
-              ],
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      value: TeamFilter.allEvents,
+                      child: Text('All Events'),
+                    ),
+                    PopupMenuItem(
+                      value: TeamFilter.currentEventOnly,
+                      child: Text('Current Event Only'),
+                    ),
+                  ],
               onSelected: (TeamFilter newFilter) {
                 ref.read(teamFilterProvider.notifier).setFilter(newFilter);
               },
-
             ),
           ],
         ),
-        leading: main.isDesktop
-            ? SizedBox(width: 48)
-            : IconButton(
-          icon: const Icon(Symbols.menu_rounded),
-          onPressed: main.openDrawer,
-        ),
+        leading:
+            main.isDesktop
+                ? SizedBox(width: 48)
+                : IconButton(
+                  icon: const Icon(Symbols.menu_rounded),
+                  onPressed: main.openDrawer,
+                ),
         actions: [SizedBox(width: 48)],
       ),
       body: teamsAsync.when(
@@ -68,21 +68,23 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (teams) {
           // convert raw maps into Team objects
-          final teamList = teams
-              .whereType<Map<String, dynamic>>()
-              .map((json) => Team.fromJson(json))
-              .toList();
+          final teamList =
+              teams
+                  .whereType<Map<String, dynamic>>()
+                  .map((json) => Team.fromJson(json))
+                  .toList();
 
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                children: teamList.map((team) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: TeamCard(teamKey: team.key),
-                  );
-                }).toList(),
+                children:
+                    teamList.map((team) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: TeamCard(teamKey: team.key),
+                      );
+                    }).toList(),
               ),
             ),
           );

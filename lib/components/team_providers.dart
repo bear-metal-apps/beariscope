@@ -78,5 +78,3 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
     return allTeams.values.toList();
   }
 });
-
-
