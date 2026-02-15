@@ -9,11 +9,7 @@ class TeamCard extends ConsumerWidget {
   final String teamKey;
   final double? height;
 
-  const TeamCard({
-    super.key,
-    required this.teamKey,
-    this.height,
-  });
+  const TeamCard({super.key, required this.teamKey, this.height});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,10 +20,11 @@ class TeamCard extends ConsumerWidget {
       error: (err, stack) => _errorCard(context, err),
       data: (teams) {
         // convert raw maps into Team objects
-        final teamList = teams
-            .whereType<Map<String, dynamic>>()
-            .map((json) => Team.fromJson(json))
-            .toList();
+        final teamList =
+            teams
+                .whereType<Map<String, dynamic>>()
+                .map((json) => Team.fromJson(json))
+                .toList();
 
         // find the matching team
         Team? team;
