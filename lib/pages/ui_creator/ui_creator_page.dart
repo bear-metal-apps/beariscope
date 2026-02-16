@@ -26,6 +26,18 @@ class UiWidgetConfig {
   String buttonLabel;
   String dropdownValue;
 
+  UiWidgetConfig clone() {
+    return UiWidgetConfig(
+      id: id,
+      kind: kind,
+      position: position,
+      sizeInCells: sizeInCells,
+      sliderValue: sliderValue,
+      buttonLabel: buttonLabel,
+      dropdownValue: dropdownValue,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -39,6 +51,28 @@ class UiWidgetConfig {
   }
 }
 
+class _LayoutPreset {
+  const _LayoutPreset({
+    required this.name,
+    required this.widgets,
+    required this.cellSize,
+    required this.cellGap,
+  });
+
+  final String name;
+  final List<UiWidgetConfig> widgets;
+  final double cellSize;
+  final double cellGap;
+}
+
+enum _CreatorMenuAction {
+  savePreset,
+  addSlider,
+  addButton,
+  addDropdown,
+  resetLayout,
+}
+
 class UiCreatorPage extends StatefulWidget {
   const UiCreatorPage({super.key});
 
@@ -47,9 +81,14 @@ class UiCreatorPage extends StatefulWidget {
 }
 
 class _UiCreatorPageState extends State<UiCreatorPage> {
-  static const double _cellSize = 110;
-  static const double _cellGap = 12;
+  static const double _minCellSize = 80;
+  static const double _maxCellSize = 160;
+  static const double _minCellGap = 4;
+  static const double _maxCellGap = 24;
   static const double _canvasPadding = 16;
+
+  double _cellSize = 110;
+  double _cellGap = 12;
 
   final List<UiWidgetConfig> _widgets = [
     UiWidgetConfig(
@@ -79,6 +118,10 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
   UiWidgetConfig? _dragging;
   Offset _dragStart = Offset.zero;
   Offset _widgetStart = Offset.zero;
+  int _widgetSerial = 2;
+
+  final List<_LayoutPreset> _presets = [];
+  String _selectedPresetName = 'Current';
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +129,39 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
       appBar: AppBar(
         title: const Text('UI Creator'),
         actions: [
+          _buildPresetSelector(),
           IconButton(
-            onPressed: _resetLayout,
-            icon: const Icon(Symbols.restart_alt_rounded),
-            tooltip: 'Reset layout',
+            onPressed: _exportLayout,
+            icon: const Icon(Symbols.download_rounded),
+            tooltip: 'Export JSON',
+          ),
+          PopupMenuButton<_CreatorMenuAction>(
+            tooltip: 'Actions',
+            onSelected: _handleMenuAction,
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: _CreatorMenuAction.savePreset,
+                child: Text('Save preset'),
+              ),
+              const PopupMenuItem(
+                value: _CreatorMenuAction.addButton,
+                child: Text('Add button'),
+              ),
+              const PopupMenuItem(
+                value: _CreatorMenuAction.addSlider,
+                child: Text('Add slider'),
+              ),
+              const PopupMenuItem(
+                value: _CreatorMenuAction.addDropdown,
+                child: Text('Add dropdown'),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: _CreatorMenuAction.resetLayout,
+                child: Text('Reset layout'),
+              ),
+            ],
+            icon: const Icon(Symbols.more_vert_rounded),
           ),
         ],
       ),
@@ -101,17 +173,46 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
               _buildBackground(context),
               _buildCanvas(context),
               Positioned(
-                top: 16,
-                right: 16,
-                child: FilledButton.icon(
-                  icon: const Icon(Symbols.download_rounded),
-                  label: const Text('Export JSON'),
-                  onPressed: _exportLayout,
-                ),
+                left: 24,
+                bottom: 24,
+                child: _buildGridControls(context),
               ),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildPresetSelector() {
+    final items = [
+      const DropdownMenuItem(value: 'Current', child: Text('Current')),
+      ..._presets.map(
+        (preset) => DropdownMenuItem(
+          value: preset.name,
+          child: Text(preset.name),
+        ),
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedPresetName,
+          items: items,
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selectedPresetName = value;
+            });
+            if (value == 'Current') return;
+            final preset = _presets.firstWhere(
+              (entry) => entry.name == value,
+            );
+            _applyPreset(preset);
+          },
+        ),
       ),
     );
   }
@@ -274,7 +375,7 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
               Text('Mode', style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: config.dropdownValue,
+                initialValue: config.dropdownValue,
                 items:
                     const [
                       'Mode A',
@@ -326,8 +427,8 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
 
     final delta = details.globalPosition - _dragStart;
     final proposed = _widgetStart + Offset(
-      delta.dx / _cellSize,
-      delta.dy / _cellSize,
+      delta.dx / (_cellSize + _cellGap),
+      delta.dy / (_cellSize + _cellGap),
     );
 
     setState(() {
@@ -407,6 +508,8 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
 
   void _resetLayout() {
     setState(() {
+      _cellSize = 110;
+      _cellGap = 12;
       _widgets
         ..clear()
         ..addAll([
@@ -432,7 +535,214 @@ class _UiCreatorPageState extends State<UiCreatorPage> {
             dropdownValue: 'Mode B',
           ),
         ]);
+      _selectedPresetName = 'Current';
     });
+  }
+
+  Widget _buildGridControls(BuildContext context) {
+    return Card(
+      elevation: 4,
+      child: Container(
+        width: 260,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Grid size',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            Text('Cell size: ${_cellSize.round()}'),
+            Slider(
+              min: _minCellSize,
+              max: _maxCellSize,
+              value: _cellSize,
+              onChanged: (value) {
+                setState(() {
+                  _cellSize = value;
+                  _normalizeLayout();
+                });
+              },
+            ),
+            Text('Cell gap: ${_cellGap.round()}'),
+            Slider(
+              min: _minCellGap,
+              max: _maxCellGap,
+              value: _cellGap,
+              onChanged: (value) {
+                setState(() {
+                  _cellGap = value;
+                  _normalizeLayout();
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleMenuAction(_CreatorMenuAction action) {
+    switch (action) {
+      case _CreatorMenuAction.savePreset:
+        _showSavePresetDialog();
+        break;
+      case _CreatorMenuAction.addButton:
+        _addWidget(UiWidgetKind.button);
+        break;
+      case _CreatorMenuAction.addSlider:
+        _addWidget(UiWidgetKind.slider);
+        break;
+      case _CreatorMenuAction.addDropdown:
+        _addWidget(UiWidgetKind.dropdown);
+        break;
+      case _CreatorMenuAction.resetLayout:
+        _resetLayout();
+        break;
+    }
+  }
+
+  Future<void> _showSavePresetDialog() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Save preset'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Preset name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(controller.text),
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (name == null || name.trim().isEmpty) return;
+
+    final uniqueName = _uniquePresetName(name.trim());
+    final preset = _LayoutPreset(
+      name: uniqueName,
+      widgets: _widgets.map((widget) => widget.clone()).toList(),
+      cellSize: _cellSize,
+      cellGap: _cellGap,
+    );
+
+    setState(() {
+      _presets.add(preset);
+      _selectedPresetName = uniqueName;
+    });
+  }
+
+  String _uniquePresetName(String base) {
+    if (_presets.every((preset) => preset.name != base)) {
+      return base;
+    }
+
+    var counter = 2;
+    while (_presets.any((preset) => preset.name == '$base $counter')) {
+      counter++;
+    }
+    return '$base $counter';
+  }
+
+  void _applyPreset(_LayoutPreset preset) {
+    setState(() {
+      _cellSize = preset.cellSize;
+      _cellGap = preset.cellGap;
+      _widgets
+        ..clear()
+        ..addAll(preset.widgets.map((widget) => widget.clone()));
+      _normalizeLayout();
+    });
+  }
+
+  void _normalizeLayout() {
+    for (final widget in _widgets) {
+      widget.position = _snapToGrid(_clampToCanvas(widget, widget.position));
+    }
+  }
+
+  void _addWidget(UiWidgetKind kind) {
+    final size = switch (kind) {
+      UiWidgetKind.slider => const Size(2, 1),
+      UiWidgetKind.button => const Size(1, 1),
+      UiWidgetKind.dropdown => const Size(2, 1),
+    };
+
+    final position = _findNextOpenCell(size);
+    if (position == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No space left on the grid.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _widgets.add(
+        UiWidgetConfig(
+          id: 'widget_${_widgetSerial++}',
+          kind: kind,
+          position: position,
+          sizeInCells: size,
+        ),
+      );
+      _selectedPresetName = 'Current';
+    });
+  }
+
+  Offset? _findNextOpenCell(Size sizeInCells) {
+    final cellsWide = max(1, _availableCells(_canvasSize.width));
+    final cellsHigh = max(1, _availableCells(_canvasSize.height));
+
+    final maxX = max(0, cellsWide - sizeInCells.width.toInt());
+    final maxY = max(0, cellsHigh - sizeInCells.height.toInt());
+
+    for (int y = 0; y <= maxY; y++) {
+      for (int x = 0; x <= maxX; x++) {
+        final candidate = Offset(x.toDouble(), y.toDouble());
+        if (!_overlapsAny(candidate, sizeInCells)) {
+          return candidate;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  bool _overlapsAny(Offset position, Size sizeInCells) {
+    final candidate = Rect.fromLTWH(
+      position.dx,
+      position.dy,
+      sizeInCells.width,
+      sizeInCells.height,
+    );
+    for (final existing in _widgets) {
+      final other = Rect.fromLTWH(
+        existing.position.dx,
+        existing.position.dy,
+        existing.sizeInCells.width,
+        existing.sizeInCells.height,
+      );
+      if (candidate.overlaps(other)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
