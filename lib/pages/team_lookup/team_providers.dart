@@ -26,13 +26,12 @@ List<Map<String, dynamic>> _toStringKeyMaps(List<dynamic> data) {
       .toList();
 }
 
-// fetch teams based on current filter
-final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  final filter = ref.watch(teamFilterProvider);
-  final selectedEvent = ref.watch(currentEventProvider);
+// i moved each logic out of the single teamsProvider so that pits scouting can piggyback off of this cleaner -jack
+final allEventsTeamsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
   final client = ref.watch(honeycombClientProvider);
 
-  // fetch events to know which events exist
   final eventsData = await client.get<List<dynamic>>(
     '/events?team=2046&year=2026',
   );
@@ -42,36 +41,56 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
     return [];
   }
 
-  if (filter == TeamFilter.currentEventOnly) {
-    // use the selected event from settings, or default to first event
-    final eventKey = selectedEvent ?? (events.first['key'] ?? '').toString();
-    if (eventKey.isEmpty) {
-      return [];
-    }
+  final allTeams = <String, Map<String, dynamic>>{};
+
+  for (final event in events) {
+    final eventKey = (event['key'] ?? '').toString();
+    if (eventKey.isEmpty) continue;
 
     final teamData = await client.get<List<dynamic>>('/teams?event=$eventKey');
 
-    return _toStringKeyMaps(teamData);
-  } else {
-    // fetch teams from all events and unduplicate by key
-    final allTeams = <String, Map<String, dynamic>>{};
-
-    for (final event in events) {
-      final eventKey = (event['key'] ?? '').toString();
-      if (eventKey.isEmpty) continue;
-
-      final teamData = await client.get<List<dynamic>>(
-        '/teams?event=$eventKey',
-      );
-
-      for (final team in _toStringKeyMaps(teamData)) {
-        final teamKey = (team['key'] ?? team['team_key'] ?? '').toString();
-        if (teamKey.isNotEmpty) {
-          allTeams[teamKey] = team;
-        }
+    for (final team in _toStringKeyMaps(teamData)) {
+      final teamKey = (team['key'] ?? team['team_key'] ?? '').toString();
+      if (teamKey.isNotEmpty) {
+        allTeams[teamKey] = team;
       }
     }
+  }
 
-    return allTeams.values.toList();
+  return allTeams.values.toList();
+});
+
+final currentEventTeamsProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
+  final selectedEvent = ref.watch(currentEventProvider);
+  final client = ref.watch(honeycombClientProvider);
+
+  final eventsData = await client.get<List<dynamic>>(
+    '/events?team=2046&year=2026',
+  );
+
+  final events = _toStringKeyMaps(eventsData);
+  if (events.isEmpty) {
+    return [];
+  }
+
+  final eventKey = selectedEvent ?? (events.first['key'] ?? '').toString();
+  if (eventKey.isEmpty) {
+    return [];
+  }
+
+  final teamData = await client.get<List<dynamic>>('/teams?event=$eventKey');
+  return _toStringKeyMaps(teamData);
+});
+
+// fetch teams based on current filter
+final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  final filter = ref.watch(teamFilterProvider);
+
+  if (filter == TeamFilter.currentEventOnly) {
+    return ref.watch(currentEventTeamsProvider.future);
+  } else {
+    return ref.watch(allEventsTeamsProvider.future);
   }
 });
