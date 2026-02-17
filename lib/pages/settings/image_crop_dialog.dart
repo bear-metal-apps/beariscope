@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beariscope/utils/image_processor.dart';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ImageCropDialog extends StatefulWidget {
   final Uint8List imageBytes;
@@ -91,7 +92,7 @@ class _ImageCropDialogState extends State<ImageCropDialog> {
         foregroundColor: Colors.white,
         title: const Text('Crop Photo'),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Symbols.close),
           onPressed: _isProcessing ? null : _cancel,
         ),
         actions: [

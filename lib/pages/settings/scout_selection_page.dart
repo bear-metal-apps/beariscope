@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:libkoala/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class CurrentScout extends Notifier<String> {
@@ -25,10 +26,11 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   final TextEditingController _searchTEC = TextEditingController();
   final TextEditingController _addScoutTEC = TextEditingController();
   final TextEditingController newNameTEC = TextEditingController();
-  final _scoutsProvider = getListDataProvider(
-    endpoint: '/scouts',
-    forceRefresh: true,
-  );
+  final _scoutsProvider = FutureProvider<List<dynamic>>((ref) {
+    return ref
+        .watch(honeycombClientProvider)
+        .get<List<dynamic>>('/scouts', forceRefresh: false);
+  });
 
   @override
   void initState() {
@@ -47,6 +49,10 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   }
 
   List<Widget> buildScoutList(List<Map<String, String>> scouts) {
+    final permissionChecker = ref.read(permissionCheckerProvider);
+    final canManageScouts =
+        permissionChecker?.hasPermission(PermissionKey.scoutsManage) ?? false;
+
     return scouts.map((scout) {
       final name = scout["name"]!;
       final id = scout["uuid"]!;
@@ -56,96 +62,94 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: IconButton(
-                onPressed: () async {
-                  newNameTEC.clear();
-                  await showDialog(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          title: const Text('Rename Scout'),
-                          content: TextField(
-                            controller: newNameTEC,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'New name',
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                if (newNameTEC.text.isNotEmpty) {
-                                  await ref
-                                      .read(honeycombClientProvider)
-                                      .put(
-                                        '/scouts/$id',
-                                        data: {"name": newNameTEC.text},
-                                      );
-                                  ref.invalidate(_scoutsProvider);
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                  }
-                                }
-                              },
-                              child: const Text('Rename'),
-                            ),
-                          ],
-                        ),
-                  );
-                },
-                icon: Icon(
-                  Symbols.edit_rounded,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: IconButton(
-                onPressed: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          title: const Text('Delete Scout'),
-                          content: const Text(
-                            'Are you sure you want to delete this scout?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              style: TextButton.styleFrom(
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.error,
+            if (canManageScouts)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: IconButton(
+                  onPressed: () async {
+                    newNameTEC.clear();
+                    await showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Rename Scout'),
+                            content: TextField(
+                              controller: newNameTEC,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                labelText: 'New name',
                               ),
-                              child: const Text('Delete'),
                             ),
-                          ],
-                        ),
-                  );
-                  if (confirmed == true) {
-                    await ref
-                        .read(honeycombClientProvider)
-                        .delete('/scouts/$id');
-                    ref.invalidate(_scoutsProvider);
-                  }
-                },
-                icon: Icon(
-                  Symbols.delete_rounded,
-                  color: Theme.of(context).colorScheme.onSurface,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  if (newNameTEC.text.isNotEmpty) {
+                                    await ref
+                                        .read(honeycombClientProvider)
+                                        .put(
+                                          '/scouts/$id',
+                                          data: {"name": newNameTEC.text},
+                                        );
+                                    ref.invalidate(_scoutsProvider);
+                                    if (context.mounted) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                },
+                                child: const Text('Rename'),
+                              ),
+                            ],
+                          ),
+                    );
+                  },
+                  icon: Icon(Symbols.edit_rounded),
                 ),
               ),
-            ),
+            if (canManageScouts)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: IconButton(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Delete Scout'),
+                            content: const Text(
+                              'Are you sure you want to delete this scout?',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.error,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                    );
+                    if (confirmed == true) {
+                      await ref
+                          .read(honeycombClientProvider)
+                          .delete('/scouts/$id');
+                      ref.invalidate(_scoutsProvider);
+                    }
+                  },
+                  icon: Icon(Symbols.delete_rounded),
+                ),
+              ),
           ],
         ),
       );
@@ -193,6 +197,9 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   @override
   Widget build(BuildContext context) {
     final scoutsAsync = ref.watch(_scoutsProvider);
+    final permissionChecker = ref.watch(permissionCheckerProvider);
+    final canManageScouts =
+        permissionChecker?.hasPermission(PermissionKey.scoutsManage) ?? false;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -204,33 +211,33 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
           leading: Icon(Symbols.search_rounded),
-          hintText: 'Search Scouts',
+          hintText: 'Search scouts',
         ),
         actionsPadding: EdgeInsets.symmetric(horizontal: 8.0),
         actions: [
-          PopupMenuButton(
-            itemBuilder:
-                (context) => [
-                  PopupMenuItem(
-                    value: 'import',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Symbols.file_upload_rounded,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text('Import From CSV'),
-                      ],
+          if (canManageScouts)
+            PopupMenuButton(
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      value: 'import',
+                      child: Row(
+                        children: [
+                          Icon(Symbols.file_upload_rounded),
+                          const SizedBox(width: 8),
+                          const Text('Import From CSV'),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-            onSelected: (value) {
-              if (value == 'import') {
-                _importFromCsv();
-              }
-            },
-          ),
+                  ],
+              onSelected: (value) {
+                if (value == 'import') {
+                  _importFromCsv();
+                }
+              },
+            )
+          else
+            SizedBox(width: 48),
         ],
       ),
       body: scoutsAsync.when(
@@ -264,47 +271,52 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
           return BeariscopeCardList(children: buildScoutList(filteredScouts));
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          _addScoutTEC.clear();
-          await showDialog(
-            context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: const Text('Add Scout'),
-                  content: TextField(
-                    controller: _addScoutTEC,
-                    decoration: const InputDecoration(labelText: 'Scout name'),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        if (_addScoutTEC.text.isNotEmpty) {
-                          await ref
-                              .read(honeycombClientProvider)
-                              .post(
-                                '/scouts',
-                                data: {"name": _addScoutTEC.text},
-                              );
-                          ref.invalidate(_scoutsProvider);
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        }
-                      },
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
-          );
-        },
-        tooltip: 'Add Scout',
-        child: const Icon(Symbols.add),
-      ),
+      floatingActionButton:
+          canManageScouts
+              ? FloatingActionButton(
+                onPressed: () async {
+                  _addScoutTEC.clear();
+                  await showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Add Scout'),
+                          content: TextField(
+                            controller: _addScoutTEC,
+                            decoration: const InputDecoration(
+                              labelText: 'Scout name',
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                if (_addScoutTEC.text.isNotEmpty) {
+                                  await ref
+                                      .read(honeycombClientProvider)
+                                      .post(
+                                        '/scouts',
+                                        data: {"name": _addScoutTEC.text},
+                                      );
+                                  ref.invalidate(_scoutsProvider);
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                }
+                              },
+                              child: const Text('Add'),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+                tooltip: 'Add Scout',
+                child: const Icon(Symbols.add),
+              )
+              : null,
     );
   }
 }
@@ -395,7 +407,7 @@ class _CsvImportDialogState extends State<_CsvImportDialog> {
             const Text('Upload a CSV file from your device'),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              icon: const Icon(Icons.upload_file),
+              icon: const Icon(Symbols.upload_file_rounded),
               label: const Text('Select file'),
               onPressed: _pickFile,
             ),

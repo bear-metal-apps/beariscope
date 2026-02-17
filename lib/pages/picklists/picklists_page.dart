@@ -1,24 +1,30 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/providers/permissions_provider.dart';
 import 'package:libkoala/ui/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-class PicklistsPage extends StatefulWidget {
+class PicklistsPage extends ConsumerStatefulWidget {
   const PicklistsPage({super.key});
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<PicklistsPage> createState() {
     return PicklistsPageState();
   }
 }
 
-class PicklistsPageState extends State<PicklistsPage> {
+class PicklistsPageState extends ConsumerState<PicklistsPage> {
   final TextEditingController joinCodeTEC = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
+    final permissionChecker = ref.watch(permissionCheckerProvider);
+    final canCreatePicklists =
+        permissionChecker?.hasPermission(PermissionKey.picklistsManage) ??
+        false;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Picklists'),
@@ -49,10 +55,11 @@ class PicklistsPageState extends State<PicklistsPage> {
             SizedBox(height: 20),
             TextDivider(maxWidth: 150),
             SizedBox(height: 20),
-            FilledButton(
-              onPressed: () => context.push('/picklists/create'),
-              child: Text('Create'),
-            ),
+            if (canCreatePicklists)
+              FilledButton(
+                onPressed: () => context.push('/picklists/create'),
+                child: Text('Create'),
+              ),
             SizedBox(height: 62),
           ],
         ),
