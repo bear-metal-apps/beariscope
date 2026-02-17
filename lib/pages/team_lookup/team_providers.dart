@@ -49,9 +49,7 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
       return [];
     }
 
-    final teamData = await client.get<List<dynamic>>(
-      '/teams?event=$eventKey',
-    );
+    final teamData = await client.get<List<dynamic>>('/teams?event=$eventKey');
 
     return _toStringKeyMaps(teamData);
   } else {
