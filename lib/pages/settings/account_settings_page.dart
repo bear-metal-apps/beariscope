@@ -24,8 +24,113 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   bool _isUploadingPhoto = false;
   bool _isSendingReset = false;
   bool _suppressDirty = false;
+  bool _nameTouched = false;
+  bool _emailTouched = false;
   String? _originalName;
   String? _originalEmail;
+
+  String _localPart(String email) {
+    final atIndex = email.indexOf('@');
+    if (atIndex <= 0) {
+      return email;
+    }
+    return email.substring(0, atIndex);
+  }
+
+  bool _isProperlyCapitalizedNamePart(
+    String part, {
+    required bool isFirstPart,
+  }) {
+    const lowercaseParticles = {
+      'de',
+      'del',
+      'da',
+      'di',
+      'du',
+      'la',
+      'le',
+      'van',
+      'von',
+      'der',
+      'den',
+      'bin',
+      'al',
+      'ibn',
+    };
+
+    if (!isFirstPart && lowercaseParticles.contains(part.toLowerCase())) {
+      return true;
+    }
+
+    final segments = part.split(RegExp(r"[-']"));
+    for (final segment in segments) {
+      if (segment.isEmpty) {
+        return false;
+      }
+
+      if (!RegExp(r'^[A-Za-z]+$').hasMatch(segment)) {
+        return false;
+      }
+
+      if (!RegExp(r'^[A-Z]').hasMatch(segment)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  String? _nameValidationError(String name, String email) {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      return 'Enter your first and last name.';
+    }
+
+    final parts =
+        trimmedName
+            .split(RegExp(r'\s+'))
+            .where((part) => part.isNotEmpty)
+            .toList();
+    if (parts.length < 2) {
+      return 'Please include both first and last name.';
+    }
+
+    final normalizedLocalPart =
+        email.trim().isEmpty ? '' : _localPart(email.trim()).toLowerCase();
+    if (trimmedName.toLowerCase() == normalizedLocalPart) {
+      return 'Name cannot be the same as your email username.';
+    }
+
+    final hasProperCapitalization = parts.asMap().entries.every(
+      (entry) => _isProperlyCapitalizedNamePart(
+        entry.value,
+        isFirstPart: entry.key == 0,
+      ),
+    );
+    if (!hasProperCapitalization) {
+      return 'Use proper capitalization (for example: John Scout).';
+    }
+
+    if (trimmedName == 'John Scout') {
+      return 'Nice try, but you aren\'t the real John Scout.';
+    }
+
+    return null;
+  }
+
+  String? _emailValidationError(String email) {
+    final trimmedEmail = email.trim();
+    if (trimmedEmail.isEmpty) {
+      return 'Enter an email address.';
+    }
+
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    if (!emailRegex.hasMatch(trimmedEmail)) {
+      return 'Enter a valid email address.';
+    }
+
+    return null;
+  }
 
   @override
   void initState() {
@@ -65,18 +170,30 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     }
     _originalName = name;
     _originalEmail = email;
+    _nameTouched = false;
+    _emailTouched = false;
     _suppressDirty = false;
   }
 
   Future<void> _saveProfile() async {
+    final nameError = _nameValidationError(
+      _nameController.text,
+      _emailController.text,
+    );
+    final emailError = _emailValidationError(_emailController.text);
+    if (nameError != null || emailError != null) {
+      setState(() {});
+      return;
+    }
+
     setState(() => _isSaving = true);
     try {
       final updates = <String, String>{};
       if (_nameController.text != (_originalName ?? '')) {
-        updates['name'] = _nameController.text;
+        updates['name'] = _nameController.text.trim();
       }
       if (_emailController.text != (_originalEmail ?? '')) {
-        updates['email'] = _emailController.text;
+        updates['email'] = _emailController.text.trim();
       }
       if (updates.isNotEmpty) {
         await ref
@@ -86,8 +203,10 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       if (mounted) {
         setState(() {
           _isDirty = false;
-          _originalName = _nameController.text;
-          _originalEmail = _emailController.text;
+          _originalName = _nameController.text.trim();
+          _originalEmail = _emailController.text.trim();
+          _nameController.text = _nameController.text.trim();
+          _emailController.text = _emailController.text.trim();
         });
         ScaffoldMessenger.of(
           context,
@@ -257,6 +376,16 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       _syncFromUser(userInfo.value);
     }
 
+    final nameError = _nameValidationError(
+      _nameController.text,
+      _emailController.text,
+    );
+    final emailError = _emailValidationError(_emailController.text);
+    final showNameError = (_nameTouched || _isDirty) ? nameError : null;
+    final showEmailError = (_emailTouched || _isDirty) ? emailError : null;
+    final hasValidationErrors = nameError != null || emailError != null;
+    final canSave = !_isSaving && _isDirty && !hasValidationErrors;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Account')),
       body: ListView(
@@ -351,16 +480,29 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                   children: [
                     TextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
+                      onChanged: (_) {
+                        setState(() {
+                          _nameTouched = true;
+                        });
+                      },
+                      decoration: InputDecoration(
                         labelText: 'Name',
+                        hintText: 'First and last name',
+                        errorText: showNameError,
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _emailController,
-                      decoration: const InputDecoration(
+                      onChanged: (_) {
+                        setState(() {
+                          _emailTouched = true;
+                        });
+                      },
+                      decoration: InputDecoration(
                         labelText: 'Email',
+                        errorText: showEmailError,
                         border: OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -369,7 +511,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: FilledButton.icon(
-                        onPressed: _isSaving || !_isDirty ? null : _saveProfile,
+                        onPressed: canSave ? _saveProfile : null,
                         icon:
                             _isSaving
                                 ? const SizedBox(

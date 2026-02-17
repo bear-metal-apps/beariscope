@@ -1,3 +1,4 @@
+import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -36,6 +37,10 @@ class WelcomePage extends ConsumerWidget {
                 children: [
                   FilledButton.icon(
                     onPressed: () async {
+                      ref
+                          .read(postSignInFlowPendingProvider.notifier)
+                          .setPending();
+
                       try {
                         await auth.login([
                           'openid',
@@ -45,11 +50,19 @@ class WelcomePage extends ConsumerWidget {
                           'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
                         ]);
                       } on OfflineAuthException {
+                        ref
+                            .read(postSignInFlowPendingProvider.notifier)
+                            .clearPending();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('No internet connection')),
                           );
                         }
+                      } catch (_) {
+                        ref
+                            .read(postSignInFlowPendingProvider.notifier)
+                            .clearPending();
+                        rethrow;
                       }
                     },
                     label: const Text('Sign In'),

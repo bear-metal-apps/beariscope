@@ -1,6 +1,8 @@
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
+import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
@@ -83,6 +85,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
+      GoRoute(
+        path: '/post_sign_in_onboarding',
+        builder: (_, _) => const PostSignInOnboardingPage(),
+      ),
       ShellRoute(
         builder: (_, _, child) => MainView(child: child),
         routes: [
@@ -208,6 +214,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
+        final pendingPostSignInFlow = ref.watch(postSignInFlowPendingProvider);
+        if (pendingPostSignInFlow) {
+          if (location != '/post_sign_in_onboarding') {
+            return '/post_sign_in_onboarding';
+          }
+          return null;
+        }
+
         final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
         final isPicklistCreateRoute = location == '/picklists/create';
@@ -253,7 +267,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           }
         }
 
-        if (location == '/welcome' || location == '/splash') {
+        if (location == '/welcome' ||
+            location == '/splash' ||
+            location == '/post_sign_in_onboarding') {
           return '/up_next';
         }
       }
