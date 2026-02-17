@@ -1,28 +1,68 @@
-import 'package:animations/animations.dart'; // Import this package
+import 'package:animations/animations.dart';
+import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:libkoala/providers/device_info_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:beariscope/pages/team_lookup/team_providers.dart';
 
-class TeamCard extends StatelessWidget {
-  final String teamName;
-  final String teamNumber;
+class TeamCard extends ConsumerWidget {
+  final String teamKey;
   final double? height;
 
-  const TeamCard({
-    super.key,
-    required this.teamName,
-    required this.teamNumber,
-    this.height,
-  });
+  const TeamCard({super.key, required this.teamKey, this.height});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final teamsAsync = ref.watch(teamsProvider);
+
+    return teamsAsync.when(
+      loading: () => _loadingCard(context),
+      error: (err, stack) => _errorCard(context, err),
+      data: (teams) {
+        // convert raw maps into Team objects
+        final teamList =
+            teams
+                .whereType<Map<String, dynamic>>()
+                .map((json) => Team.fromJson(json))
+                .toList();
+
+        // find the matching team
+        Team? team;
+        for (final t in teamList) {
+          if (t.key == teamKey || t.number.toString() == teamKey) {
+            team = t;
+            break;
+          }
+        }
+
+        if (team == null) {
+          return _errorCard(context, "Team not found");
+        }
+
+        return _teamCard(context, team);
+      },
+    );
+  }
+
+  Widget _loadingCard(BuildContext context) {
+    return SizedBox(
+      height: height ?? 256,
+      child: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _errorCard(BuildContext context, Object error) {
+    return SizedBox(
+      height: height ?? 256,
+      child: Center(child: Text("Error: $error")),
+    );
+  }
+
+  Widget _teamCard(BuildContext context, Team team) {
     return OpenContainer(
       useRootNavigator: true,
       transitionType: ContainerTransitionType.fade,
       closedElevation: 0,
-
       openColor: Theme.of(context).scaffoldBackgroundColor,
       middleColor: Theme.of(context).scaffoldBackgroundColor,
       closedColor: Theme.of(context).colorScheme.surfaceContainer,
@@ -51,14 +91,14 @@ class TeamCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        teamName,
+                        team.name,
                         style: const TextStyle(
                           fontSize: 20,
                           fontFamily: 'Xolonium',
                         ),
                       ),
                       Text(
-                        teamNumber,
+                        team.number.toString(),
                         style: TextStyle(
                           fontSize: 16,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -73,7 +113,10 @@ class TeamCard extends StatelessWidget {
         );
       },
       openBuilder: (context, action) {
-        return TeamDetailsPage(teamName: teamName, teamNumber: teamNumber);
+        return TeamDetailsPage(
+          teamName: team.name,
+          teamNumber: team.number.toString(),
+        );
       },
     );
   }
@@ -92,7 +135,7 @@ class TeamDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 4, // how many tabs
+      length: 4,
       child: Stack(
         children: [
           Scaffold(
@@ -111,7 +154,6 @@ class TeamDetailsPage extends ConsumerWidget {
                 ],
               ),
             ),
-
             body: const TabBarView(
               children: [
                 Center(child: Text('Averages content')),
@@ -121,21 +163,6 @@ class TeamDetailsPage extends ConsumerWidget {
               ],
             ),
           ),
-          if (ref.read(deviceInfoProvider).deviceOS == DeviceOS.ios)
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 20,
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onHorizontalDragEnd: (details) {
-                  if (details.primaryVelocity! > 0) {
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-            ),
         ],
       ),
     );

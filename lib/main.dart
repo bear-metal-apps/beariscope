@@ -194,8 +194,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
     redirect: (_, state) {
       final auth = ref.watch(authStatusProvider);
-      final authMe = ref.watch(authMeProvider);
-      final permissionChecker = ref.watch(permissionCheckerProvider);
       final location = state.matchedLocation;
 
       // splash while authing
@@ -213,15 +211,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
         final isPicklistCreateRoute = location == '/picklists/create';
-
-        if (isRoleManagementRoute ||
+        final needsPermissions =
+            isRoleManagementRoute ||
             isScoutManagementRoute ||
-            isPicklistCreateRoute) {
+            isPicklistCreateRoute;
+
+        if (needsPermissions) {
+          final authMe = ref.watch(authMeProvider);
           if (authMe.isLoading) {
             return location == '/splash' ? null : '/splash';
           }
 
-          final checker = permissionChecker;
+          final checker = ref.watch(permissionCheckerProvider);
 
           if (isRoleManagementRoute) {
             final canManageRoles =

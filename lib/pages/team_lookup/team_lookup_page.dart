@@ -1,59 +1,41 @@
+import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
-
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/pages/team_lookup/team_model.dart';
 
-class TeamLookupPage extends StatefulWidget {
+class TeamLookupPage extends ConsumerStatefulWidget {
   const TeamLookupPage({super.key});
 
   @override
-  State<TeamLookupPage> createState() => _TeamLookupPageState();
+  ConsumerState<TeamLookupPage> createState() => _TeamLookupPageState();
 }
 
-class _TeamLookupPageState extends State<TeamLookupPage> {
+class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   final TextEditingController _searchTermTEC = TextEditingController();
-  List<Widget> filteredTeamCards = [
-    TeamCard(teamName: 'Bear Metal', teamNumber: '2046'),
-    TeamCard(teamName: 'Riptide Robotics', teamNumber: '8267'),
-    TeamCard(teamName: 'Madcows!', teamNumber: '276'),
-    TeamCard(teamName: 'Vikings', teamNumber: '9289'),
-    TeamCard(teamName: 'The Vo', teamNumber: '4650'),
-  ];
-  Filter filter = Filter.allEvents;
 
-  // final allTeamCards = ref.read(teamCardListNotifierProvider);
-  // final filteredTeamCards = ref.read(filteredListNotifierProvider);
-  //
-  // void filter() {
-  //   int _intSearchTerm = int.tryParse(_searchTermTEC.text) ?? -1;
-  //   ref.read(filteredListNotifierProvider.notifier).reset();
-  //   if (_intSearchTerm < 0) {
-  //     for (TeamCard checkedCard in allTeamCards) {
-  //       if (checkedCard.teamNumber.contains('$_searchTermTEC')) {
-  //         ref.read(filteredListNotifierProvider.notifier).addCard(searchedCard);
-  //   } else {
-  //     for (TeamCard checkedCard in allTeamCards) {
-  //       if (checkedCard.teamName.contains('$_searchTermTEC')) {
-  //         ref.read(filteredListNotifierProvider.notifier).addCard(searchedCard);
-  //   }
-  // }
-
-  // void filter(String filterValue)
-  // Uses the values within a class Team and matches it with filterValue and
-  // changes filteredTeamCards based on if it matches
-  // Note: filteredTeamCards will eventually be a Provider<List<TeamCard>> so
-  // I can use a function addTeam(Team team) with state = [...state, team];
+  @override
+  void dispose() {
+    _searchTermTEC.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
+    final teamsAsync = ref.watch(teamsProvider);
+    final selectedFilter = ref.watch(teamFilterProvider);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         titleSpacing: 8.0,
         title: SearchBar(
           controller: _searchTermTEC,
+          onChanged: (_) => setState(() {}),
           hintText: 'Team name or number',
           elevation: WidgetStateProperty.all(0.0),
           padding: const WidgetStatePropertyAll<EdgeInsets>(
@@ -61,24 +43,24 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
           ),
           leading: const Icon(Symbols.search_rounded),
           trailing: [
-            PopupMenuButton(
+            PopupMenuButton<TeamFilter>(
               icon: Icon(Symbols.filter_list_rounded),
               tooltip: 'Filter & Sort',
               itemBuilder:
                   (context) => [
-                    PopupMenuItem(
-                      value: Filter.allEvents,
+                    CheckedPopupMenuItem<TeamFilter>(
+                      value: TeamFilter.allEvents,
+                      checked: selectedFilter == TeamFilter.allEvents,
                       child: Text('All Events'),
                     ),
-                    PopupMenuItem(
-                      value: Filter.currentEventsOnly,
+                    CheckedPopupMenuItem<TeamFilter>(
+                      value: TeamFilter.currentEventOnly,
+                      checked: selectedFilter == TeamFilter.currentEventOnly,
                       child: Text('Current Event Only'),
                     ),
                   ],
-              onSelected: (Filter newValue) {
-                setState(() {
-                  filter = newValue;
-                });
+              onSelected: (TeamFilter newFilter) {
+                ref.read(teamFilterProvider.notifier).setFilter(newFilter);
               },
             ),
           ],
@@ -92,13 +74,41 @@ class _TeamLookupPageState extends State<TeamLookupPage> {
                 ),
         actions: [SizedBox(width: 48)],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(spacing: 16, children: filteredTeamCards),
-          ),
-        ),
+      body: teamsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
+        data: (teams) {
+          // convert raw maps into Team objects
+          final teamList =
+              teams
+                  .whereType<Map<String, dynamic>>()
+                  .map((json) => Team.fromJson(json))
+                  .toList();
+
+          final searchTerm = _searchTermTEC.text.trim().toLowerCase();
+          final filteredTeams =
+              searchTerm.isEmpty
+                  ? teamList
+                  : teamList.where((team) {
+                    final teamName = team.name.toLowerCase();
+                    final teamNumber = team.number.toString();
+                    final teamKey = team.key.toLowerCase();
+                    return teamName.contains(searchTerm) ||
+                        teamNumber.contains(searchTerm) ||
+                        teamKey.contains(searchTerm);
+                  }).toList();
+
+          if (filteredTeams.isEmpty) {
+            return const Center(child: Text('No teams found'));
+          }
+
+          return BeariscopeCardList(
+            children:
+                filteredTeams
+                    .map((team) => TeamCard(teamKey: team.key))
+                    .toList(),
+          );
+        },
       ),
     );
   }

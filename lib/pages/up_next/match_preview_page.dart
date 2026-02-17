@@ -213,10 +213,7 @@ class _DriveTeamMatchPreviewPageState
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: TeamCard(
-                              teamName: cards[index][0],
-                              teamNumber: cards[index][1],
-                            ),
+                            child: TeamCard(teamKey: cards[index][1]),
                           );
                         },
                       ),

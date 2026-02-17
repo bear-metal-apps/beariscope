@@ -29,7 +29,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   final _scoutsProvider = FutureProvider<List<dynamic>>((ref) {
     return ref
         .watch(honeycombClientProvider)
-        .get<List<dynamic>>('/scouts', forceRefresh: true);
+        .get<List<dynamic>>('/scouts', forceRefresh: false);
   });
 
   @override

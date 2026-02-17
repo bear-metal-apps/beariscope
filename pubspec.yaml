@@ -52,7 +52,6 @@ dev_dependencies:
   riverpod_generator: ^4.0.0+1
   build_runner: ^2.5.4
   custom_lint: ^0.8.0
-  riverpod_lint: ^3.0.0
   flutter_launcher_icons: ^0.14.3
 
 flutter:
