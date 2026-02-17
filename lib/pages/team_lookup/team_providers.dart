@@ -19,20 +19,25 @@ final teamFilterProvider = NotifierProvider<TeamFilterNotifier, TeamFilter>(
   () => TeamFilterNotifier(),
 );
 
+List<Map<String, dynamic>> _toStringKeyMaps(List<dynamic> data) {
+  return data
+      .whereType<Map>()
+      .map((item) => Map<String, dynamic>.from(item))
+      .toList();
+}
+
 // fetch teams based on current filter
 final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final filter = ref.watch(teamFilterProvider);
   final selectedEvent = ref.watch(currentEventProvider);
+  final client = ref.watch(honeycombClientProvider);
 
   // fetch events to know which events exist
-  final eventsData = await ref.watch(
-    getListDataProvider(
-      endpoint: '/events?team=2046&year=2026&year=2025',
-      forceRefresh: true,
-    ).future,
+  final eventsData = await client.get<List<dynamic>>(
+    '/events?team=2046&year=2026',
   );
 
-  final events = eventsData.whereType<Map<String, dynamic>>().toList();
+  final events = _toStringKeyMaps(eventsData);
   if (events.isEmpty) {
     return [];
   }
@@ -44,14 +49,11 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
       return [];
     }
 
-    final teamData = await ref.watch(
-      getListDataProvider(
-        endpoint: '/teams?event=$eventKey',
-        forceRefresh: true,
-      ).future,
+    final teamData = await client.get<List<dynamic>>(
+      '/teams?event=$eventKey',
     );
 
-    return teamData.whereType<Map<String, dynamic>>().toList();
+    return _toStringKeyMaps(teamData);
   } else {
     // fetch teams from all events and unduplicate by key
     final allTeams = <String, Map<String, dynamic>>{};
@@ -60,14 +62,11 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
       final eventKey = (event['key'] ?? '').toString();
       if (eventKey.isEmpty) continue;
 
-      final teamData = await ref.watch(
-        getListDataProvider(
-          endpoint: '/teams?event=$eventKey',
-          forceRefresh: true,
-        ).future,
+      final teamData = await client.get<List<dynamic>>(
+        '/teams?event=$eventKey',
       );
 
-      for (final team in teamData.whereType<Map<String, dynamic>>()) {
+      for (final team in _toStringKeyMaps(teamData)) {
         final teamKey = (team['key'] ?? team['team_key'] ?? '').toString();
         if (teamKey.isNotEmpty) {
           allTeams[teamKey] = team;

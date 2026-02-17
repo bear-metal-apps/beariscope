@@ -1,9 +1,9 @@
 import 'package:animations/animations.dart';
-import 'package:beariscope/components/team_model.dart';
+import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:beariscope/components/team_providers.dart';
+import 'package:beariscope/pages/team_lookup/team_providers.dart';
 
 class TeamCard extends ConsumerWidget {
   final String teamKey;
