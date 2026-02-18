@@ -33,11 +33,13 @@ class RadioButton extends StatefulWidget {
     required this.options,
     this.initialValue,
     this.onChanged,
+    this.height
   });
 
   final List<String> options;
   final String? initialValue;
   final ValueChanged<String?>? onChanged;
+  final double? height;
 
   @override
   State<RadioButton> createState() => _RadioButtonState();
@@ -55,7 +57,7 @@ class _RadioButtonState extends State<RadioButton> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 120,
+      height: widget.height ?? 120,
       child: ListView.builder(
         itemCount: widget.options.length,
         itemBuilder: (context, index) {
