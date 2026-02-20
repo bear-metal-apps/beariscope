@@ -78,45 +78,18 @@ class _ScoutingPageState extends State<_ScoutingPage> {
           child: Column(
             children: [
               Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Bot',
+                ),
+              ),
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                 child: NumberTextField(labelText: 'Hopper Size'),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: DropdownButtonOneChoice(
-                  options: ['Bump', 'Trench'],
-                  label: 'Pathway Preference',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
-                child: Text('Climb'),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(
-                  options: ['Rotation', 'Elevator', 'Arm', 'No Climb'],
-                  height: 200,
-                ),
-              ),
-              // Type
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: MultipleChoice(
-                  options: ['Level 1', 'Level 2', 'Level 3'],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: SegmentedSlider(
-                  min: 1,
-                  max: 10,
-                  divisions: 10,
-                  label: 'Climb Consistency out of 10',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, 50, 20, 10),
                 child: DropdownButtonOneChoice(
                   options: [
                     'X60',
@@ -157,7 +130,7 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
                   options: ['Colson', 'Pneumatic', 'Spike', 'Billet', 'Other'],
                   label: 'Wheel Type',
@@ -187,12 +160,51 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                child: NumberTextField(labelText: 'Weight'),
+                child: NumberTextField(labelText: 'Weight (lbs)'),
               ),
-              // WEIGHT UNITS (lbs, kg)
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 30, 20, 10),
-                child: Text('Auto'),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: MultipleChoice(
+                  options: ['Horizontal Extension', 'Vertical Extension'],
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Climb',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: RadioButton(
+                  options: ['Rotation', 'Elevator', 'Arm', 'No Climb'],
+                  height: 200,
+                ),
+              ),
+              // Type
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: MultipleChoice(
+                  options: ['Level 1', 'Level 2', 'Level 3'],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: SegmentedSlider(
+                  min: 1,
+                  max: 10,
+                  divisions: 10,
+                  label: 'Climb Consistency out of 10',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Auto',
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -205,9 +217,46 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   label: 'Fuel Collection Location',
                 ),
               ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Gameplay',
+                ),
+              ),
               // Pathing
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 50, 20, 10),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: DropdownButtonOneChoice(
+                  options: ['Bump', 'Trench'],
+                  label: 'Pathway Preference',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: MultipleChoice(
+                  options: ['Passing', 'Cycling', 'Shooting', 'Defense'],
+                  label: 'Playing Style',
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Outtake',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: RadioButton(
+                  options: ['Trench Capable', 'Trench Incapable'],
+                  height: 96,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
                   options: ['Turret', 'Adjustable Hood', 'Other'],
                   initialValue: '',
@@ -216,7 +265,14 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: NumberTextField(labelText: 'Ball Outtake Rate'),
+                child: DropdownButtonOneChoice(
+                  options: ['4 Bar', 'Linear', 'Pivot'],
+                  label: 'Collector Type',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: NumberTextField(labelText: 'Fuel Outtake Rate/sec'),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -234,28 +290,6 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   label: 'Move while Shooting?',
                 ),
               ),
-              // RATE UNITS (e.g. per sec)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: DropdownButtonOneChoice(
-                  options: ['4 Bar', 'Linear', 'Pivot'],
-                  label: 'Collector Type',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: MultipleChoice(
-                  options: ['Horizontal Extension', 'Vertical Extension'],
-                ),
-              ),
-              // Indexer Type
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(
-                  options: ['Trench Capable', 'Trench Incapable'],
-                  height: 96,
-                ),
-              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
@@ -271,13 +305,6 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: MultipleChoice(
-                  options: ['Passing', 'Cycling', 'Shooting', 'Defense'],
-                  label: 'Playing Style',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: RadioButton(
                   options: ['Jack Arm', 'No Jack Arm'],
                   height: 96,
@@ -287,6 +314,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: TextField(
                   controller: notesTEC,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
                   decoration: InputDecoration(
                     labelText: 'Additional Comments / Weaknesses',
                   ),
