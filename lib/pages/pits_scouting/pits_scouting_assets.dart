@@ -136,27 +136,30 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   label: 'Wheel Type',
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(width: 30, height: 10),
-                  Expanded(
-                    flex: 3,
-                    child: NumberTextField(labelText: 'Chassis Length'),
-                  ),
-                  Expanded(child: SizedBox(height: 10)),
-                  Expanded(
-                    flex: 3,
-                    child: NumberTextField(labelText: 'Chassis Width'),
-                  ),
-                  Expanded(child: SizedBox(height: 10)),
-                  Expanded(
-                    flex: 3,
-                    child: NumberTextField(labelText: 'Chassis Height'),
-                  ),
-                  SizedBox(width: 30, height: 10),
-                ],
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(width: 30, height: 10),
+                    Expanded(
+                      flex: 3,
+                      child: NumberTextField(labelText: 'Chassis Length'),
+                    ),
+                    Expanded(child: SizedBox(height: 10)),
+                    Expanded(
+                      flex: 3,
+                      child: NumberTextField(labelText: 'Chassis Width'),
+                    ),
+                    Expanded(child: SizedBox(height: 10)),
+                    Expanded(
+                      flex: 3,
+                      child: NumberTextField(labelText: 'Chassis Height'),
+                    ),
+                    SizedBox(width: 30, height: 10),
+                  ],
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
@@ -183,7 +186,13 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   height: 200,
                 ),
               ),
-              // Type
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: MultipleChoice(
+                  options: ['Buzzer Beater', 'Level 1', 'Level 3', 'Flip'],
+                  label: 'Climb Type',
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
@@ -199,6 +208,7 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   label: 'Climb Consistency out of 10',
                 ),
               ),
+
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -218,6 +228,7 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 ),
               ),
 
+              // Pathing Here
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -225,7 +236,6 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   'Gameplay',
                 ),
               ),
-              // Pathing
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
@@ -302,6 +312,31 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   ],
                   label: 'Range from Field',
                 ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Text(
+                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
+                  'Indexer',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: DropdownButtonOneChoice(
+                  options: [
+                    'Dye Rotor',
+                    'Spindexer',
+                    'Roller Bed',
+                    'Belt Bed',
+                    'Dual Spindexer',
+                    'Other',
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: RadioButton(options: ['Powered', 'Not Powered']),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
