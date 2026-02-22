@@ -65,7 +65,39 @@ class _ScoutingPage extends StatefulWidget {
 }
 
 class _ScoutingPageState extends State<_ScoutingPage> {
-  final TextEditingController notesTEC = TextEditingController();
+  final TextEditingController _hopperSizeTEC = TextEditingController();
+  String _motorType = '';
+  String _drivetrainType = '';
+  String _swerveBrand = '';
+  final TextEditingController _swerveGRTEC = TextEditingController();
+  String _wheelType = '';
+  final TextEditingController _chassisLengthTEC = TextEditingController();
+  final TextEditingController _chassisWidthTEC = TextEditingController();
+  final TextEditingController _chassisHeightTEC = TextEditingController();
+  final TextEditingController _horizontalExtensionTEC = TextEditingController();
+  final TextEditingController _verticalExtensionTEC = TextEditingController();
+  final TextEditingController _botWeightTEC = TextEditingController();
+  String _climbMethod = '';
+  Set<String> _climbType = <String>{};
+  Set<String> _climbLevel = <String>{};
+  double _climbConsistency = 0;
+  String _autoClimb = '';
+  Set<String> _fuelCollectionLocation = <String>{};
+  Set<String> _playingStyle = <String>{};
+  String _trenchCapability = '';
+  String _pathwayPreference = '';
+  String _shooter = '';
+  String _collectorType = '';
+  final TextEditingController _fuelOuttakeRateTEC = TextEditingController();
+  double _accuracy = 0;
+  Set<String> _mobileShooting = <String>{};
+  Set<String> _rangeFromField = <String>{};
+  String _indexerType = '';
+  String _powered = '';
+  String _jackArm = '';
+  final TextEditingController _notesTEC = TextEditingController();
+
+  // List<Map<String, Object?>> pitsData = [{ "Hopper Size": int.parse(_hopperSizeTEC.text) }, {}];
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +118,10 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                child: NumberTextField(labelText: 'Hopper Size'),
+                child: NumberTextField(
+                  labelText: 'Hopper Size (Max. Fuel Quantity)',
+                  controller: _hopperSizeTEC,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -100,6 +135,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                     'Other',
                   ],
                   label: 'Motor Type',
+                  variable: _motorType,
+                  onChanged: (value) => _motorType = value ?? '',
                 ),
               ),
               Padding(
@@ -107,6 +144,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Swerve', 'Tank', 'Mecanum'],
                   label: 'Drivetrain Type',
+                  variable: _drivetrainType,
+                  onChanged: (value) => _drivetrainType = value ?? '',
                 ),
               ),
               Padding(
@@ -121,12 +160,15 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                     'No Swerve',
                   ],
                   label: 'Swerve Brand',
+                  variable: _swerveBrand,
+                  onChanged: (value) => _swerveBrand = value ?? '',
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
                 child: NumberTextField(
                   labelText: 'Swerve Gear Ratio (If none, type 0)',
+                  controller: _swerveGRTEC,
                 ),
               ),
               Padding(
@@ -134,6 +176,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Colson', 'Pneumatic', 'Spike', 'Billet', 'Other'],
                   label: 'Wheel Type',
+                  variable: _wheelType,
+                  onChanged: (value) => _wheelType = value ?? '',
                 ),
               ),
               Padding(
@@ -145,17 +189,52 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                     SizedBox(width: 30, height: 10),
                     Expanded(
                       flex: 3,
-                      child: NumberTextField(labelText: 'Chassis Length'),
+                      child: NumberTextField(
+                        labelText: 'Chassis Length (in)',
+                        controller: _chassisLengthTEC,
+                      ),
                     ),
                     Expanded(child: SizedBox(height: 10)),
                     Expanded(
                       flex: 3,
-                      child: NumberTextField(labelText: 'Chassis Width'),
+                      child: NumberTextField(
+                        labelText: 'Chassis Width (in)',
+                        controller: _chassisWidthTEC,
+                      ),
                     ),
                     Expanded(child: SizedBox(height: 10)),
                     Expanded(
                       flex: 3,
-                      child: NumberTextField(labelText: 'Chassis Height'),
+                      child: NumberTextField(
+                        labelText: 'Chassis Height (in)',
+                        controller: _chassisHeightTEC,
+                      ),
+                    ),
+                    SizedBox(width: 30, height: 10),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(width: 30, height: 10),
+                    Expanded(
+                      flex: 3,
+                      child: NumberTextField(
+                        labelText: 'Horizontal Extension Limit (in)',
+                        controller: _horizontalExtensionTEC,
+                      ),
+                    ),
+                    Expanded(child: SizedBox(height: 10)),
+                    Expanded(
+                      flex: 3,
+                      child: NumberTextField(
+                        labelText: 'Vertical Extension Limit (in)',
+                        controller: _verticalExtensionTEC,
+                      ),
                     ),
                     SizedBox(width: 30, height: 10),
                   ],
@@ -163,12 +242,9 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                child: NumberTextField(labelText: 'Weight (lbs)'),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: MultipleChoice(
-                  options: ['Horizontal Extension', 'Vertical Extension'],
+                child: NumberTextField(
+                  labelText: 'Weight (lbs)',
+                  controller: _botWeightTEC,
                 ),
               ),
 
@@ -184,6 +260,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: RadioButton(
                   options: ['Rotation', 'Elevator', 'Arm', 'No Climb'],
                   height: 200,
+                  variable: _climbMethod,
+                  onChanged: (value) => _climbMethod = value ?? '',
                 ),
               ),
               Padding(
@@ -191,21 +269,27 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: MultipleChoice(
                   options: ['Buzzer Beater', 'Level 1', 'Level 3', 'Flip'],
                   label: 'Climb Type',
+                  variable: _climbType,
+                  onSelectionChanged: (value) => _climbType = value,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
                   options: ['Level 1', 'Level 2', 'Level 3'],
+                  variable: _climbLevel,
+                  onSelectionChanged: (value) => _climbLevel = value,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: SegmentedSlider(
-                  min: 1,
+                  min: 0,
                   max: 10,
                   divisions: 10,
                   label: 'Climb Consistency out of 10',
+                  variable: _climbConsistency,
+                  onChanged: (value) => _climbConsistency = value,
                 ),
               ),
 
@@ -218,13 +302,21 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(options: ['Climb', 'No Climb'], height: 96),
+                child: RadioButton(
+                  options: ['Climb', 'No Climb'],
+                  height: 96,
+                  variable: _autoClimb,
+                  onChanged: (value) => _autoClimb = value ?? '',
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
                   options: ['Outpost', 'Depot', 'Neutral Zone'],
                   label: 'Fuel Collection Location',
+                  variable: _fuelCollectionLocation,
+                  onSelectionChanged:
+                      (value) => _fuelCollectionLocation = value,
                 ),
               ),
 
@@ -241,6 +333,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Bump', 'Trench'],
                   label: 'Pathway Preference',
+                  variable: _pathwayPreference,
+                  onChanged: (value) => _pathwayPreference = value ?? '',
                 ),
               ),
               Padding(
@@ -248,6 +342,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: MultipleChoice(
                   options: ['Passing', 'Cycling', 'Shooting', 'Defense'],
                   label: 'Playing Style',
+                  variable: _playingStyle,
+                  onSelectionChanged: (value) => _playingStyle = value,
                 ),
               ),
 
@@ -263,6 +359,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: RadioButton(
                   options: ['Trench Capable', 'Trench Incapable'],
                   height: 96,
+                  variable: _trenchCapability,
+                  onChanged: (value) => _trenchCapability = value ?? '',
                 ),
               ),
               Padding(
@@ -271,6 +369,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   options: ['Turret', 'Adjustable Hood', 'Other'],
                   initialValue: '',
                   label: 'Shooter',
+                  variable: _shooter,
+                  onChanged: (value) => _shooter = value ?? '',
                 ),
               ),
               Padding(
@@ -278,11 +378,16 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: DropdownButtonOneChoice(
                   options: ['4 Bar', 'Linear', 'Pivot'],
                   label: 'Collector Type',
+                  variable: _collectorType,
+                  onChanged: (value) => _collectorType = value ?? '',
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: NumberTextField(labelText: 'Fuel Outtake Rate/sec'),
+                child: NumberTextField(
+                  labelText: 'Fuel Outtake Rate/sec',
+                  controller: _fuelOuttakeRateTEC,
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -291,6 +396,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   max: 100,
                   divisions: 20,
                   label: 'Average Accuracy %',
+                  variable: _accuracy,
+                  onChanged: (value) => _accuracy = value,
                 ),
               ),
               Padding(
@@ -298,6 +405,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: MultipleChoice(
                   options: ['Mobile Shooting', 'Stationary Shooting'],
                   label: 'Move while Shooting?',
+                  variable: _mobileShooting,
+                  onSelectionChanged: (value) => _mobileShooting = value,
                 ),
               ),
               Padding(
@@ -311,6 +420,7 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                     'From Tower',
                   ],
                   label: 'Range from Field',
+                  variable: _rangeFromField,
                 ),
               ),
 
@@ -332,23 +442,33 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                     'Dual Spindexer',
                     'Other',
                   ],
+                  label: 'Indexer Type',
+                  variable: _indexerType,
+                  onChanged: (value) => _indexerType = value ?? '',
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(options: ['Powered', 'Not Powered']),
+                child: RadioButton(
+                  options: ['Powered', 'Not Powered'],
+                  height: 96,
+                  variable: _powered,
+                  onChanged: (value) => _powered = value ?? '',
+                ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: RadioButton(
                   options: ['Jack Arm', 'No Jack Arm'],
                   height: 96,
+                  variable: _jackArm,
+                  onChanged: (value) => _jackArm = value ?? '',
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: TextField(
-                  controller: notesTEC,
+                  controller: _notesTEC,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   decoration: InputDecoration(
