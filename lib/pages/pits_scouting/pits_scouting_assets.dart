@@ -97,8 +97,6 @@ class _ScoutingPageState extends State<_ScoutingPage> {
   String _jackArm = '';
   final TextEditingController _notesTEC = TextEditingController();
 
-  // List<Map<String, Object?>> pitsData = [{ "Hopper Size": int.parse(_hopperSizeTEC.text) }, {}];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,10 +163,14 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-                child: NumberTextField(
-                  labelText: 'Swerve Gear Ratio (If none, type 0)',
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: TextField(
                   controller: _swerveGRTEC,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(
+                    labelText: 'Swerve Gear Ratio (If none, type 0)',
+                  ),
                 ),
               ),
               Padding(
@@ -421,6 +423,7 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                   ],
                   label: 'Range from Field',
                   variable: _rangeFromField,
+                  onSelectionChanged: (value) => _rangeFromField = value,
                 ),
               ),
 
@@ -479,10 +482,49 @@ class _ScoutingPageState extends State<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.all(30),
                 child: FilledButton(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  child: Text(widget.scouted == false ? 'Submit' : 'Edit'),
+                    onPressed: () {
+                      final List<Map<String, Object?>> pitsData = [
+                        {"Hopper Size (Max. Fuel Quantity)": int.tryParse(_hopperSizeTEC.text)},
+                        {"Motor Type": _motorType},
+                        {"Drivetrain Type": _drivetrainType},
+                        {"Swerve Brand": _swerveBrand},
+                        {"Swerve Gear Ratio": _swerveGRTEC.text},
+                        {"Wheel Type": _wheelType},
+                        {"Chassis Length (in)": double.tryParse(_chassisLengthTEC.text)},
+                        {"Chassis Width (in)": double.tryParse(_chassisWidthTEC.text)},
+                        {"Chassis Height (in)": double.tryParse(_chassisHeightTEC.text)},
+                        {"Horizontal Extension Limit (in)": double.tryParse(_horizontalExtensionTEC.text)},
+                        {"Vertical Extension Limit (in)": double.tryParse(_verticalExtensionTEC.text)},
+                        {"Weight (lbs)": double.tryParse(_botWeightTEC.text)},
+
+                        {"Climb Method": _climbMethod},
+                        {"Climb Type": _climbType.toList()},
+                        {"Climb Level": _climbLevel.toList()},
+                        {"Climb Consistency": _climbConsistency},
+
+                        {"Auto Climb": _autoClimb},
+                        {"Fuel Collection Location": _fuelCollectionLocation.toList()},
+
+                        {"Pathway Preference": _pathwayPreference},
+                        {"Playing Style": _playingStyle.toList()},
+
+                        {"Trench Capability": _trenchCapability},
+                        {"Shooter": _shooter},
+                        {"Collector Type": _collectorType},
+                        {"Fuel Outtake Rate/sec": double.tryParse(_fuelOuttakeRateTEC.text)},
+                        {"Average Accuracy %": _accuracy},
+                        {"Move While Shooting": _mobileShooting.toList()},
+                        {"Range From Field": _rangeFromField.toList()},
+
+                        {"Indexer Type": _indexerType},
+                        {"Powered": _powered},
+                        {"Jack Arm": _jackArm},
+                        {"Additional Comments / Weaknesses": _notesTEC.text},
+                      ];
+
+                      Navigator.pop(context, true);
+                    },
+                    child: Text(widget.scouted == false ? 'Submit' : 'Edit'),
                 ),
               ),
             ],
