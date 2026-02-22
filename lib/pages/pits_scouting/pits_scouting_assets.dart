@@ -1,6 +1,9 @@
-import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:flutter/material.dart';
+
+import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:beariscope/components/beariscope_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
 
 class PitsScoutingTeamCard extends StatelessWidget {
   final String teamName;
@@ -49,7 +52,7 @@ class PitsScoutingTeamCard extends StatelessWidget {
   }
 }
 
-class _ScoutingPage extends StatefulWidget {
+class _ScoutingPage extends ConsumerStatefulWidget {
   final String teamName;
   final int teamNumber;
   final bool scouted;
@@ -61,10 +64,12 @@ class _ScoutingPage extends StatefulWidget {
   });
 
   @override
-  State<_ScoutingPage> createState() => _ScoutingPageState();
+  ConsumerState<_ScoutingPage> createState() => _ScoutingPageState();
 }
 
-class _ScoutingPageState extends State<_ScoutingPage> {
+class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
+  final scoutingDataProvider = getListDataProvider(endpoint: '/scout/ingest');
+
   final TextEditingController _hopperSizeTEC = TextEditingController();
   String _motorType = '';
   String _drivetrainType = '';
@@ -98,7 +103,24 @@ class _ScoutingPageState extends State<_ScoutingPage> {
   final TextEditingController _notesTEC = TextEditingController();
 
   @override
+  @override
+  void dispose() {
+    _hopperSizeTEC.dispose();
+    _swerveGRTEC.dispose();
+    _chassisLengthTEC.dispose();
+    _chassisWidthTEC.dispose();
+    _chassisHeightTEC.dispose();
+    _horizontalExtensionTEC.dispose();
+    _verticalExtensionTEC.dispose();
+    _botWeightTEC.dispose();
+    _fuelOuttakeRateTEC.dispose();
+    _notesTEC.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final dataAsync = ref.watch(scoutingDataProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text('Scouting ${widget.teamNumber}: ${widget.teamName}'),
@@ -484,6 +506,9 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                 child: FilledButton(
                     onPressed: () {
                       final List<Map<String, Object?>> pitsData = [
+                        {"Team Name": widget.teamName},
+                        {"Team Number": widget.teamNumber},
+
                         {"Hopper Size (Max. Fuel Quantity)": int.tryParse(_hopperSizeTEC.text)},
                         {"Motor Type": _motorType},
                         {"Drivetrain Type": _drivetrainType},
@@ -521,7 +546,8 @@ class _ScoutingPageState extends State<_ScoutingPage> {
                         {"Jack Arm": _jackArm},
                         {"Additional Comments / Weaknesses": _notesTEC.text},
                       ];
-
+                      ref.read(honeycombClientProvider).post('/scout/ingest', data: pitsData);
+                      dispose();
                       Navigator.pop(context, true);
                     },
                     child: Text(widget.scouted == false ? 'Submit' : 'Edit'),
