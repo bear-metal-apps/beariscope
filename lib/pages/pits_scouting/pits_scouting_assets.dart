@@ -72,35 +72,35 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
   final pitsDataProvider = getListDataProvider(endpoint: '/scout/ingest');
 
   final TextEditingController _hopperSizeTEC = TextEditingController();
-  String _motorType = '';
-  String _drivetrainType = '';
-  String _swerveBrand = '';
+  late String _motorType;
+  late String _drivetrainType;
+  late String _swerveBrand;
   final TextEditingController _swerveGRTEC = TextEditingController();
-  String _wheelType = '';
+  late String _wheelType;
   final TextEditingController _chassisLengthTEC = TextEditingController();
   final TextEditingController _chassisWidthTEC = TextEditingController();
   final TextEditingController _chassisHeightTEC = TextEditingController();
   final TextEditingController _horizontalExtensionTEC = TextEditingController();
   final TextEditingController _verticalExtensionTEC = TextEditingController();
   final TextEditingController _botWeightTEC = TextEditingController();
-  String _climbMethod = '';
-  Set<String> _climbType = <String>{};
-  Set<String> _climbLevel = <String>{};
-  double _climbConsistency = 0;
-  String _autoClimb = '';
-  Set<String> _fuelCollectionLocation = <String>{};
-  Set<String> _playingStyle = <String>{};
-  String _trenchCapability = '';
-  String _pathwayPreference = '';
-  String _shooter = '';
-  String _collectorType = '';
+  late String _climbMethod;
+  late Set<String> _climbType;
+  late Set<String> _climbLevel;
+  late double _climbConsistency;
+  late String _autoClimb;
+  late Set<String> _fuelCollectionLocation;
+  late Set<String> _playingStyle;
+  late String _trenchCapability;
+  late String _pathwayPreference;
+  late String _shooter;
+  late String _collectorType;
   final TextEditingController _fuelOuttakeRateTEC = TextEditingController();
-  double _accuracy = 0;
-  Set<String> _mobileShooting = <String>{};
-  Set<String> _rangeFromField = <String>{};
-  String _indexerType = '';
-  String _powered = '';
-  String _jackArm = '';
+  late double _accuracy;
+  late Set<String> _mobileShooting;
+  late Set<String> _rangeFromField;
+  late String _indexerType;
+  late String _powered;
+  late String _jackArm;
   final TextEditingController _notesTEC = TextEditingController();
 
   @override
@@ -132,28 +132,35 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
           ),
       data: (data) {
         final List<Map<String, dynamic>> allData =
-        List<Map<String, dynamic>>.from(data);
+            List<Map<String, dynamic>>.from(data);
 
-        final teamData = allData.where((entry) =>
-        entry["Category"] == "Pits" &&
-            entry["Team Name"] == widget.teamName &&
-            entry["Team Number"] == widget.teamNumber
-        ).toList();
+        final teamData =
+            allData
+                .where(
+                  (entry) =>
+                      entry["Category"] == "Pits" &&
+                      entry["Team Name"] == widget.teamName &&
+                      entry["Team Number"] == widget.teamNumber,
+                )
+                .toList();
 
         Map<String, dynamic>? latestTeamData;
         if (teamData.isNotEmpty) {
-          latestTeamData = teamData.reduce((a, b) =>
-          (a["Version"] ?? 0) > (b["Version"] ?? 0) ? a : b);
+          latestTeamData = teamData.reduce(
+            (a, b) => (a["Version"] ?? 0) > (b["Version"] ?? 0) ? a : b,
+          );
         }
 
         if (widget.scouted && latestTeamData != null) {
           _hopperSizeTEC.text =
-              latestTeamData["Hopper Size (Max. Fuel Quantity)"]?.toString() ?? '';
+              latestTeamData["Hopper Size (Max. Fuel Quantity)"]?.toString() ??
+              '';
 
           _motorType = latestTeamData["Motor Type"] ?? '';
           _drivetrainType = latestTeamData["Drivetrain Type"] ?? '';
           _swerveBrand = latestTeamData["Swerve Brand"] ?? '';
-          _swerveGRTEC.text = latestTeamData["Swerve Gear Ratio"]?.toString() ?? '';
+          _swerveGRTEC.text =
+              latestTeamData["Swerve Gear Ratio"]?.toString() ?? '';
           _wheelType = latestTeamData["Wheel Type"] ?? '';
 
           _chassisLengthTEC.text =
@@ -164,23 +171,31 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
               latestTeamData["Chassis Height (in)"]?.toString() ?? '';
 
           _horizontalExtensionTEC.text =
-              latestTeamData["Horizontal Extension Limit (in)"]?.toString() ?? '';
+              latestTeamData["Horizontal Extension Limit (in)"]?.toString() ??
+              '';
           _verticalExtensionTEC.text =
               latestTeamData["Vertical Extension Limit (in)"]?.toString() ?? '';
 
           _botWeightTEC.text = latestTeamData["Weight (lbs)"]?.toString() ?? '';
 
           _climbMethod = latestTeamData["Climb Method"] ?? '';
-          _climbType = Set<String>.from(latestTeamData["Climb Type"] ?? []);
-          _climbLevel = Set<String>.from(latestTeamData["Climb Level"] ?? []);
-          _climbConsistency = (latestTeamData["Climb Consistency"] ?? 0).toDouble();
+          _climbType = Set<String>.from(
+            latestTeamData["Climb Type"] ?? <String>{},
+          );
+          _climbLevel = Set<String>.from(
+            latestTeamData["Climb Level"] ?? <String>{},
+          );
+          _climbConsistency = (latestTeamData["Climb Consistency"] ?? 0);
 
           _autoClimb = latestTeamData["Auto Climb"] ?? '';
-          _fuelCollectionLocation =
-          Set<String>.from(latestTeamData["Fuel Collection Location"] ?? []);
+          _fuelCollectionLocation = Set<String>.from(
+            latestTeamData["Fuel Collection Location"] ?? <String>{},
+          );
 
           _pathwayPreference = latestTeamData["Pathway Preference"] ?? '';
-          _playingStyle = Set<String>.from(latestTeamData["Playing Style"] ?? []);
+          _playingStyle = Set<String>.from(
+            latestTeamData["Playing Style"] ?? <String>{},
+          );
 
           _trenchCapability = latestTeamData["Trench Capability"] ?? '';
           _shooter = latestTeamData["Shooter"] ?? '';
@@ -189,19 +204,21 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
           _fuelOuttakeRateTEC.text =
               latestTeamData["Fuel Outtake Rate/sec"]?.toString() ?? '';
 
-          _accuracy = (latestTeamData["Average Accuracy %"] ?? 0).toDouble();
-          _mobileShooting =
-          Set<String>.from(latestTeamData["Move While Shooting"] ?? []);
-          _rangeFromField =
-          Set<String>.from(latestTeamData["Range From Field"] ?? []);
+          _accuracy = (latestTeamData["Average Accuracy %"] ?? 0);
+          _mobileShooting = Set<String>.from(
+            latestTeamData["Move While Shooting"] ?? <String>{},
+          );
+          _rangeFromField = Set<String>.from(
+            latestTeamData["Range From Field"] ?? <String>{},
+          );
 
           _indexerType = latestTeamData["Indexer Type"] ?? '';
           _powered = latestTeamData["Powered"] ?? '';
           _jackArm = latestTeamData["Jack Arm"] ?? '';
 
-          _notesTEC.text = latestTeamData["Additional Comments / Weaknesses"] ?? '';
+          _notesTEC.text =
+              latestTeamData["Additional Comments / Weaknesses"] ?? '';
         }
-
 
         return Scaffold(
           appBar: AppBar(

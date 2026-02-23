@@ -34,7 +34,7 @@ class RadioButton extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.height,
-    this.variable
+    this.variable,
   });
 
   final List<String> options;
@@ -89,7 +89,7 @@ class MultipleChoice extends StatefulWidget {
     this.initialSelection,
     this.onSelectionChanged,
     this.label,
-    this.variable
+    this.variable,
   });
 
   final List<String> options;
@@ -156,7 +156,7 @@ class DropdownButtonOneChoice extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.label,
-    this.variable
+    this.variable,
   });
 
   final List<String> options;
@@ -206,7 +206,7 @@ class SegmentedSlider extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.label,
-    this.variable
+    this.variable,
   });
 
   final double min;
