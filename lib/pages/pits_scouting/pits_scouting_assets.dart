@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:beariscope/components/beariscope_card.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:libkoala/providers/user_profile_provider.dart';
 
 class PitsScoutingTeamCard extends StatelessWidget {
   final String teamName;
@@ -142,6 +144,10 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentEventKey = ref.watch(currentEventProvider);
+    final userInfo = ref.watch(userInfoProvider).asData?.value;
+    final scoutedBy = userInfo?.name?.trim() ?? 'Unknown User';
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Scouting ${widget.teamNumber}: ${widget.teamName}'),
@@ -518,9 +524,13 @@ class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
                 child: FilledButton(
                   onPressed: () {
                     final Map<String, Object?> entry = {
-                      "category": 'pits',
-                      "version": 1,
-                      "year": 2026,
+                      "meta": {
+                        "type": 'pits',
+                        "version": 1,
+                        "season": 2026,
+                        "event": currentEventKey,
+                        "scoutedBy": scoutedBy,
+                      },
                       "teamName": widget.teamName,
                       "teamNumber": widget.teamNumber,
                       "hopperSize": int.tryParse(_hopperSizeTEC.text),
