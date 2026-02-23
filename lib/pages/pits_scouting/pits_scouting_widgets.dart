@@ -58,26 +58,24 @@ class _RadioButtonState extends State<RadioButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: widget.height ?? 120,
-      child: ListView.builder(
-        itemCount: widget.options.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(widget.options[index]),
-            leading: Radio<String>(
-              value: widget.options[index],
-              groupValue: _selectedValue,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedValue = value;
-                });
-                widget.onChanged?.call(value);
-              },
-            ),
-          );
-        },
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children:
+          widget.options.map((option) {
+            return ListTile(
+              title: Text(option),
+              leading: Radio<String>(
+                value: option,
+                groupValue: _selectedValue,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedValue = value;
+                  });
+                  widget.onChanged?.call(value);
+                },
+              ),
+            );
+          }).toList(),
     );
   }
 }
