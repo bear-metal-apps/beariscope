@@ -38,7 +38,7 @@ class PitsScoutingTeamCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder:
-                (context) => _ScoutingSubmitPage(
+                (context) => _ScoutingPage(
                   teamNumber: teamNumber,
                   teamName: teamName,
                   scouted: scouted,
@@ -54,23 +54,23 @@ class PitsScoutingTeamCard extends StatelessWidget {
   }
 }
 
-class _ScoutingSubmitPage extends ConsumerStatefulWidget {
+class _ScoutingPage extends ConsumerStatefulWidget {
   final String teamName;
   final int teamNumber;
   final bool scouted;
 
-  const _ScoutingSubmitPage({
+  const _ScoutingPage({
     required this.teamName,
     required this.teamNumber,
     required this.scouted,
   });
 
   @override
-  ConsumerState<_ScoutingSubmitPage> createState() =>
-      _ScoutingSubmitPageState();
+  ConsumerState<_ScoutingPage> createState() =>
+      _ScoutingPageState();
 }
 
-class _ScoutingSubmitPageState extends ConsumerState<_ScoutingSubmitPage> {
+class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
   final TextEditingController _hopperSizeTEC = TextEditingController();
   late String _motorType;
   late String _drivetrainType;
