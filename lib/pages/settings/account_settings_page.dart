@@ -28,15 +28,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   bool _emailTouched = false;
   String? _originalName;
   String? _originalEmail;
-
-  String _localPart(String email) {
-    final atIndex = email.indexOf('@');
-    if (atIndex <= 0) {
-      return email;
-    }
-    return email.substring(0, atIndex);
-  }
-
+  
   bool _isProperlyCapitalizedNamePart(
     String part, {
     required bool isFirstPart,
@@ -95,10 +87,8 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
       return 'Please include both first and last name.';
     }
 
-    final normalizedLocalPart =
-        email.trim().isEmpty ? '' : _localPart(email.trim()).toLowerCase();
-    if (trimmedName.toLowerCase() == normalizedLocalPart) {
-      return 'Name cannot be the same as your email username.';
+    if (trimmedName.toLowerCase() == email.trim().toLowerCase()) {
+      return 'Name cannot be the same as your email.';
     }
 
     final hasProperCapitalization = parts.asMap().entries.every(
