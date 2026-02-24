@@ -66,8 +66,7 @@ class _ScoutingPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_ScoutingPage> createState() =>
-      _ScoutingPageState();
+  ConsumerState<_ScoutingPage> createState() => _ScoutingPageState();
 }
 
 class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
