@@ -41,6 +41,7 @@ Future<void> main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('api_cache');
+  await Hive.openBox<String>('scouting_data');
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));

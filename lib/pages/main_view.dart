@@ -1,4 +1,7 @@
+import 'package:beariscope/providers/connectivity_provider.dart';
+import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
@@ -37,16 +40,17 @@ class MainViewController extends InheritedWidget {
       isDesktop != oldWidget.isDesktop;
 }
 
-class MainView extends StatefulWidget {
+class MainView extends ConsumerStatefulWidget {
   final Widget child;
 
   const MainView({super.key, required this.child});
 
   @override
-  State<MainView> createState() => _MainViewState();
+  ConsumerState<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> {
+class _MainViewState extends ConsumerState<MainView> {
+  bool _isRefreshing = false;
   static const double _drawerWidth = 280;
   static const _animationDuration = Duration(milliseconds: 100);
 
@@ -113,12 +117,17 @@ class _MainViewState extends State<MainView> {
         final isDesktop = constraints.maxWidth >= 700;
         final isAtTopLevel = _isAtTopLevel;
 
+        final isOnline = switch (ref.watch(connectivityProvider)) {
+          AsyncData(:final value) => value,
+          _ => true,
+        };
+
         final navigationDrawer = SizedBox(
           width: _drawerWidth,
           child: NavigationDrawer(
             selectedIndex: _selectedIndex,
             onDestinationSelected: (i) => _onDestinationSelected(i, isDesktop),
-            children: _buildNavChildren(),
+            children: _buildNavChildren(isOnline: isOnline),
           ),
         );
 
@@ -145,7 +154,33 @@ class _MainViewState extends State<MainView> {
     );
   }
 
-  List<Widget> _buildNavChildren() {
+  Future<void> _doRefresh() async {
+    setState(() => _isRefreshing = true);
+    try {
+      await ref.read(scoutingDataProvider.notifier).refresh();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Scouting data updated'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sync failed: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  List<Widget> _buildNavChildren({required bool isOnline}) {
     final children = <Widget>[];
 
     children.add(
@@ -240,40 +275,76 @@ class _MainViewState extends State<MainView> {
       ),
     );
 
-    final location = GoRouterState.of(context).uri.toString();
-    final isUtilitiesSelected = location.startsWith('/utilities');
+    // final location = GoRouterState.of(context).uri.toString();
+    // final isUtilitiesSelected = location.startsWith('/utilities');
+    //
+    // children.add(
+    //   Padding(
+    //     padding: const EdgeInsets.symmetric(horizontal: 15),
+    //     child: SizedBox(
+    //       width: double.infinity,
+    //       height: 50,
+    //       child: OutlinedButton(
+    //         onPressed: () => context.go('/utilities'),
+    //         style: OutlinedButton.styleFrom(
+    //           alignment: Alignment.center,
+    //           side: BorderSide.none,
+    //           backgroundColor:
+    //               isUtilitiesSelected
+    //                   ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
+    //                   : null,
+    //         ),
+    //         child: Row(
+    //           mainAxisAlignment: MainAxisAlignment.center,
+    //           children: [
+    //             Icon(
+    //               Icons.more_horiz,
+    //               size: 30,
+    //               color: Theme.of(context).colorScheme.onSurfaceVariant,
+    //             ),
+    //             const SizedBox(width: 12),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //   ),
+    // );
 
     children.add(
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+        padding: const EdgeInsets.fromLTRB(15, 0, 15, 8),
         child: SizedBox(
           width: double.infinity,
           height: 50,
-          child: OutlinedButton(
-            onPressed: () => context.go('/utilities'),
-            style: OutlinedButton.styleFrom(
-              alignment: Alignment.center,
-              side: BorderSide.none,
-              backgroundColor:
-                  isUtilitiesSelected
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.4)
-                      : null,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.more_horiz,
-                  size: 30,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-              ],
+          child: FilledButton.icon(
+            onPressed: isOnline && !_isRefreshing ? _doRefresh : null,
+            icon:
+                _isRefreshing
+                    ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                    : Icon(
+                      isOnline
+                          ? Symbols.sync_rounded
+                          : Symbols.cloud_off_rounded,
+                    ),
+            label: Text(
+              _isRefreshing
+                  ? 'Syncing…'
+                  : isOnline
+                  ? 'Sync Scouting Data'
+                  : 'No Internet',
             ),
           ),
         ),
       ),
     );
+
     return children;
   }
 }

@@ -13,7 +13,7 @@ part of 'current_event_provider.dart';
 final currentEventProvider = CurrentEventProvider._();
 
 final class CurrentEventProvider
-    extends $NotifierProvider<CurrentEvent, String?> {
+    extends $NotifierProvider<CurrentEvent, String> {
   CurrentEventProvider._()
     : super(
         from: null,
@@ -33,27 +33,27 @@ final class CurrentEventProvider
   CurrentEvent create() => CurrentEvent();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String? value) {
+  Override overrideWithValue(String value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String?>(value),
+      providerOverride: $SyncValueProvider<String>(value),
     );
   }
 }
 
-String _$currentEventHash() => r'82b404fa8b8a01e1d2eddacbab83fb2c15229198';
+String _$currentEventHash() => r'048ea4a6002c9b78d1944f1ddce54b4f37aedc06';
 
-abstract class _$CurrentEvent extends $Notifier<String?> {
-  String? build();
+abstract class _$CurrentEvent extends $Notifier<String> {
+  String build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<String?, String?>;
+    final ref = this.ref as $Ref<String, String>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<String?, String?>,
-              String?,
+              AnyNotifier<String, String>,
+              String,
               Object?,
               Object?
             >;
