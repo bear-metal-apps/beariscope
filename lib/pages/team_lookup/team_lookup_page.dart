@@ -1,4 +1,5 @@
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
+import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -27,7 +28,12 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
     final teamsAsync = ref.watch(teamsProvider);
-    final selectedFilter = ref.watch(teamFilterProvider);
+    final selectedSort = ref.watch(teamSortProvider);
+    final rankingsAsync = ref.watch(eventRankingsProvider);
+    final rankings = switch (rankingsAsync) {
+      AsyncData(:final value) => value,
+      _ => const <int, TeamRanking>{},
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -43,24 +49,22 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
           ),
           leading: const Icon(Symbols.search_rounded),
           trailing: [
-            PopupMenuButton<TeamFilter>(
-              icon: Icon(Symbols.filter_list_rounded),
-              tooltip: 'Filter & Sort',
+            PopupMenuButton<TeamSort>(
+              icon: Icon(Symbols.sort_rounded),
+              tooltip: 'Sort',
               itemBuilder:
-                  (context) => [
-                    CheckedPopupMenuItem<TeamFilter>(
-                      value: TeamFilter.allEvents,
-                      checked: selectedFilter == TeamFilter.allEvents,
-                      child: Text('All Events'),
-                    ),
-                    CheckedPopupMenuItem<TeamFilter>(
-                      value: TeamFilter.currentEventOnly,
-                      checked: selectedFilter == TeamFilter.currentEventOnly,
-                      child: Text('Current Event Only'),
-                    ),
-                  ],
-              onSelected: (TeamFilter newFilter) {
-                ref.read(teamFilterProvider.notifier).setFilter(newFilter);
+                  (context) =>
+                      TeamSort.values
+                          .map(
+                            (sort) => CheckedPopupMenuItem<TeamSort>(
+                              value: sort,
+                              checked: selectedSort == sort,
+                              child: Text(sort.label),
+                            ),
+                          )
+                          .toList(),
+              onSelected: (TeamSort newSort) {
+                ref.read(teamSortProvider.notifier).setSort(newSort);
               },
             ),
           ],
@@ -78,7 +82,6 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(child: Text('Error: $error')),
         data: (teams) {
-          // convert raw maps into Team objects
           final teamList =
               teams
                   .whereType<Map<String, dynamic>>()
@@ -86,7 +89,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                   .toList();
 
           final searchTerm = _searchTermTEC.text.trim().toLowerCase();
-          final filteredTeams =
+          var filteredTeams =
               searchTerm.isEmpty
                   ? teamList
                   : teamList.where((team) {
@@ -97,6 +100,28 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
                         teamNumber.contains(searchTerm) ||
                         teamKey.contains(searchTerm);
                   }).toList();
+
+          // Apply sort
+          filteredTeams = List.of(filteredTeams);
+          switch (selectedSort) {
+            case TeamSort.teamNumberAsc:
+              filteredTeams.sort((a, b) => a.number.compareTo(b.number));
+            case TeamSort.teamNumberDesc:
+              filteredTeams.sort((a, b) => b.number.compareTo(a.number));
+            case TeamSort.rankAsc:
+              filteredTeams.sort((a, b) {
+                // Teams without a rank go to the end
+                final rankA = rankings[a.number]?.rank ?? 999999;
+                final rankB = rankings[b.number]?.rank ?? 999999;
+                return rankA.compareTo(rankB);
+              });
+            case TeamSort.rankDesc:
+              filteredTeams.sort((a, b) {
+                final rankA = rankings[a.number]?.rank ?? 0;
+                final rankB = rankings[b.number]?.rank ?? 0;
+                return rankB.compareTo(rankA);
+              });
+          }
 
           if (filteredTeams.isEmpty) {
             return const Center(child: Text('No teams found'));
@@ -113,5 +138,3 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
     );
   }
 }
-
-enum Filter { allEvents, currentEventsOnly }

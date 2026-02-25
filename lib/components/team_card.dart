@@ -6,11 +6,14 @@ import 'package:beariscope/pages/team_lookup/tabs/matches_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/capabilities_tab.dart';
 import 'package:beariscope/pages/team_lookup/tabs/notes_tab.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
+import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TeamCard extends ConsumerWidget {
   final String teamKey;
@@ -98,6 +101,12 @@ class _TeamCardSummary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bundleAsync = ref.watch(teamScoutingProvider(team.number));
+    final rankingsAsync = ref.watch(eventRankingsProvider);
+    final rankings = switch (rankingsAsync) {
+      AsyncData(:final value) => value,
+      _ => const <int, TeamRanking>{},
+    };
+    final ranking = rankings[team.number];
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -140,10 +149,23 @@ class _TeamCardSummary extends ConsumerWidget {
               ),
             ],
           ),
-          bundleAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (bundle) => _SummaryMetrics(bundle: bundle),
+          const Spacer(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: bundleAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
+                  data: (bundle) => _SummaryMetrics(bundle: bundle),
+                ),
+              ),
+              if (ranking != null)
+                _RankBadge(
+                  rank: ranking.rank,
+                  rankingPoints: ranking.rankingPoints,
+                ),
+            ],
           ),
         ],
       ),
@@ -270,6 +292,37 @@ class _SummaryMetrics extends StatelessWidget {
   }
 }
 
+class _RankBadge extends StatelessWidget {
+  final int rank;
+  final int rankingPoints;
+
+  const _RankBadge({required this.rank, required this.rankingPoints});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '#$rank',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: scheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '$rankingPoints RP',
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
 class TeamDetailsPage extends ConsumerWidget {
   final String teamName;
   final int teamNumber;
@@ -291,6 +344,50 @@ class TeamDetailsPage extends ConsumerWidget {
             icon: const Icon(Symbols.close),
             onPressed: () => Navigator.pop(context),
           ),
+          actions: [
+            PopupMenuButton<_TeamAction>(
+              icon: const Icon(Icons.more_vert),
+              tooltip: 'More options',
+              onSelected: (action) => _handleAction(context, action),
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(
+                      value: _TeamAction.openTba,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in TBA'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openStatbotics,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in Statbotics'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _TeamAction.openFrcEvents,
+                      child: ListTile(
+                        leading: const Icon(Symbols.open_in_new_rounded),
+                        title: const Text('Open in FRC Events'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: _TeamAction.copyNumber,
+                      child: ListTile(
+                        leading: const Icon(Symbols.content_copy_rounded),
+                        title: const Text('Copy team number'),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+            ),
+            const SizedBox(width: 8),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Averages'),
@@ -311,4 +408,38 @@ class TeamDetailsPage extends ConsumerWidget {
       ),
     );
   }
+
+  void _handleAction(BuildContext context, _TeamAction action) {
+    switch (action) {
+      case _TeamAction.openTba:
+        launchUrl(
+          Uri.parse(
+            'https://www.thebluealliance.com/team/$teamNumber',
+          ),
+          mode: LaunchMode.externalApplication,
+        );
+      case _TeamAction.openStatbotics:
+        launchUrl(
+          Uri.parse('https://www.statbotics.io/team/$teamNumber'),
+          mode: LaunchMode.externalApplication,
+        );
+      case _TeamAction.openFrcEvents:
+        launchUrl(
+          Uri.parse(
+            'https://frc-events.firstinspires.org/team/$teamNumber',
+          ),
+          mode: LaunchMode.externalApplication,
+        );
+      case _TeamAction.copyNumber:
+        Clipboard.setData(ClipboardData(text: teamNumber.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Team number $teamNumber copied'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+    }
+  }
 }
+
+enum _TeamAction { openTba, openStatbotics, openFrcEvents, copyNumber }
