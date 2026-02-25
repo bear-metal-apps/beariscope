@@ -32,7 +32,7 @@ class _PostSignInOnboardingPageState
       context.go('/up_next');
     }
   }
-  
+
   List<_OnboardingStep> _requiredSteps(UserInfo userInfo) {
     final email = userInfo.email?.trim();
     final normalizedName = userInfo.name?.trim().toLowerCase();
@@ -85,7 +85,7 @@ class _PostSignInOnboardingPageState
     if (parts.length < 2) {
       return 'Please include both first and last name.';
     }
-    
+
     if (trimmedName.toLowerCase() == email) {
       return 'Name cannot be the same as your email.';
     }
