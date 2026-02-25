@@ -94,7 +94,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
-    final teamsAsync = ref.watch(currentEventTeamsProvider);
+    final teamsAsync = ref.watch(teamsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -158,7 +158,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
         error:
             (err, stack) => Center(
               child: FilledButton(
-                onPressed: () => ref.invalidate(currentEventTeamsProvider),
+                onPressed: () => ref.invalidate(teamsProvider),
                 child: const Text('Retry'),
               ),
             ),
