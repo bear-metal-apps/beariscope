@@ -32,25 +32,16 @@ class _PostSignInOnboardingPageState
       context.go('/up_next');
     }
   }
-
-  String _localPart(String email) {
-    final atIndex = email.indexOf('@');
-    if (atIndex <= 0) {
-      return email;
-    }
-    return email.substring(0, atIndex);
-  }
-
+  
   List<_OnboardingStep> _requiredSteps(UserInfo userInfo) {
     final email = userInfo.email?.trim();
-    final localPart = email == null || email.isEmpty ? null : _localPart(email);
     final normalizedName = userInfo.name?.trim().toLowerCase();
-    final normalizedLocalPart = localPart?.toLowerCase();
+    final normalizedEmail = email?.toLowerCase();
 
     final needsRealName =
         normalizedName == null ||
         normalizedName.isEmpty ||
-        (normalizedLocalPart != null && normalizedName == normalizedLocalPart);
+        (normalizedEmail != null && normalizedName == normalizedEmail);
 
     final needsEmailVerification = userInfo.emailVerified != true;
 
@@ -94,11 +85,9 @@ class _PostSignInOnboardingPageState
     if (parts.length < 2) {
       return 'Please include both first and last name.';
     }
-
-    final localPart =
-        email == null || email.isEmpty ? '' : _localPart(email).toLowerCase();
-    if (trimmedName.toLowerCase() == localPart) {
-      return 'Name cannot be the same as your email username.';
+    
+    if (trimmedName.toLowerCase() == email) {
+      return 'Name cannot be the same as your email.';
     }
 
     final hasProperCapitalization = parts.asMap().entries.every(
