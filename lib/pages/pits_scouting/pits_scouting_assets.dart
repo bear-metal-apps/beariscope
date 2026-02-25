@@ -315,7 +315,12 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
-                  options: ['Pivot', 'Telescoping', 'Elevator/Monkey Bar', 'Buzzer Beater'],
+                  options: [
+                    'Pivot',
+                    'Telescoping',
+                    'Elevator/Monkey Bar',
+                    'Buzzer Beater',
+                  ],
                   label: 'Climb Type',
                   variable: _climbType,
                   onSelectionChanged: (value) => _climbType = value,
@@ -397,7 +402,13 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
-                  options: ['Turret', 'Adjustable Hood', 'Drum', 'Stationary' 'Other'],
+                  options: [
+                    'Turret',
+                    'Adjustable Hood',
+                    'Drum',
+                    'Stationary'
+                        'Other',
+                  ],
                   initialValue: '',
                   label: 'Shooter',
                   variable: _shooter,
@@ -501,9 +512,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                   controller: _notesTEC,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  decoration: InputDecoration(
-                    labelText: 'Additional Comments',
-                  ),
+                  decoration: InputDecoration(labelText: 'Additional Comments'),
                 ),
               ),
               Padding(
