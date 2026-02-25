@@ -1,10 +1,10 @@
 import 'package:beariscope/pages/main_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:libkoala/providers/permissions_provider.dart';
 import 'package:libkoala/ui/widgets/text_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 
 class PicklistsPage extends ConsumerStatefulWidget {
   const PicklistsPage({super.key});
@@ -18,13 +18,53 @@ class PicklistsPage extends ConsumerStatefulWidget {
 class PicklistsPageState extends ConsumerState<PicklistsPage> {
   final TextEditingController joinCodeTEC = TextEditingController();
 
+  Future<void> _joinPicklist() async {
+    final joinCode = joinCodeTEC.text.trim();
+    if (joinCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a join code')),
+      );
+      return;
+    }
+
+    try {
+      final box = await Hive.openBox('picklists');
+      Map<String, dynamic>? foundPicklist;
+
+      // Search for picklist by password
+      for (final value in box.values) {
+        final picklistMap = Map<String, dynamic>.from(value as Map);
+        if (picklistMap['password'] == joinCode) {
+          foundPicklist = picklistMap;
+          break;
+        }
+      }
+      
+      await box.close();
+
+      if (foundPicklist != null) {
+        if (mounted) {
+          context.push('/picklists/view', extra: foundPicklist);
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Picklist not found')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = MainViewController.of(context);
-    final permissionChecker = ref.watch(permissionCheckerProvider);
-    final canCreatePicklists =
-        permissionChecker?.hasPermission(PermissionKey.picklistsManage) ??
-        false;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Picklists'),
@@ -48,18 +88,21 @@ class PicklistsPageState extends ConsumerState<PicklistsPage> {
                   labelText: 'Enter join code',
                 ),
                 controller: joinCodeTEC,
+                obscureText: true,
               ),
             ),
             SizedBox(height: 12),
-            FilledButton(onPressed: () {}, child: Text('Join')),
+            FilledButton(
+              onPressed: _joinPicklist,
+              child: const Text('Join'),
+            ),
             SizedBox(height: 20),
             TextDivider(maxWidth: 150),
             SizedBox(height: 20),
-            if (canCreatePicklists)
-              FilledButton(
-                onPressed: () => context.push('/picklists/create'),
-                child: Text('Create'),
-              ),
+            FilledButton(
+              onPressed: () => context.push('/picklists/create'),
+              child: const Text('Create'),
+            ),
             SizedBox(height: 62),
           ],
         ),

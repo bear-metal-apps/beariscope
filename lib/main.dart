@@ -6,6 +6,7 @@ import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
+import 'package:beariscope/pages/picklists/picklists_teams.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
 import 'package:beariscope/pages/up_next/up_next_page.dart';
 import 'package:beariscope/pages/main_view.dart';
@@ -119,6 +120,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create',
                 builder: (_, _) => const PicklistsCreatePage(),
               ),
+              GoRoute(
+                path: 'view',
+                builder: (_, state) {
+                  final picklist = state.extra as Map<String, dynamic>?;
+                  return PicklistsTeamsPage(picklist: picklist);
+                },
+              ),
               GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
               GoRoute(
                 path: 'about',
@@ -224,11 +232,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
-        final isPicklistCreateRoute = location == '/picklists/create';
         final needsPermissions =
             isRoleManagementRoute ||
-            isScoutManagementRoute ||
-            isPicklistCreateRoute;
+            isScoutManagementRoute;
 
         if (needsPermissions) {
           final authMe = ref.watch(authMeProvider);
@@ -257,14 +263,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               return '/settings';
             }
           }
-
-          if (isPicklistCreateRoute) {
-            final canManagePicklists =
-                checker?.hasPermission(PermissionKey.picklistsManage) ?? false;
-            if (!canManagePicklists) {
-              return '/picklists';
-            }
-          }
         }
 
         if (location == '/welcome' ||
@@ -272,6 +270,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             location == '/post_sign_in_onboarding') {
           return '/up_next';
         }
+
+        return null;
       }
 
       return null;
