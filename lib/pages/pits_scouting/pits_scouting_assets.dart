@@ -372,7 +372,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                       (value) => _fuelCollectionLocation = value,
                 ),
               ),
-              // Pathing Here, will replace Pathway Preference
+              // Pathing Here, will replace Pathway Preference and Trench Capability
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
