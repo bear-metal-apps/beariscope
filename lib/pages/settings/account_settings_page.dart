@@ -28,7 +28,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   bool _emailTouched = false;
   String? _originalName;
   String? _originalEmail;
-  
+
   bool _isProperlyCapitalizedNamePart(
     String part, {
     required bool isFirstPart,
