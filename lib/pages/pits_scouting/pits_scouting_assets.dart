@@ -88,10 +88,10 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
   late double _climbConsistency;
   late String _autoClimb;
   late Set<String> _fuelCollectionLocation;
-  late Set<String> _playingStyle;
   late String _trenchCapability;
   late String _pathwayPreference;
   late String _shooter;
+  final TextEditingController _shooterNumberTEC = TextEditingController();
   late String _collectorType;
   final TextEditingController _fuelOuttakeRateTEC = TextEditingController();
   late double _accuracy;
@@ -115,7 +115,6 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
     _autoClimb = '';
     _fuelCollectionLocation = <String>{};
     _pathwayPreference = '';
-    _playingStyle = <String>{};
     _trenchCapability = '';
     _shooter = '';
     _collectorType = '';
@@ -307,9 +306,8 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(
+                child: DropdownButtonOneChoice(
                   options: ['Rotation', 'Elevator', 'Arm', 'No Climb', 'Other'],
-                  height: 200,
                   variable: _climbMethod,
                   onChanged: (value) => _climbMethod = value ?? '',
                 ),
@@ -317,7 +315,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
-                  options: ['Buzzer Beater', 'Level 1', 'Level 3', 'Flip'],
+                  options: ['Pivot', 'Telescoping', 'Elevator/Monkey Bar', 'Buzzer Beater'],
                   label: 'Climb Type',
                   variable: _climbType,
                   onSelectionChanged: (value) => _climbType = value,
@@ -369,15 +367,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                       (value) => _fuelCollectionLocation = value,
                 ),
               ),
-
-              // Pathing Here
-              Padding(
-                padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
-                child: Text(
-                  style: TextStyle(fontSize: 25, fontFamily: 'Xolonium'),
-                  'Gameplay',
-                ),
-              ),
+              // Pathing Here, will replace Pathway Preference
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
@@ -389,11 +379,11 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: MultipleChoice(
-                  options: ['Passing', 'Cycling', 'Shooting', 'Defense'],
-                  label: 'Playing Style',
-                  variable: _playingStyle,
-                  onSelectionChanged: (value) => _playingStyle = value,
+                child: RadioButton(
+                  options: ['Trench Capable', 'Trench Incapable'],
+                  height: 96,
+                  variable: _trenchCapability,
+                  onChanged: (value) => _trenchCapability = value ?? '',
                 ),
               ),
 
@@ -406,21 +396,19 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(
-                  options: ['Trench Capable', 'Trench Incapable'],
-                  height: 96,
-                  variable: _trenchCapability,
-                  onChanged: (value) => _trenchCapability = value ?? '',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
-                  options: ['Turret', 'Adjustable Hood', 'Other'],
+                  options: ['Turret', 'Adjustable Hood', 'Drum', 'Stationary' 'Other'],
                   initialValue: '',
                   label: 'Shooter',
                   variable: _shooter,
                   onChanged: (value) => _shooter = value ?? '',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: NumberTextField(
+                  labelText: 'Number of Shooters',
+                  controller: _shooterNumberTEC,
                 ),
               ),
               Padding(
@@ -514,7 +502,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
                   decoration: InputDecoration(
-                    labelText: 'Additional Comments / Weaknesses',
+                    labelText: 'Additional Comments',
                   ),
                 ),
               ),
@@ -532,6 +520,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                       },
                       "teamName": widget.teamName,
                       "teamNumber": widget.teamNumber,
+
                       "hopperSize": int.tryParse(_hopperSizeTEC.text),
                       "motorType": _motorType,
                       "drivetrainType": _drivetrainType,
@@ -548,17 +537,20 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                         _verticalExtensionTEC.text,
                       ),
                       "weight": double.tryParse(_botWeightTEC.text),
+
                       "climbMethod": _climbMethod,
                       "climbType": _climbType.toList(),
                       "climbLevel": _climbLevel.toList(),
                       "climbConsistency": _climbConsistency,
+
                       "autoClimb": _autoClimb,
                       "fuelCollectionLocation":
                           _fuelCollectionLocation.toList(),
                       "pathwayPreference": _pathwayPreference,
-                      "playingStyle": _playingStyle.toList(),
                       "trenchCapability": _trenchCapability,
+
                       "shooter": _shooter,
+                      "shooterNumber": int.tryParse(_shooterNumberTEC.text),
                       "collectorType": _collectorType,
                       "fuelOuttakeRate": double.tryParse(
                         _fuelOuttakeRateTEC.text,
@@ -566,8 +558,10 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                       "averageAccuracy": _accuracy,
                       "moveWhileShooting": _mobileShooting.toList(),
                       "rangeFromField": _rangeFromField.toList(),
+
                       "indexerType": _indexerType,
                       "powered": _powered,
+
                       "notes": _notesTEC.text,
                     };
                     ref
