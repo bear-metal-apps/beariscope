@@ -10,7 +10,7 @@ const kAutoFuelScored = 'fuel_scored';
 /// Number of fuel balls passed to a partner during auto.
 const kAutoFuelPassed = 'fuel_passed';
 
-/// Shooting accuracy percentage (0–100) in auto.
+/// Shooting accuracy percentage (0–10) in auto.
 const kAutoFuelAccuracy = 'fuel_accuracy';
 
 /// Whether the robot triggered an A-Stop during auto.
