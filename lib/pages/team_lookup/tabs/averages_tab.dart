@@ -23,14 +23,44 @@ class AveragesTab extends ConsumerWidget {
   }
 }
 
-class _AveragesBody extends StatelessWidget {
+class _AveragesBody extends StatefulWidget {
   final TeamScoutingBundle bundle;
 
   const _AveragesBody({required this.bundle});
 
   @override
+  State<_AveragesBody> createState() => _AveragesBodyState();
+}
+
+class _AveragesBodyState extends State<_AveragesBody> {
+  // null for all matches, otherwise n matches
+  int? _lastN;
+
+  static const _presets = [null, 1, 2, 3, 5];
+
+  TeamScoutingBundle get _filteredBundle {
+    if (_lastN == null) return widget.bundle;
+    final sorted = [...widget.bundle.matchDocs]
+      ..sort((a, b) {
+        final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
+        final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+        return mb.compareTo(ma);
+      });
+    final limited = sorted.take(_lastN!).toList();
+    return TeamScoutingBundle(
+      matchDocs: limited,
+      pitsDoc: widget.bundle.pitsDoc,
+      stratDoc: widget.bundle.stratDoc,
+    );
+  }
+
+  String _label(int? n) => n == null ? 'All' : 'Last $n';
+
+  @override
   Widget build(BuildContext context) {
-    if (!bundle.hasMatchData) {
+    final bundle = _filteredBundle;
+
+    if (!widget.bundle.hasMatchData) {
       return const Center(child: Text('No match data recorded for this team.'));
     }
 
@@ -88,6 +118,22 @@ class _AveragesBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: _presets.map((preset) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(_label(preset)),
+                  selected: _lastN == preset,
+                  onSelected: (_) => setState(() => _lastN = preset),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 12),
         const ScoutingSectionHeader(
           title: 'Scoring',
           icon: Symbols.local_fire_department_rounded,
@@ -114,7 +160,7 @@ class _AveragesBody extends StatelessWidget {
                 ),
                 ScoutingDataRow(
                   label: 'Auto Accuracy',
-                  value: _fmtPct(avgAutoAccuracy),
+                  value: _fmt10Pct(avgAutoAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Auto L1 Climb Rate',
@@ -127,7 +173,7 @@ class _AveragesBody extends StatelessWidget {
                 ),
                 ScoutingDataRow(
                   label: 'Tele Accuracy',
-                  value: _fmtPct(avgTeleAccuracy),
+                  value: _fmt10Pct(avgTeleAccuracy),
                 ),
                 ScoutingDataRow(
                   label: 'Avg Fuel Passed (Auto)',
@@ -200,7 +246,9 @@ class _AveragesBody extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Based on $n match${n == 1 ? '' : 'es'}',
+          _lastN == null
+              ? 'Based on $n match${n == 1 ? '' : 'es'}'
+              : 'Last $n of ${widget.bundle.matchDocs.length} match${widget.bundle.matchDocs.length == 1 ? '' : 'es'}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -212,4 +260,5 @@ class _AveragesBody extends StatelessWidget {
 
   static String _fmtDec(double v) => v.toStringAsFixed(1);
   static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
+  static String _fmt10Pct(double v) => '${(v * 10).toStringAsFixed(1)}%';
 }
