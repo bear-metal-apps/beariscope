@@ -196,9 +196,8 @@ class _MatchDetailSection extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       color: Theme.of(context).colorScheme.surfaceContainer,
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [header, ...rows],
-        
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [header, ...rows],
       ),
     );
   }

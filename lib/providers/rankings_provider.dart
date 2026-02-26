@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 
-/// Ranking data for a single team at the current event.
 class TeamRanking {
   final int teamNumber;
   final int rank;
@@ -15,11 +14,9 @@ class TeamRanking {
   });
 }
 
-/// Fetches rankings for the current event and returns them as a map of
-/// team number → [TeamRanking].  Returns an empty map when no rankings are
-/// available (event hasn't started or TBA hasn't posted them yet).
-final eventRankingsProvider =
-    FutureProvider<Map<int, TeamRanking>>((ref) async {
+final eventRankingsProvider = FutureProvider<Map<int, TeamRanking>>((
+  ref,
+) async {
   final eventKey = ref.watch(currentEventProvider);
   final client = ref.watch(honeycombClientProvider);
 
@@ -27,7 +24,7 @@ final eventRankingsProvider =
     final data = await client.get<List<dynamic>>(
       '/rankings',
       queryParams: {'event': eventKey},
-      forceRefresh: true
+      cachePolicy: CachePolicy.networkFirst,
     );
 
     final result = <int, TeamRanking>{};

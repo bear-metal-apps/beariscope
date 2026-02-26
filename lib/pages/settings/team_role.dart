@@ -17,6 +17,8 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
   late final TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<ManagedRole>? _optimisticRoles;
+  List<ManagedUser>? _optimisticUsers;
 
   @override
   void initState() {
@@ -88,9 +90,38 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
     return true;
   }
 
+  Future<void> _refreshRbacData() async {
+    final client = ref.read(honeycombClientProvider);
+    client.invalidateCache('/rbac/roles');
+    client.invalidateCache('/rbac/users');
+    client.invalidateCache('/rbac/metadata');
+
+    ref.invalidate(rbacRolesProvider);
+    ref.invalidate(rbacUsersProvider);
+    ref.invalidate(rbacMetadataProvider);
+
+    try {
+      await Future.wait([
+        ref.read(rbacRolesProvider.future),
+        ref.read(rbacUsersProvider.future),
+        ref.read(rbacMetadataProvider.future),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _optimisticRoles = null;
+          _optimisticUsers = null;
+        });
+      }
+    } catch (_) {
+      // Keep current optimistic/cached state visible if refresh fails.
+    }
+  }
+
   Future<void> _showRoleDialog({
     ManagedRole? role,
     required List<RbacPermissionMetadata> permissions,
+    required List<ManagedRole> currentRoles,
     bool duplicate = false,
   }) async {
     final isEdit = role != null && !duplicate;
@@ -142,6 +173,31 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                 final navigator = Navigator.of(context);
 
                 final permissionList = selectedPermissions.toList()..sort();
+                final previousRoles = List<ManagedRole>.from(
+                  _optimisticRoles ?? currentRoles,
+                );
+
+                final nextRole = ManagedRole(
+                  id: currentId,
+                  name: currentName,
+                  description:
+                      currentDescription.isEmpty ? null : currentDescription,
+                  permissions: permissionList,
+                );
+
+                final nextRoles =
+                    isEdit
+                        ? previousRoles
+                            .map(
+                              (entry) =>
+                                  entry.id == currentId ? nextRole : entry,
+                            )
+                            .toList()
+                        : <ManagedRole>[...previousRoles, nextRole];
+
+                setState(() {
+                  _optimisticRoles = nextRoles;
+                });
 
                 try {
                   final service = ref.read(rbacManagementServiceProvider);
@@ -166,10 +222,13 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   }
 
                   if (!mounted) return;
-                  ref.invalidate(rbacRolesProvider);
+                  await _refreshRbacData();
                   navigator.pop();
                 } catch (error) {
                   if (!mounted) return;
+                  setState(() {
+                    _optimisticRoles = previousRoles;
+                  });
                   messenger.showSnackBar(
                     SnackBar(content: Text('Failed to save role: $error')),
                   );
@@ -321,12 +380,31 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
 
     if (confirmed != true) return;
 
+    final previousRoles = List<ManagedRole>.from(
+      _optimisticRoles ??
+          ref.read(rbacRolesProvider).asData?.value ??
+          const <ManagedRole>[],
+    );
+    final previousUsers = List<ManagedUser>.from(
+      _optimisticUsers ??
+          ref.read(rbacUsersProvider).asData?.value ??
+          const <ManagedUser>[],
+    );
+
     try {
+      setState(() {
+        _optimisticRoles =
+            previousRoles.where((entry) => entry.id != role.id).toList();
+      });
+
       await ref.read(rbacManagementServiceProvider).deleteRole(role.id);
-      ref.invalidate(rbacRolesProvider);
-      ref.invalidate(rbacUsersProvider);
+      await _refreshRbacData();
     } catch (error) {
       if (!mounted) return;
+      setState(() {
+        _optimisticRoles = previousRoles;
+        _optimisticUsers = previousUsers;
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to delete role: $error')));
@@ -336,6 +414,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
   Future<void> _showUserDialog({
     required ManagedUser user,
     required List<ManagedRole> roles,
+    required List<ManagedUser> currentUsers,
   }) async {
     final initialName = user.name ?? '';
     final initialRoles = <String>{...user.roles};
@@ -360,6 +439,23 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
               final messenger = ScaffoldMessenger.of(context);
               final navigator = Navigator.of(context);
 
+              final previousUsers = List<ManagedUser>.from(
+                _optimisticUsers ?? currentUsers,
+              );
+              final nextUser = ManagedUser(
+                id: user.id,
+                name: currentName.isEmpty ? null : currentName,
+                avatarUrl: user.avatarUrl,
+                roles: selectedRoles.toList()..sort(),
+              );
+
+              setState(() {
+                _optimisticUsers =
+                    previousUsers
+                        .map((entry) => entry.id == user.id ? nextUser : entry)
+                        .toList();
+              });
+
               try {
                 await ref
                     .read(rbacManagementServiceProvider)
@@ -369,10 +465,13 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                       roles: selectedRoles.toList()..sort(),
                     );
                 if (!mounted) return;
-                ref.invalidate(rbacUsersProvider);
+                await _refreshRbacData();
                 navigator.pop();
               } catch (error) {
                 if (!mounted) return;
+                setState(() {
+                  _optimisticUsers = previousUsers;
+                });
                 messenger.showSnackBar(
                   SnackBar(content: Text('Failed to update user: $error')),
                 );
@@ -523,14 +622,17 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     (error, _) =>
                         Center(child: Text('Failed to load users: $error')),
                 data: (users) {
+                  final effectiveUsers = _optimisticUsers ?? users;
+                  final effectiveRolesForUsers =
+                      _optimisticRoles ??
+                      rolesAsync.asData?.value ??
+                      const <ManagedRole>[];
                   final roleMap = {
-                    for (final role
-                        in rolesAsync.asData?.value ?? const <ManagedRole>[])
-                      role.id: role,
+                    for (final role in effectiveRolesForUsers) role.id: role,
                   };
 
                   final filteredUsers =
-                      users.where((user) {
+                      effectiveUsers.where((user) {
                         if (searchQuery.isEmpty) return true;
                         final roleNames = user.roles
                             .map((roleId) => roleMap[roleId]?.name ?? '')
@@ -541,94 +643,107 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                       }).toList();
 
                   if (filteredUsers.isEmpty) {
-                    return _emptyState(text: 'No users found');
+                    return RefreshIndicator(
+                      onRefresh: _refreshRbacData,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: 320,
+                            child: _emptyState(text: 'No users found'),
+                          ),
+                        ],
+                      ),
+                    );
                   }
 
-                  return BeariscopeCardList(
-                    children:
-                        filteredUsers
-                            .map(
-                              (user) => Card(
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainer,
-                                margin: EdgeInsets.zero,
-                                clipBehavior: Clip.antiAlias,
-                                elevation: 0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 18,
-                                            backgroundImage:
-                                                (user.avatarUrl ?? '')
-                                                        .isNotEmpty
-                                                    ? NetworkImage(
-                                                      user.avatarUrl!,
-                                                    )
-                                                    : null,
-                                            child:
-                                                (user.avatarUrl ?? '').isEmpty
-                                                    ? const Icon(
-                                                      Symbols.person_rounded,
-                                                    )
-                                                    : null,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              user.name?.isNotEmpty == true
-                                                  ? user.name!
-                                                  : 'Unknown User',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                  return RefreshIndicator(
+                    onRefresh: _refreshRbacData,
+                    child: BeariscopeCardList(
+                      children:
+                          filteredUsers
+                              .map(
+                                (user) => Card(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainer,
+                                  margin: EdgeInsets.zero,
+                                  clipBehavior: Clip.antiAlias,
+                                  elevation: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 18,
+                                              backgroundImage:
+                                                  (user.avatarUrl ?? '')
+                                                          .isNotEmpty
+                                                      ? NetworkImage(
+                                                        user.avatarUrl!,
+                                                      )
+                                                      : null,
+                                              child:
+                                                  (user.avatarUrl ?? '').isEmpty
+                                                      ? const Icon(
+                                                        Symbols.person_rounded,
+                                                      )
+                                                      : null,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                user.name?.isNotEmpty == true
+                                                    ? user.name!
+                                                    : 'Unknown User',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          IconButton(
-                                            onPressed:
-                                                () => _showUserDialog(
-                                                  user: user,
-                                                  roles:
-                                                      rolesAsync
-                                                          .asData
-                                                          ?.value ??
-                                                      const [],
-                                                ),
-                                            icon: Icon(Symbols.edit_rounded),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      if (user.roles.isEmpty)
-                                        const Text('No roles assigned')
-                                      else
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children:
-                                              user.roles.map((roleId) {
-                                                final roleName =
-                                                    roleMap[roleId]?.name ??
-                                                    'Unknown Role';
-                                                return Chip(
-                                                  label: Text(roleName),
-                                                );
-                                              }).toList(),
+                                            IconButton(
+                                              onPressed:
+                                                  () => _showUserDialog(
+                                                    user: user,
+                                                    roles:
+                                                        effectiveRolesForUsers,
+                                                    currentUsers:
+                                                        effectiveUsers,
+                                                  ),
+                                              icon: Icon(Symbols.edit_rounded),
+                                            ),
+                                          ],
                                         ),
-                                    ],
+                                        const SizedBox(height: 8),
+                                        if (user.roles.isEmpty)
+                                          const Text('No roles assigned')
+                                        else
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children:
+                                                user.roles.map((roleId) {
+                                                  final roleName =
+                                                      roleMap[roleId]?.name ??
+                                                      'Unknown Role';
+                                                  return Chip(
+                                                    label: Text(roleName),
+                                                  );
+                                                }).toList(),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
+                              )
+                              .toList(),
+                    ),
                   );
                 },
               ),
@@ -638,8 +753,11 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                     (error, _) =>
                         Center(child: Text('Failed to load roles: $error')),
                 data: (roles) {
+                  final effectiveRoles = _optimisticRoles ?? roles;
                   final users =
-                      usersAsync.asData?.value ?? const <ManagedUser>[];
+                      _optimisticUsers ??
+                      usersAsync.asData?.value ??
+                      const <ManagedUser>[];
                   final roleUserCounts = <String, int>{};
                   for (final user in users) {
                     for (final roleId in user.roles) {
@@ -652,7 +770,7 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                   }
 
                   final filteredRoles =
-                      roles.where((role) {
+                      effectiveRoles.where((role) {
                         if (searchQuery.isEmpty) return true;
                         final roleText =
                             '${role.name} ${role.description ?? ''} ${role.permissions.join(' ')}'
@@ -661,151 +779,174 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
                       }).toList();
 
                   if (filteredRoles.isEmpty) {
-                    return _emptyState(text: 'No roles defined');
+                    return RefreshIndicator(
+                      onRefresh: _refreshRbacData,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: 320,
+                            child: _emptyState(text: 'No roles defined'),
+                          ),
+                        ],
+                      ),
+                    );
                   }
 
-                  return BeariscopeCardList(
-                    children:
-                        filteredRoles
-                            .map(
-                              (role) => Card(
-                                color:
-                                    Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainer,
-                                margin: EdgeInsets.zero,
-                                clipBehavior: Clip.antiAlias,
-                                elevation: 0,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              role.name,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                  return RefreshIndicator(
+                    onRefresh: _refreshRbacData,
+                    child: BeariscopeCardList(
+                      children:
+                          filteredRoles
+                              .map(
+                                (role) => Card(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainer,
+                                  margin: EdgeInsets.zero,
+                                  clipBehavior: Clip.antiAlias,
+                                  elevation: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                role.name,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          PopupMenuButton<String>(
-                                            onSelected: (action) {
-                                              final assignedUsers =
-                                                  roleUserCounts[role.id] ?? 0;
-                                              if (action == 'edit') {
-                                                _showRoleDialog(
-                                                  role: role,
-                                                  permissions:
-                                                      metadata.permissions,
-                                                );
-                                              } else if (action ==
-                                                  'duplicate') {
-                                                _showRoleDialog(
-                                                  role: role,
-                                                  permissions:
-                                                      metadata.permissions,
-                                                  duplicate: true,
-                                                );
-                                              } else if (action == 'delete') {
-                                                _deleteRole(
-                                                  role,
-                                                  assignedUsers,
-                                                );
-                                              }
-                                            },
-                                            itemBuilder: (context) {
-                                              final assignedUsers =
-                                                  roleUserCounts[role.id] ?? 0;
-                                              return [
-                                                const PopupMenuItem(
-                                                  value: 'edit',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Symbols.edit_rounded,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Text('Edit'),
-                                                    ],
+                                            PopupMenuButton<String>(
+                                              onSelected: (action) {
+                                                final assignedUsers =
+                                                    roleUserCounts[role.id] ??
+                                                    0;
+                                                if (action == 'edit') {
+                                                  _showRoleDialog(
+                                                    role: role,
+                                                    permissions:
+                                                        metadata.permissions,
+                                                    currentRoles:
+                                                        effectiveRoles,
+                                                  );
+                                                } else if (action ==
+                                                    'duplicate') {
+                                                  _showRoleDialog(
+                                                    role: role,
+                                                    permissions:
+                                                        metadata.permissions,
+                                                    currentRoles:
+                                                        effectiveRoles,
+                                                    duplicate: true,
+                                                  );
+                                                } else if (action == 'delete') {
+                                                  _deleteRole(
+                                                    role,
+                                                    assignedUsers,
+                                                  );
+                                                }
+                                              },
+                                              itemBuilder: (context) {
+                                                final assignedUsers =
+                                                    roleUserCounts[role.id] ??
+                                                    0;
+                                                return [
+                                                  const PopupMenuItem(
+                                                    value: 'edit',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Symbols.edit_rounded,
+                                                        ),
+                                                        SizedBox(width: 8),
+                                                        Text('Edit'),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                                const PopupMenuItem(
-                                                  value: 'duplicate',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Symbols
-                                                            .content_copy_rounded,
-                                                      ),
-                                                      SizedBox(width: 8),
-                                                      Text('Duplicate'),
-                                                    ],
+                                                  const PopupMenuItem(
+                                                    value: 'duplicate',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Symbols
+                                                              .content_copy_rounded,
+                                                        ),
+                                                        SizedBox(width: 8),
+                                                        Text('Duplicate'),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 'delete',
-                                                  enabled: assignedUsers == 0,
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Symbols.delete_rounded,
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Text(
-                                                        assignedUsers == 0
-                                                            ? 'Delete'
-                                                            : 'Delete (assigned to $assignedUsers users)',
-                                                      ),
-                                                    ],
+                                                  PopupMenuItem(
+                                                    value: 'delete',
+                                                    enabled: assignedUsers == 0,
+                                                    child: Row(
+                                                      children: [
+                                                        const Icon(
+                                                          Symbols
+                                                              .delete_rounded,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          assignedUsers == 0
+                                                              ? 'Delete'
+                                                              : 'Delete (assigned to $assignedUsers users)',
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ];
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      if ((role.description ?? '').isNotEmpty)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 4,
-                                          ),
-                                          child: Text(role.description!),
+                                                ];
+                                              },
+                                            ),
+                                          ],
                                         ),
-                                      const SizedBox(height: 10),
-                                      Wrap(
-                                        spacing: 8,
-                                        runSpacing: 8,
-                                        children:
-                                            role.permissions.map((
-                                              permissionKey,
-                                            ) {
-                                              final metadataEntry =
-                                                  permissionMap[permissionKey];
-                                              return Tooltip(
-                                                message:
-                                                    metadataEntry
-                                                        ?.description ??
-                                                    '',
-                                                child: Chip(
-                                                  label: Text(
-                                                    metadataEntry?.name ??
-                                                        'Unknown Permission',
+                                        if ((role.description ?? '').isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 4,
+                                            ),
+                                            child: Text(role.description!),
+                                          ),
+                                        const SizedBox(height: 10),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children:
+                                              role.permissions.map((
+                                                permissionKey,
+                                              ) {
+                                                final metadataEntry =
+                                                    permissionMap[permissionKey];
+                                                return Tooltip(
+                                                  message:
+                                                      metadataEntry
+                                                          ?.description ??
+                                                      '',
+                                                  child: Chip(
+                                                    label: Text(
+                                                      metadataEntry?.name ??
+                                                          'Unknown Permission',
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                      ),
-                                    ],
+                                                );
+                                              }).toList(),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
+                              )
+                              .toList(),
+                    ),
                   );
                 },
               ),
@@ -823,7 +964,13 @@ class _TeamRolesPageState extends ConsumerState<TeamRolesPage>
 
           return FloatingActionButton.extended(
             onPressed: () {
-              _showRoleDialog(permissions: metadata.permissions);
+              _showRoleDialog(
+                permissions: metadata.permissions,
+                currentRoles:
+                    _optimisticRoles ??
+                    rolesAsync.asData?.value ??
+                    const <ManagedRole>[],
+              );
             },
             icon: Icon(Symbols.add_rounded),
             label: const Text('New Role'),

@@ -2,14 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 
-// ─── Sort option ──────────────────────────────────────────────────────────────
-
-enum TeamSort {
-  teamNumberAsc,
-  teamNumberDesc,
-  rankAsc,
-  rankDesc,
-}
+enum TeamSort { teamNumberAsc, teamNumberDesc, rankAsc, rankDesc }
 
 extension TeamSortLabel on TeamSort {
   String get label => switch (this) {
@@ -31,8 +24,6 @@ final teamSortProvider = NotifierProvider<TeamSortNotifier, TeamSort>(
   () => TeamSortNotifier(),
 );
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 List<Map<String, dynamic>> _toStringKeyMaps(List<dynamic> data) {
   return data
       .whereType<Map>()
@@ -40,9 +31,6 @@ List<Map<String, dynamic>> _toStringKeyMaps(List<dynamic> data) {
       .toList();
 }
 
-// ─── Teams provider (current event only) ─────────────────────────────────────
-
-/// All teams registered at the current event.
 final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final selectedEvent = ref.watch(currentEventProvider);
   final client = ref.watch(honeycombClientProvider);
@@ -50,6 +38,7 @@ final teamsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   final teamData = await client.get<List<dynamic>>(
     '/teams',
     queryParams: {'event': selectedEvent},
+    cachePolicy: CachePolicy.cacheFirst,
   );
 
   return _toStringKeyMaps(teamData);

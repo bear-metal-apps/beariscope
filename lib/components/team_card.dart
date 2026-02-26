@@ -413,9 +413,7 @@ class TeamDetailsPage extends ConsumerWidget {
     switch (action) {
       case _TeamAction.openTba:
         launchUrl(
-          Uri.parse(
-            'https://www.thebluealliance.com/team/$teamNumber',
-          ),
+          Uri.parse('https://www.thebluealliance.com/team/$teamNumber'),
           mode: LaunchMode.externalApplication,
         );
       case _TeamAction.openStatbotics:
@@ -425,9 +423,7 @@ class TeamDetailsPage extends ConsumerWidget {
         );
       case _TeamAction.openFrcEvents:
         launchUrl(
-          Uri.parse(
-            'https://frc-events.firstinspires.org/team/$teamNumber',
-          ),
+          Uri.parse('https://frc-events.firstinspires.org/team/$teamNumber'),
           mode: LaunchMode.externalApplication,
         );
       case _TeamAction.copyNumber:

@@ -10,7 +10,10 @@ final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
 ) {
   return ref
       .watch(honeycombClientProvider)
-      .get<Map<String, dynamic>>('/matches?match=$matchKey');
+      .get<Map<String, dynamic>>(
+        '/matches?match=$matchKey',
+        cachePolicy: CachePolicy.cacheFirst,
+      );
 });
 
 class DriveTeamMatchPreviewPage extends ConsumerStatefulWidget {
