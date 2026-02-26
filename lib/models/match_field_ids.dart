@@ -4,7 +4,6 @@ const kSectionAuto = 'auto';
 const kSectionTele = 'tele';
 const kSectionEndgame = 'endgame';
 
-
 /// Number of fuel balls scored during auto.
 const kAutoFuelScored = 'fuel_scored';
 

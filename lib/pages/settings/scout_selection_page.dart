@@ -26,11 +26,38 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
   final TextEditingController _searchTEC = TextEditingController();
   final TextEditingController _addScoutTEC = TextEditingController();
   final TextEditingController newNameTEC = TextEditingController();
+  List<Map<String, String>>? _optimisticScouts;
   final _scoutsProvider = FutureProvider<List<dynamic>>((ref) {
     return ref
         .watch(honeycombClientProvider)
-        .get<List<dynamic>>('/scouts', forceRefresh: false);
+        .get<List<dynamic>>('/scouts', cachePolicy: CachePolicy.cacheFirst);
   });
+
+  List<Map<String, String>> _normalizeScouts(List<dynamic> data) {
+    final scouts =
+        data.map((item) {
+            return {
+              "name": item["name"] as String,
+              "uuid": item["uuid"] as String,
+            };
+          }).toList()
+          ..sort((a, b) => a["name"]!.compareTo(b["name"]!));
+    return scouts;
+  }
+
+  Future<void> _refreshScouts() async {
+    final client = ref.read(honeycombClientProvider);
+    client.invalidateCache('/scouts');
+    ref.invalidate(_scoutsProvider);
+    try {
+      await ref.read(_scoutsProvider.future);
+      if (mounted) {
+        setState(() => _optimisticScouts = null);
+      }
+    } catch (_) {
+      // Keep existing optimistic/cached state if refresh fails.
+    }
+  }
 
   @override
   void initState() {
@@ -88,15 +115,65 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                               TextButton(
                                 onPressed: () async {
                                   if (newNameTEC.text.isNotEmpty) {
-                                    await ref
-                                        .read(honeycombClientProvider)
-                                        .put(
-                                          '/scouts/$id',
-                                          data: {"name": newNameTEC.text},
+                                    final previous =
+                                        List<Map<String, String>>.from(
+                                          _optimisticScouts ??
+                                              _normalizeScouts(
+                                                ref
+                                                        .read(_scoutsProvider)
+                                                        .asData
+                                                        ?.value ??
+                                                    const [],
+                                              ),
                                         );
-                                    ref.invalidate(_scoutsProvider);
-                                    if (context.mounted) {
-                                      Navigator.of(context).pop();
+
+                                    setState(() {
+                                      _optimisticScouts =
+                                          previous
+                                              .map(
+                                                (entry) =>
+                                                    entry['uuid'] == id
+                                                        ? {
+                                                          'name':
+                                                              newNameTEC.text,
+                                                          'uuid': id,
+                                                        }
+                                                        : entry,
+                                              )
+                                              .toList()
+                                            ..sort(
+                                              (a, b) => a['name']!.compareTo(
+                                                b['name']!,
+                                              ),
+                                            );
+                                    });
+
+                                    try {
+                                      await ref
+                                          .read(honeycombClientProvider)
+                                          .put(
+                                            '/scouts/$id',
+                                            data: {"name": newNameTEC.text},
+                                          );
+                                      await _refreshScouts();
+                                      if (mounted) {
+                                        Navigator.of(this.context).pop();
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        setState(
+                                          () => _optimisticScouts = previous,
+                                        );
+                                        ScaffoldMessenger.of(
+                                          this.context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to rename scout: $e',
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     }
                                   }
                                 },
@@ -141,10 +218,35 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                           ),
                     );
                     if (confirmed == true) {
-                      await ref
-                          .read(honeycombClientProvider)
-                          .delete('/scouts/$id');
-                      ref.invalidate(_scoutsProvider);
+                      final previous = List<Map<String, String>>.from(
+                        _optimisticScouts ??
+                            _normalizeScouts(
+                              ref.read(_scoutsProvider).asData?.value ??
+                                  const [],
+                            ),
+                      );
+                      setState(() {
+                        _optimisticScouts =
+                            previous
+                                .where((entry) => entry['uuid'] != id)
+                                .toList();
+                      });
+
+                      try {
+                        await ref
+                            .read(honeycombClientProvider)
+                            .delete('/scouts/$id');
+                        await _refreshScouts();
+                      } catch (e) {
+                        if (mounted) {
+                          setState(() => _optimisticScouts = previous);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to delete scout: $e'),
+                            ),
+                          );
+                        }
+                      }
                     }
                   },
                   icon: Icon(Symbols.delete_rounded),
@@ -187,7 +289,7 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
           .post('/scouts', data: {"name": name});
     }
 
-    ref.invalidate(_scoutsProvider);
+    await _refreshScouts();
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
@@ -245,22 +347,16 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
         error:
             (err, stack) => Center(
               child: FilledButton(
-                onPressed: () => ref.invalidate(_scoutsProvider),
+                onPressed: _refreshScouts,
                 child: const Text('Retry'),
               ),
             ),
         data: (data) {
-          final scoutData =
-              data.map((item) {
-                  return {
-                    "name": item["name"] as String,
-                    "uuid": item["uuid"] as String,
-                  };
-                }).toList()
-                ..sort((a, b) => a["name"]!.compareTo(b["name"]!));
+          final scoutData = _normalizeScouts(data);
+          final source = _optimisticScouts ?? scoutData;
 
           final filteredScouts =
-              scoutData
+              source
                   .where(
                     (scout) => scout["name"]!.toLowerCase().contains(
                       _searchTEC.text.toLowerCase(),
@@ -268,7 +364,10 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                   )
                   .toList();
 
-          return BeariscopeCardList(children: buildScoutList(filteredScouts));
+          return RefreshIndicator(
+            onRefresh: _refreshScouts,
+            child: BeariscopeCardList(children: buildScoutList(filteredScouts)),
+          );
         },
       ),
       floatingActionButton:
@@ -295,15 +394,57 @@ class _ScoutSelectionPageState extends ConsumerState<ScoutSelectionPage> {
                             TextButton(
                               onPressed: () async {
                                 if (_addScoutTEC.text.isNotEmpty) {
-                                  await ref
-                                      .read(honeycombClientProvider)
-                                      .post(
-                                        '/scouts',
-                                        data: {"name": _addScoutTEC.text},
+                                  final previous =
+                                      List<Map<String, String>>.from(
+                                        _optimisticScouts ??
+                                            _normalizeScouts(
+                                              ref
+                                                      .read(_scoutsProvider)
+                                                      .asData
+                                                      ?.value ??
+                                                  const [],
+                                            ),
                                       );
-                                  ref.invalidate(_scoutsProvider);
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
+                                  setState(() {
+                                    _optimisticScouts = [
+                                      ...previous,
+                                      {
+                                        'name': _addScoutTEC.text,
+                                        'uuid':
+                                            'temp-${DateTime.now().microsecondsSinceEpoch}',
+                                      },
+                                    ]..sort(
+                                      (a, b) =>
+                                          a['name']!.compareTo(b['name']!),
+                                    );
+                                  });
+
+                                  try {
+                                    await ref
+                                        .read(honeycombClientProvider)
+                                        .post(
+                                          '/scouts',
+                                          data: {"name": _addScoutTEC.text},
+                                        );
+                                    await _refreshScouts();
+                                    if (mounted) {
+                                      Navigator.of(this.context).pop();
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      setState(
+                                        () => _optimisticScouts = previous,
+                                      );
+                                      ScaffoldMessenger.of(
+                                        this.context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Failed to add scout: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   }
                                 }
                               },

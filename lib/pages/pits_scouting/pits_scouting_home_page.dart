@@ -1,6 +1,8 @@
 import 'package:beariscope/pages/main_view.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/components/beariscope_card.dart';
@@ -94,7 +96,15 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
+    final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(teamsProvider);
+
+    Future<void> onRefresh() async {
+      final client = ref.read(honeycombClientProvider);
+      client.invalidateCache('/teams', queryParams: {'event': selectedEvent});
+      ref.invalidate(teamsProvider);
+      await ref.read(teamsProvider.future);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -165,7 +175,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
         data: (data) {
           teams = mapTeams(data);
           filter(searchTermTEC.text);
-          return buildTeamList();
+          return RefreshIndicator(onRefresh: onRefresh, child: buildTeamList());
         },
       ),
     );

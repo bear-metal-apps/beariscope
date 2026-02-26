@@ -5,6 +5,7 @@ import 'package:beariscope/pages/up_next/up_next_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class UpNextPage extends ConsumerWidget {
@@ -17,6 +18,17 @@ class UpNextPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = MainViewController.of(context);
     final scheduleAsync = ref.watch(upcomingScheduleProvider);
+    Future<void> refreshSchedule() async {
+      final client = ref.read(honeycombClientProvider);
+      client.invalidateCache('/events?team=2046&year=2026&year=2025');
+      client.invalidateCache('/matches?team=2046&year=2026&year=2025');
+      ref.invalidate(upcomingScheduleProvider);
+      try {
+        await ref.read(upcomingScheduleProvider.future);
+      } catch (_) {
+        // Keep current cached data visible if refresh fails.
+      }
+    }
 
     return DefaultTabController(
       length: 2,
@@ -60,11 +72,13 @@ class UpNextPage extends ConsumerWidget {
                   items: currentEvents,
                   emptyMessage: 'No Current Events found.',
                   timeFormat: timeFormat,
+                  onRefresh: refreshSchedule,
                 ),
                 _EventList(
                   items: pastEvents,
                   emptyMessage: 'No Past Events found.',
                   timeFormat: timeFormat,
+                  onRefresh: refreshSchedule,
                 ),
               ],
             );
@@ -142,24 +156,37 @@ class _EventList extends StatelessWidget {
   final List<Map<String, dynamic>> items;
   final String emptyMessage;
   final DateFormat timeFormat;
+  final Future<void> Function() onRefresh;
 
   const _EventList({
     required this.items,
     required this.emptyMessage,
     required this.timeFormat,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return Center(child: Text(emptyMessage));
+      return RefreshIndicator(
+        onRefresh: onRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(height: 320, child: Center(child: Text(emptyMessage))),
+          ],
+        ),
+      );
     }
 
-    return BeariscopeCardList(
-      children:
-          items.map((item) {
-            return _EventSection(data: item, timeFormat: timeFormat);
-          }).toList(),
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: BeariscopeCardList(
+        children:
+            items.map((item) {
+              return _EventSection(data: item, timeFormat: timeFormat);
+            }).toList(),
+      ),
     );
   }
 }

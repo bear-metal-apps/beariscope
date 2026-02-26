@@ -12,6 +12,7 @@ final teamEventsProvider = FutureProvider<List<_EventOption>>((ref) async {
   final response = await client.get<List<dynamic>>(
     '/events',
     queryParams: {'team': 'frc2046', 'year': year, 'enrich': false},
+    cachePolicy: CachePolicy.cacheFirst,
   );
 
   final events =
@@ -39,6 +40,21 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   final MenuController _menuController = MenuController();
+
+  Future<void> _refreshEvents() async {
+    final year = DateTime.now().year;
+    final client = ref.read(honeycombClientProvider);
+    client.invalidateCache(
+      '/events',
+      queryParams: {'team': 'frc2046', 'year': year, 'enrich': false},
+    );
+    ref.invalidate(teamEventsProvider);
+    try {
+      await ref.read(teamEventsProvider.future);
+    } catch (_) {
+      // Keep current cached data visible if refresh fails.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,124 +103,132 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 );
               }).toList();
 
-          return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              SettingsGroup(
-                title: 'General',
-                children: [
-                  ListTile(
-                    leading: const Icon(Symbols.person_rounded),
-                    title: const Text('Account'),
-                    subtitle: const Text('Email, Password'),
-                    onTap: () => context.push('/settings/account'),
-                  ),
-                  ListTile(
-                    leading: const Icon(Symbols.notifications_rounded),
-                    title: const Text('Notifications'),
-                    subtitle: const Text('Queuing, Schedule Release'),
-                    onTap: () => context.push('/settings/notifications'),
-                  ),
-                  ListTile(
-                    leading: const Icon(Symbols.palette_rounded),
-                    title: const Text('Appearance'),
-                    subtitle: const Text('Theme, UI Options'),
-                    onTap: () => context.push('/settings/appearance'),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              SettingsGroup(
-                title: 'Current Event',
-                children: [
-                  MenuAnchor(
-                    controller: _menuController,
-                    menuChildren:
-                        menuItems.isEmpty
-                            ? const [
-                              MenuItemButton(
-                                onPressed: null,
-                                child: Text('No events available'),
-                              ),
-                            ]
-                            : menuItems,
-                    builder: (context, controller, child) {
-                      return ListTile(
-                        leading: const Icon(Symbols.event_rounded),
-                        title: const Text('Event'),
-                        subtitle: Text(currentLabel),
-                        trailing: Icon(
-                          controller.isOpen
-                              ? Symbols.expand_less_rounded
-                              : Symbols.expand_more_rounded,
-                        ),
-                        onTap:
-                            menuItems.isEmpty
-                                ? null
-                                : () {
-                                  if (controller.isOpen) {
-                                    controller.close();
-                                  } else {
-                                    controller.open();
-                                  }
-                                  setState(() {});
-                                },
-                      );
-                    },
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              if (canViewScouts || canEditScouts || canManageUsersRoles)
+          return RefreshIndicator(
+            onRefresh: _refreshEvents,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
                 SettingsGroup(
-                  title: 'Team',
+                  title: 'General',
                   children: [
-                    if (canViewScouts || canEditScouts)
-                      ListTile(
-                        leading: const Icon(Symbols.group_rounded),
-                        title: const Text('Scouts'),
-                        subtitle: Text(
-                          canEditScouts ? 'Add, Remove Scouts' : 'View Scouts',
-                        ),
-                        onTap: () => context.push('/settings/user_selection'),
-                      ),
-                    if (canManageUsersRoles)
-                      ListTile(
-                        leading: const Icon(Symbols.groups_rounded),
-                        title: const Text('Beariscope Users, Roles'),
-                        subtitle: const Text('Edit Roles, Permissions, Users'),
-                        onTap: () => context.push('/settings/roles'),
-                      ),
+                    ListTile(
+                      leading: const Icon(Symbols.person_rounded),
+                      title: const Text('Account'),
+                      subtitle: const Text('Email, Password'),
+                      onTap: () => context.push('/settings/account'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Symbols.notifications_rounded),
+                      title: const Text('Notifications'),
+                      subtitle: const Text('Queuing, Schedule Release'),
+                      onTap: () => context.push('/settings/notifications'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Symbols.palette_rounded),
+                      title: const Text('Appearance'),
+                      subtitle: const Text('Theme, UI Options'),
+                      onTap: () => context.push('/settings/appearance'),
+                    ),
                   ],
                 ),
 
-              if (canViewScouts || canEditScouts || canManageUsersRoles)
                 const SizedBox(height: 16),
 
-              // About Section
-              SettingsGroup(
-                title: 'About',
-                children: [
-                  ListTile(
-                    leading: const Icon(Symbols.info_rounded),
-                    title: const Text('About'),
-                    subtitle: const Text('Version, Acknowledgements'),
-                    onTap: () => context.push('/settings/about'),
+                SettingsGroup(
+                  title: 'Current Event',
+                  children: [
+                    MenuAnchor(
+                      controller: _menuController,
+                      menuChildren:
+                          menuItems.isEmpty
+                              ? const [
+                                MenuItemButton(
+                                  onPressed: null,
+                                  child: Text('No events available'),
+                                ),
+                              ]
+                              : menuItems,
+                      builder: (context, controller, child) {
+                        return ListTile(
+                          leading: const Icon(Symbols.event_rounded),
+                          title: const Text('Event'),
+                          subtitle: Text(currentLabel),
+                          trailing: Icon(
+                            controller.isOpen
+                                ? Symbols.expand_less_rounded
+                                : Symbols.expand_more_rounded,
+                          ),
+                          onTap:
+                              menuItems.isEmpty
+                                  ? null
+                                  : () {
+                                    if (controller.isOpen) {
+                                      controller.close();
+                                    } else {
+                                      controller.open();
+                                    }
+                                    setState(() {});
+                                  },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+
+                if (canViewScouts || canEditScouts || canManageUsersRoles)
+                  SettingsGroup(
+                    title: 'Team',
+                    children: [
+                      if (canViewScouts || canEditScouts)
+                        ListTile(
+                          leading: const Icon(Symbols.group_rounded),
+                          title: const Text('Scouts'),
+                          subtitle: Text(
+                            canEditScouts
+                                ? 'Add, Remove Scouts'
+                                : 'View Scouts',
+                          ),
+                          onTap: () => context.push('/settings/user_selection'),
+                        ),
+                      if (canManageUsersRoles)
+                        ListTile(
+                          leading: const Icon(Symbols.groups_rounded),
+                          title: const Text('Beariscope Users, Roles'),
+                          subtitle: const Text(
+                            'Edit Roles, Permissions, Users',
+                          ),
+                          onTap: () => context.push('/settings/roles'),
+                        ),
+                    ],
                   ),
-                  ListTile(
-                    leading: const Icon(Symbols.license_rounded),
-                    title: const Text('Licenses'),
-                    subtitle: const Text('Licenses, Open Source'),
-                    onTap: () => context.push('/settings/licenses'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
+
+                if (canViewScouts || canEditScouts || canManageUsersRoles)
+                  const SizedBox(height: 16),
+
+                // About Section
+                SettingsGroup(
+                  title: 'About',
+                  children: [
+                    ListTile(
+                      leading: const Icon(Symbols.info_rounded),
+                      title: const Text('About'),
+                      subtitle: const Text('Version, Acknowledgements'),
+                      onTap: () => context.push('/settings/about'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Symbols.license_rounded),
+                      title: const Text('Licenses'),
+                      subtitle: const Text('Licenses, Open Source'),
+                      onTap: () => context.push('/settings/licenses'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           );
         },
       ),

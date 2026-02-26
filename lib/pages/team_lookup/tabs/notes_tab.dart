@@ -82,13 +82,12 @@ class _NotesBody extends StatelessWidget {
       );
     }
 
-    // Pits notes entry.
     if (bundle.hasPitsData) {
       final pitsNotes = bundle.pitsDoc!.data['notes']?.toString().trim() ?? '';
       final scoutedBy = bundle.pitsDoc!.meta?['scoutedBy']?.toString() ?? '';
       feedItems.add(
         _FeedItem(
-          sourceLabel: 'Pits at ${bundle.pitsDoc!.meta?['event'] ?? 'Event'}',
+          sourceLabel: 'Pits',
           scoutedBy: scoutedBy,
           notes: pitsNotes,
           incidents: const [],
@@ -122,16 +121,8 @@ class _NotesBody extends StatelessWidget {
               spacing: 8,
               runSpacing: 4,
               children: [
-                scoutingIncidentCountChip(
-                  context,
-                  'A-Stops',
-                  totalAStop,
-                ),
-                scoutingIncidentCountChip(
-                  context,
-                  'E-Stops',
-                  totalEStop,
-                ),
+                scoutingIncidentCountChip(context, 'A-Stops', totalAStop),
+                scoutingIncidentCountChip(context, 'E-Stops', totalEStop),
                 scoutingIncidentCountChip(
                   context,
                   'Comms Loss',
@@ -142,11 +133,7 @@ class _NotesBody extends StatelessWidget {
                   'Collisions',
                   totalCollisions,
                 ),
-                scoutingIncidentCountChip(
-                  context,
-                  'Total Fouls',
-                  totalFouls,
-                ),
+                scoutingIncidentCountChip(context, 'Total Fouls', totalFouls),
               ],
             ),
           ),
@@ -231,12 +218,7 @@ class _FeedItemTile extends StatelessWidget {
                 runSpacing: 4,
                 children:
                     item.incidents
-                        .map(
-                          (i) => scoutingIncidentChip(
-                            context,
-                            i,
-                          ),
-                        )
+                        .map((i) => scoutingIncidentChip(context, i))
                         .toList(),
               ),
             ],

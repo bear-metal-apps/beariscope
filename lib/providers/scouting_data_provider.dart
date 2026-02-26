@@ -14,24 +14,15 @@ class ScoutingData extends _$ScoutingData {
 
   @override
   Future<List<ScoutingDocument>> build() async {
-    // Re-runs automatically whenever the selected event changes.
     final eventKey = ref.watch(currentEventProvider);
 
-    // Return cached data immediately so the UI isn't blocked on the network.
     final cached = _loadFromHive(eventKey);
 
-    // Sync in the background; state updates when the fetch completes.
-    // Errors are swallowed here because the cached list is already showing.
     _syncInBackground(eventKey);
 
     return cached;
   }
 
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
-
-  /// Reads all documents from the Hive box that belong to [eventKey].
   List<ScoutingDocument> _loadFromHive(String eventKey) {
     final box = Hive.box<String>(_boxName);
     return box.values
@@ -49,8 +40,6 @@ class ScoutingData extends _$ScoutingData {
         .toList();
   }
 
-  /// Fetches from the API and upserts into Hive by `_id`, then updates state.
-  /// Called fire-and-forget from [build]; errors are silently ignored.
   Future<void> _syncInBackground(String eventKey) async {
     try {
       await _fetchAndUpsert(eventKey);
@@ -60,13 +49,11 @@ class ScoutingData extends _$ScoutingData {
     }
   }
 
-  /// Fetches `GET /api/scouting?event=<eventKey>` and upserts all returned
-  /// documents into the Hive box, keyed by their `_id`.
   Future<void> _fetchAndUpsert(String eventKey) async {
     final client = ref.read(honeycombClientProvider);
     final response = await client.get<Map<String, dynamic>>(
       '/scouting?event=${Uri.encodeComponent(eventKey)}',
-      forceRefresh: true,
+      cachePolicy: CachePolicy.networkFirst,
     );
 
     final rawList =
@@ -82,13 +69,6 @@ class ScoutingData extends _$ScoutingData {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Public API
-  // ---------------------------------------------------------------------------
-
-  /// Manually force a full re-fetch from the API for the current event.
-  /// Merges results into the local store (upsert by `_id`).
-  /// Throws on network or API error so callers can surface feedback to the user.
   Future<void> refresh() async {
     final eventKey = ref.read(currentEventProvider);
     await _fetchAndUpsert(eventKey);

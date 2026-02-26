@@ -7,9 +7,11 @@ final upcomingScheduleProvider = FutureProvider<List<Map<String, dynamic>>>((
   final client = ref.watch(honeycombClientProvider);
   final eventsFuture = client.get<List<dynamic>>(
     '/events?team=2046&year=2026&year=2025',
+    cachePolicy: CachePolicy.cacheFirst,
   );
   final matchesFuture = client.get<List<dynamic>>(
     '/matches?team=2046&year=2026&year=2025',
+    cachePolicy: CachePolicy.cacheFirst,
   );
 
   final results = await Future.wait([eventsFuture, matchesFuture]);

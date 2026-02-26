@@ -518,7 +518,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.all(30),
                 child: FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final Map<String, Object?> entry = {
                       "meta": {
                         "type": 'pits',
@@ -573,15 +573,25 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
 
                       "notes": _notesTEC.text,
                     };
-                    ref
-                        .read(honeycombClientProvider)
-                        .post(
-                          '/scout/ingest',
-                          data: {
-                            "entries": [entry],
-                          },
+                    try {
+                      await ref
+                          .read(honeycombClientProvider)
+                          .post(
+                            '/scout/ingest',
+                            data: {
+                              "entries": [entry],
+                            },
+                          );
+                      if (context.mounted) {
+                        Navigator.pop(context, true);
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to submit: $e')),
                         );
-                    Navigator.pop(context, true);
+                      }
+                    }
                   },
                   child: Text(widget.scouted == false ? 'Submit' : 'Edit'),
                 ),

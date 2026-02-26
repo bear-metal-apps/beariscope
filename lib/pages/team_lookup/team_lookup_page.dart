@@ -1,7 +1,9 @@
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/rankings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/components/beariscope_card.dart';
@@ -27,6 +29,7 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
   @override
   Widget build(BuildContext context) {
     final main = MainViewController.of(context);
+    final selectedEvent = ref.watch(currentEventProvider);
     final teamsAsync = ref.watch(teamsProvider);
     final selectedSort = ref.watch(teamSortProvider);
     final rankingsAsync = ref.watch(eventRankingsProvider);
@@ -34,6 +37,25 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
       AsyncData(:final value) => value,
       _ => const <int, TeamRanking>{},
     };
+
+    Future<void> onRefresh() async {
+      final client = ref.read(honeycombClientProvider);
+      client.invalidateCache('/teams', queryParams: {'event': selectedEvent});
+      client.invalidateCache(
+        '/rankings',
+        queryParams: {'event': selectedEvent},
+      );
+      ref.invalidate(teamsProvider);
+      ref.invalidate(eventRankingsProvider);
+      try {
+        await Future.wait([
+          ref.read(teamsProvider.future),
+          ref.read(eventRankingsProvider.future),
+        ]);
+      } catch (_) {
+        // Keep current cached data visible if refresh fails.
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -127,11 +149,14 @@ class _TeamLookupPageState extends ConsumerState<TeamLookupPage> {
             return const Center(child: Text('No teams found'));
           }
 
-          return BeariscopeCardList(
-            children:
-                filteredTeams
-                    .map((team) => TeamCard(teamKey: team.key))
-                    .toList(),
+          return RefreshIndicator(
+            onRefresh: onRefresh,
+            child: BeariscopeCardList(
+              children:
+                  filteredTeams
+                      .map((team) => TeamCard(teamKey: team.key))
+                      .toList(),
+            ),
           );
         },
       ),
