@@ -202,7 +202,6 @@ class _MapBackgroundPainter extends CustomPainter {
       cs.tertiaryContainer,
       cs.surfaceContainerHigh,
     ];
-    final outlines = [cs.primary, cs.secondary, cs.tertiary, cs.onSurface];
 
     int idx = 0;
     for (final entry in mapData.areas.entries) {
@@ -216,7 +215,7 @@ class _MapBackgroundPainter extends CustomPainter {
             ..style = PaintingStyle.fill;
       final borderPaint =
           Paint()
-            ..color = outlines[idx % outlines.length]
+            ..color = cs.onSurface
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2;
 
@@ -277,7 +276,7 @@ class _MapBackgroundPainter extends CustomPainter {
   void _paintArrows(Canvas canvas) {
     final paint =
         Paint()
-          ..color = theme.colorScheme.secondary
+          ..color = theme.colorScheme.onSurface
           ..style = PaintingStyle.fill;
 
     for (final entry in mapData.arrows.entries) {
@@ -285,16 +284,31 @@ class _MapBackgroundPainter extends CustomPainter {
       final r = math.min(a.size.x, a.size.y) * 0.38;
 
       canvas.save();
-      // Position is already the center point.
       canvas.translate(a.position.x, a.position.y);
       if (a.angle != null && a.angle != 0) canvas.rotate(a.angleRadians);
 
-      final path =
-          Path()
-            ..moveTo(r, 0)
-            ..lineTo(-r * 0.55, -r * 0.65)
-            ..lineTo(-r * 0.55, r * 0.65)
-            ..close();
+      final path = a.type == 'double'
+          ? (Path()
+            ..moveTo(0, -r) // top tip
+            ..lineTo(r * 0.65, -r * 0.35) // top-right of top arrowhead base
+            ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
+            ..lineTo(r * 0.15, r * 0.35) // shaft bottom-right
+            ..lineTo(r * 0.65, r * 0.35) // bottom-right of bottom arrowhead base
+            ..lineTo(0, r) // bottom tip
+            ..lineTo(-r * 0.65, r * 0.35) // bottom-left of bottom arrowhead base
+            ..lineTo(-r * 0.15, r * 0.35) // shaft bottom-left
+            ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
+            ..lineTo(-r * 0.65, -r * 0.35) // top-left of top arrowhead base
+            ..close())
+          : (Path()
+            ..moveTo(0, -r) // tip
+            ..lineTo(r * 0.65, -r * 0.35) // right arrowhead base
+            ..lineTo(r * 0.15, -r * 0.35) // shaft top-right
+            ..lineTo(r * 0.15, r * 0.6) // shaft bottom-right
+            ..lineTo(-r * 0.15, r * 0.6) // shaft bottom-left
+            ..lineTo(-r * 0.15, -r * 0.35) // shaft top-left
+            ..lineTo(-r * 0.65, -r * 0.35) // left arrowhead base
+            ..close());
       canvas.drawPath(path, paint);
       canvas.restore();
     }
