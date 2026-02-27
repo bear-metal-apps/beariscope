@@ -2,10 +2,47 @@ import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
+
+final _teamScheduleProvider =
+    FutureProvider.family<List<int>, int>((ref, teamNumber) async {
+  final eventKey = ref.watch(currentEventProvider);
+  final client = ref.watch(honeycombClientProvider);
+
+  try {
+    final data = await client.get<List<dynamic>>(
+      '/matches',
+      queryParams: {'team': 'frc$teamNumber', 'event': eventKey},
+      cachePolicy: CachePolicy.cacheFirst,
+    );
+
+    final matchNumbers = <int>[];
+    for (final item in data) {
+      if (item is! Map) continue;
+      final compLevel =
+          (item['comp_level'] ?? item['compLevel'])?.toString() ?? '';
+      if (compLevel != 'qm') continue; // qualification matches only
+      final mn = item['match_number'] ?? item['matchNumber'];
+      final n =
+          mn is int
+              ? mn
+              : mn is double
+              ? mn.toInt()
+              : int.tryParse(mn?.toString() ?? '');
+      if (n != null) matchNumbers.add(n);
+    }
+
+    matchNumbers.sort();
+    return matchNumbers;
+  } catch (_) {
+    return const [];
+  }
+});
 
 class MatchesTab extends ConsumerWidget {
   final int teamNumber;
@@ -14,47 +51,141 @@ class MatchesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final async = ref.watch(teamScoutingProvider(teamNumber));
+    final scoutingAsync = ref.watch(teamScoutingProvider(teamNumber));
+    final scheduleAsync = ref.watch(_teamScheduleProvider(teamNumber));
 
-    return async.when(
+    return scoutingAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
-      data: (bundle) => _MatchesBody(bundle: bundle),
+      data: (bundle) {
+        final scheduledMatchNumbers =
+            scheduleAsync.asData?.value ?? const [];
+        return _MatchesBody(
+          bundle: bundle,
+          scheduledMatchNumbers: scheduledMatchNumbers,
+        );
+      },
     );
   }
 }
 
 class _MatchesBody extends StatelessWidget {
   final TeamScoutingBundle bundle;
+  final List<int> scheduledMatchNumbers;
 
-  const _MatchesBody({required this.bundle});
+  const _MatchesBody({
+    required this.bundle,
+    required this.scheduledMatchNumbers,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (!bundle.hasMatchData) {
-      return const Center(child: Text('No match data recorded for this team.'));
+    final scoutedByMatchNumber = <int, ScoutingDocument>{};
+    final unknownDocs = <ScoutingDocument>[];
+
+    for (final doc in bundle.matchDocs) {
+      final mn = TeamScoutingBundle.matchNumber(doc);
+      if (mn != null) {
+        scoutedByMatchNumber[mn] = doc;
+      } else {
+        unknownDocs.add(doc);
+      }
     }
 
-    // Sort: known match numbers ascending, then unknowns by timestamp.
-    final sorted = [...bundle.matchDocs]..sort((a, b) {
-      final mn = TeamScoutingBundle.matchNumber(a);
-      final mbn = TeamScoutingBundle.matchNumber(b);
-      if (mn != null && mbn != null) return mn.compareTo(mbn);
-      if (mn != null) return -1;
-      if (mbn != null) return 1;
-      return b.timestamp.compareTo(a.timestamp);
-    });
+    // combine scheduled and scouted numbers
+    final allMatchNumbers = {
+      ...scheduledMatchNumbers,
+      ...scoutedByMatchNumber.keys,
+    }.toList()
+      ..sort();
+
+    // Build items: numbered matches first (in order), then unknowns.
+    final items = <_MatchItem>[
+      for (final mn in allMatchNumbers)
+        _MatchItem(
+          matchNumber: mn,
+          doc: scoutedByMatchNumber[mn],
+          inSchedule: scheduledMatchNumbers.contains(mn),
+        ),
+      for (final doc in unknownDocs)
+        _MatchItem(matchNumber: null, doc: doc, inSchedule: false),
+    ];
+
+    if (items.isEmpty) {
+      return const Center(
+        child: Text('No match data recorded for this team.'),
+      );
+    }
 
     return ListView.separated(
       padding: const EdgeInsets.all(16),
-      itemCount: sorted.length,
+      itemCount: items.length,
       separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, i) => _MatchCard(doc: sorted[i]),
+      itemBuilder: (context, i) {
+        final item = items[i];
+        if (item.doc != null) {
+          return _MatchCard(doc: item.doc!);
+        }
+        return _UnscoutedMatchCard(matchNumber: item.matchNumber);
+      },
     );
   }
 }
 
-// ─── Match card ───────────────────────────────────────────────────────────────
+class _MatchItem {
+  final int? matchNumber;
+  final ScoutingDocument? doc;
+  final bool inSchedule;
+
+  const _MatchItem({
+    required this.matchNumber,
+    required this.doc,
+    required this.inSchedule,
+  });
+}
+
+class _UnscoutedMatchCard extends StatelessWidget {
+  final int? matchNumber;
+
+  const _UnscoutedMatchCard({required this.matchNumber});
+
+  @override
+  Widget build(BuildContext context) {
+    final label =
+        matchNumber != null ? 'Match $matchNumber' : 'Match (unknown)';
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      color: colorScheme.surfaceContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+            Text(
+              'Not Scouted',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MatchCard extends StatelessWidget {
   final ScoutingDocument doc;
 
@@ -145,9 +276,6 @@ class _MatchCard extends StatelessWidget {
   }
 }
 
-// ─── Match detail section ─────────────────────────────────────────────────────
-
-/// Expanded detail rows for a single match document, grouped by game phase.
 class _MatchDetailSection extends StatelessWidget {
   final ScoutingDocument doc;
 
@@ -166,10 +294,6 @@ class _MatchDetailSection extends StatelessWidget {
     return qs.isEmpty ? '—' : qs.join(', ');
   }
 
-  /// Formats any field value for display.
-  ///
-  /// Booleans become "Yes"/"No"; null or empty strings become "—".
-  /// An optional [format] callback is applied to numeric values.
   static String _fmt(dynamic v, {String Function(num)? format}) {
     if (v == null) return '—';
     if (v is bool) return v ? 'Yes' : 'No';
@@ -185,7 +309,6 @@ class _MatchDetailSection extends StatelessWidget {
     String Function(num)? format,
   }) => ScoutingDataRow(label: label, value: _fmt(v, format: format));
 
-  /// Wraps a list of rows in a phase card matching the capabilities card style.
   Widget _phaseSection(
     BuildContext context, {
     required Widget header,

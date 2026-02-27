@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:beariscope/models/pits_scouting_models.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
@@ -38,7 +39,7 @@ class PitsScoutingTeamCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder:
-                (context) => _ScoutingPage(
+                (context) => PitsScoutingFormPage(
                   teamNumber: teamNumber,
                   teamName: teamName,
                   scouted: scouted,
@@ -54,22 +55,24 @@ class PitsScoutingTeamCard extends StatelessWidget {
   }
 }
 
-class _ScoutingPage extends ConsumerStatefulWidget {
+class PitsScoutingFormPage extends ConsumerStatefulWidget {
   final String teamName;
   final int teamNumber;
   final bool scouted;
 
-  const _ScoutingPage({
+  const PitsScoutingFormPage({
+    super.key,
     required this.teamName,
     required this.teamNumber,
     required this.scouted,
   });
 
   @override
-  ConsumerState<_ScoutingPage> createState() => _ScoutingPageState();
+  ConsumerState<PitsScoutingFormPage> createState() =>
+      _PitsScoutingFormPageState();
 }
 
-class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
+class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   final TextEditingController _hopperSizeTEC = TextEditingController();
   late String _motorType;
   late String _drivetrainType;
@@ -519,60 +522,51 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                 padding: EdgeInsets.all(30),
                 child: FilledButton(
                   onPressed: () async {
-                    final Map<String, Object?> entry = {
-                      "meta": {
-                        "type": 'pits',
-                        "version": 1,
-                        "season": 2026,
-                        "event": currentEventKey,
-                        "scoutedBy": scoutedBy,
-                      },
-                      "teamName": widget.teamName,
-                      "teamNumber": widget.teamNumber,
-
-                      "hopperSize": int.tryParse(_hopperSizeTEC.text),
-                      "motorType": _motorType,
-                      "drivetrainType": _drivetrainType,
-                      "swerveBrand": _swerveBrand,
-                      "swerveGearRatio": _swerveGRTEC.text,
-                      "wheelType": _wheelType,
-                      "chassisLength": double.tryParse(_chassisLengthTEC.text),
-                      "chassisWidth": double.tryParse(_chassisWidthTEC.text),
-                      "chassisHeight": double.tryParse(_chassisHeightTEC.text),
-                      "horizontalExtensionLimit": double.tryParse(
+                    final submission = PitsScoutingSubmission(
+                      teamName: widget.teamName,
+                      teamNumber: widget.teamNumber,
+                      hopperSize: int.tryParse(_hopperSizeTEC.text),
+                      motorType: _motorType,
+                      drivetrainType: _drivetrainType,
+                      swerveBrand: _swerveBrand,
+                      swerveGearRatio: _swerveGRTEC.text,
+                      wheelType: _wheelType,
+                      chassisLength: double.tryParse(_chassisLengthTEC.text),
+                      chassisWidth: double.tryParse(_chassisWidthTEC.text),
+                      chassisHeight: double.tryParse(_chassisHeightTEC.text),
+                      horizontalExtensionLimit: double.tryParse(
                         _horizontalExtensionTEC.text,
                       ),
-                      "verticalExtensionLimit": double.tryParse(
+                      verticalExtensionLimit: double.tryParse(
                         _verticalExtensionTEC.text,
                       ),
-                      "weight": double.tryParse(_botWeightTEC.text),
-
-                      "climbMethod": _climbMethod,
-                      "climbType": _climbType.toList(),
-                      "climbLevel": _climbLevel.toList(),
-                      "climbConsistency": _climbConsistency,
-
-                      "autoClimb": _autoClimb,
-                      "fuelCollectionLocation":
-                          _fuelCollectionLocation.toList(),
-                      "pathwayPreference": _pathwayPreference,
-                      "trenchCapability": _trenchCapability,
-
-                      "shooter": _shooter,
-                      "shooterNumber": int.tryParse(_shooterNumberTEC.text),
-                      "collectorType": _collectorType,
-                      "fuelOuttakeRate": double.tryParse(
+                      weight: double.tryParse(_botWeightTEC.text),
+                      climbMethod: _climbMethod,
+                      climbType: _climbType,
+                      climbLevel: _climbLevel,
+                      climbConsistency: _climbConsistency,
+                      autoClimb: _autoClimb,
+                      fuelCollectionLocation: _fuelCollectionLocation,
+                      pathwayPreference: _pathwayPreference,
+                      trenchCapability: _trenchCapability,
+                      shooter: _shooter,
+                      shooterNumber: int.tryParse(_shooterNumberTEC.text),
+                      collectorType: _collectorType,
+                      fuelOuttakeRate: double.tryParse(
                         _fuelOuttakeRateTEC.text,
                       ),
-                      "averageAccuracy": _accuracy,
-                      "moveWhileShooting": _mobileShooting.toList(),
-                      "rangeFromField": _rangeFromField.toList(),
+                      averageAccuracy: _accuracy,
+                      moveWhileShooting: _mobileShooting,
+                      rangeFromField: _rangeFromField,
+                      indexerType: _indexerType,
+                      powered: _powered,
+                      notes: _notesTEC.text,
+                    );
 
-                      "indexerType": _indexerType,
-                      "powered": _powered,
-
-                      "notes": _notesTEC.text,
-                    };
+                    final entry = submission.toIngestEntry(
+                      eventKey: currentEventKey,
+                      scoutedBy: scoutedBy,
+                    );
                     try {
                       await ref
                           .read(honeycombClientProvider)
