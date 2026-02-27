@@ -9,8 +9,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
-final _teamScheduleProvider =
-    FutureProvider.family<List<int>, int>((ref, teamNumber) async {
+final _teamScheduleProvider = FutureProvider.family<List<int>, int>((
+  ref,
+  teamNumber,
+) async {
   final eventKey = ref.watch(currentEventProvider);
   final client = ref.watch(honeycombClientProvider);
 
@@ -58,8 +60,7 @@ class MatchesTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (bundle) {
-        final scheduledMatchNumbers =
-            scheduleAsync.asData?.value ?? const [];
+        final scheduledMatchNumbers = scheduleAsync.asData?.value ?? const [];
         return _MatchesBody(
           bundle: bundle,
           scheduledMatchNumbers: scheduledMatchNumbers,
@@ -93,11 +94,9 @@ class _MatchesBody extends StatelessWidget {
     }
 
     // combine scheduled and scouted numbers
-    final allMatchNumbers = {
-      ...scheduledMatchNumbers,
-      ...scoutedByMatchNumber.keys,
-    }.toList()
-      ..sort();
+    final allMatchNumbers =
+        {...scheduledMatchNumbers, ...scoutedByMatchNumber.keys}.toList()
+          ..sort();
 
     // Build items: numbered matches first (in order), then unknowns.
     final items = <_MatchItem>[
@@ -112,9 +111,7 @@ class _MatchesBody extends StatelessWidget {
     ];
 
     if (items.isEmpty) {
-      return const Center(
-        child: Text('No match data recorded for this team.'),
-      );
+      return const Center(child: Text('No match data recorded for this team.'));
     }
 
     return ListView.separated(
