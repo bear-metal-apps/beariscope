@@ -33,21 +33,21 @@ Set<int> pitsScouted(Ref ref) {
   return scoutingAsync.maybeWhen(
     data:
         (docs) =>
-        docs
-            .where(
-              (doc) =>
-          doc.meta?['type'] == 'pits' &&
-              doc.meta?['event'] == eventKey,
-        )
-            .map((doc) {
-          final raw = doc.data['teamNumber'];
-          if (raw is int) return raw;
-          if (raw is num) return raw.toInt();
-          if (raw is String) return int.tryParse(raw);
-          return null;
-        })
-            .whereType<int>()
-            .toSet(),
+            docs
+                .where(
+                  (doc) =>
+                      doc.meta?['type'] == 'pits' &&
+                      doc.meta?['event'] == eventKey,
+                )
+                .map((doc) {
+                  final raw = doc.data['teamNumber'];
+                  if (raw is int) return raw;
+                  if (raw is num) return raw.toInt();
+                  if (raw is String) return int.tryParse(raw);
+                  return null;
+                })
+                .whereType<int>()
+                .toSet(),
     orElse: () => {},
   );
 }
@@ -59,9 +59,9 @@ Future<PitsMapData> pitsMap(Ref ref) async {
   final client = ref.read(honeycombClientProvider);
 
   final response = await client.get<Map<String, dynamic>>(
-      '/pits',
-      queryParams: {'event': eventKey},
-      cachePolicy: CachePolicy.networkFirst
+    '/pits',
+    queryParams: {'event': eventKey},
+    cachePolicy: CachePolicy.networkFirst,
   );
 
   return PitsMapData.fromJson(response);

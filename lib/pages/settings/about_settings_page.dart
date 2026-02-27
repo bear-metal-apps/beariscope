@@ -8,15 +8,19 @@ import 'package:url_launcher/url_launcher.dart';
 class AboutSettingsPage extends ConsumerWidget {
   const AboutSettingsPage({super.key});
 
-  Future<void> _launchUrl(BuildContext context, String url, String label) async {
+  Future<void> _launchUrl(
+    BuildContext context,
+    String url,
+    String label,
+  ) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open $label')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not open $label')));
       }
     }
   }
@@ -58,17 +62,19 @@ class AboutSettingsPage extends ConsumerWidget {
                 title: const Text('The Blue Alliance'),
                 subtitle: const Text('Match schedule & team data'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap: () => _launchUrl(
-                  context,
-                  'https://www.thebluealliance.com',
-                  'The Blue Alliance',
-                ),
+                onTap:
+                    () => _launchUrl(
+                      context,
+                      'https://www.thebluealliance.com',
+                      'The Blue Alliance',
+                    ),
               ),
               ListTile(
                 title: const Text('FRC Nexus'),
                 subtitle: const Text('Event pit & queue information'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
-                onTap: () => _launchUrl(context, 'https://frc.nexus', 'FRC Nexus'),
+                onTap:
+                    () => _launchUrl(context, 'https://frc.nexus', 'FRC Nexus'),
               ),
             ],
           ),
