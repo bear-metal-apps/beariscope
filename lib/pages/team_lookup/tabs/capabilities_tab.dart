@@ -242,8 +242,9 @@ class _CapabilitiesBody extends StatelessWidget {
               kSectionEndgame,
               kEndClimb,
             )?.toString();
-        if (v != null && v.isNotEmpty)
+        if (v != null && v.isNotEmpty) {
           climbCounts[v] = (climbCounts[v] ?? 0) + 1;
+        }
       }
     }
 
