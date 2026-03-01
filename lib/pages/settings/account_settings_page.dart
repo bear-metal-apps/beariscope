@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/libkoala.dart';
+import 'package:libkoala/providers/api_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:mime/mime.dart';
 
@@ -23,6 +24,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   bool _isSaving = false;
   bool _isUploadingPhoto = false;
   bool _isSendingReset = false;
+  bool _isDeletingAccount = false;
   bool _suppressDirty = false;
   bool _nameTouched = false;
   bool _emailTouched = false;
@@ -286,6 +288,52 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
     }
   }
 
+  Future<void> _deleteAccount(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete Account'),
+            content: const Text(
+              'This will permanently delete your account and all associated data. '
+              'This action cannot be undone.\n\n'
+              'Are you sure you want to delete your account?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Delete Account'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() => _isDeletingAccount = true);
+    try {
+      await ref.read(honeycombClientProvider).delete('/profile');
+      if (context.mounted) {
+        await ref.read(authProvider).logout();
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete account: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDeletingAccount = false);
+    }
+  }
+
   Future<void> _signOut(BuildContext context) async {
     final confirmed =
         await showDialog<bool>(
@@ -539,19 +587,37 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
                 onTap: _isSendingReset ? null : _sendPasswordReset,
               ),
               ListTile(
+                leading: Icon(Symbols.logout_rounded),
+                title: Text('Sign Out'),
+                subtitle: Text('Sign out of your account'),
+                onTap: () => _signOut(context),
+              ),
+              ListTile(
                 leading: Icon(
-                  Symbols.logout_rounded,
+                  Symbols.delete_forever_rounded,
                   color: Theme.of(context).colorScheme.error,
                 ),
                 title: Text(
-                  'Sign Out',
+                  'Delete Account',
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
                 subtitle: Text(
-                  'Sign out of your account',
+                  'Permanently delete your account and all data',
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-                onTap: () => _signOut(context),
+                trailing:
+                    _isDeletingAccount
+                        ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        )
+                        : null,
+                onTap:
+                    _isDeletingAccount ? null : () => _deleteAccount(context),
               ),
             ],
           ),

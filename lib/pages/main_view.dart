@@ -67,18 +67,18 @@ class _MainViewState extends ConsumerState<MainView> {
       label: 'Team Lookup',
       group: 'Insights',
     ),
-    _NavItem(
-      route: '/picklists',
-      icon: Symbols.list_alt_rounded,
-      label: 'Picklists',
-      group: 'Insights',
-    ),
-    _NavItem(
-      route: '/corrections',
-      icon: Symbols.table_edit_rounded,
-      label: 'Data Corrections',
-      group: 'Scouting',
-    ),
+    // _NavItem(
+    //   route: '/picklists',
+    //   icon: Symbols.list_alt_rounded,
+    //   label: 'Picklists',
+    //   group: 'Insights',
+    // ),
+    // _NavItem(
+    //   route: '/corrections',
+    //   icon: Symbols.table_edit_rounded,
+    //   label: 'Data Corrections',
+    //   group: 'Scouting',
+    // ),
     _NavItem(
       route: '/pits_scouting',
       icon: Symbols.build_rounded,
