@@ -78,6 +78,23 @@ class AboutSettingsPage extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          SettingsGroup(
+            title: 'Legal',
+            children: [
+              ListTile(
+                leading: const Icon(Symbols.policy_rounded),
+                title: const Text('Privacy Policy'),
+                trailing: const Icon(Symbols.open_in_new_rounded),
+                onTap:
+                    () => _launchUrl(
+                      context,
+                      'https://bear-metal-apps.github.io/beariscope/privacy-policy',
+                      'Privacy Policy',
+                    ),
+              ),
+            ],
+          ),
         ],
       ),
     );
