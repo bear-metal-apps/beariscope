@@ -118,12 +118,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       subtitle: const Text('Email, Password'),
                       onTap: () => context.push('/settings/account'),
                     ),
-                    ListTile(
-                      leading: const Icon(Symbols.notifications_rounded),
-                      title: const Text('Notifications'),
-                      subtitle: const Text('Queuing, Schedule Release'),
-                      onTap: () => context.push('/settings/notifications'),
-                    ),
+                    // ListTile(
+                    //   leading: const Icon(Symbols.notifications_rounded),
+                    //   title: const Text('Notifications'),
+                    //   subtitle: const Text('Queuing, Schedule Release'),
+                    //   onTap: () => context.push('/settings/notifications'),
+                    // ),
                     ListTile(
                       leading: const Icon(Symbols.palette_rounded),
                       title: const Text('Appearance'),
