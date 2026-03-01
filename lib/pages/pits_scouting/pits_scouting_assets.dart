@@ -40,8 +40,7 @@ class PitsScoutingTeamCard extends ConsumerWidget {
         ScoutingDocument? existingDoc;
         if (scouted) {
           final eventKey = ref.read(currentEventProvider);
-          final allDocs =
-              ref.read(scoutingDataProvider).asData?.value ?? [];
+          final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
           final pitsDocs =
               allDocs
                   .where(
@@ -51,9 +50,7 @@ class PitsScoutingTeamCard extends ConsumerWidget {
                         (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
                   )
                   .toList()
-                ..sort(
-                  (a, b) => b.timestamp.compareTo(a.timestamp),
-                );
+                ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
           existingDoc = pitsDocs.firstOrNull;
         }
 
@@ -143,11 +140,11 @@ class _PitsFormData {
     Set<String>? rangeFromField,
     this.indexerType = 'Dye Rotor',
     this.powered = 'Powered',
-  })  : climbType = climbType ?? {},
-        climbLevel = climbLevel ?? {},
-        fuelCollectionLocation = fuelCollectionLocation ?? {},
-        mobileShooting = mobileShooting ?? {},
-        rangeFromField = rangeFromField ?? {};
+  }) : climbType = climbType ?? {},
+       climbLevel = climbLevel ?? {},
+       fuelCollectionLocation = fuelCollectionLocation ?? {},
+       mobileShooting = mobileShooting ?? {},
+       rangeFromField = rangeFromField ?? {};
 
   factory _PitsFormData.fromDoc(Map<String, dynamic> d) {
     String str(String key, String fallback) {
@@ -155,9 +152,8 @@ class _PitsFormData {
       return (v is String && v.isNotEmpty) ? v : fallback;
     }
 
-    Set<String> strSet(String key) => Set<String>.from(
-          ((d[key] as List?) ?? []).map((e) => e.toString()),
-        );
+    Set<String> strSet(String key) =>
+        Set<String>.from(((d[key] as List?) ?? []).map((e) => e.toString()));
 
     double dbl(String key, double fallback) =>
         (d[key] as num?)?.toDouble() ?? fallback;
@@ -185,7 +181,6 @@ class _PitsFormData {
     );
   }
 }
-
 
 class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   // Text fields kept as TECs (cursor / IME management).
@@ -296,8 +291,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: ['Swerve', 'Tank', 'Mecanum'],
                   label: 'Drivetrain Type',
                   initialValue: _f.drivetrainType,
-                  onChanged: (value) =>
-                      _f.drivetrainType = value ?? _f.drivetrainType,
+                  onChanged:
+                      (value) => _f.drivetrainType = value ?? _f.drivetrainType,
                 ),
               ),
               Padding(
@@ -313,7 +308,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   ],
                   label: 'Swerve Brand',
                   initialValue: _f.swerveBrand,
-                  onChanged: (value) => _f.swerveBrand = value ?? _f.swerveBrand,
+                  onChanged:
+                      (value) => _f.swerveBrand = value ?? _f.swerveBrand,
                 ),
               ),
               Padding(
@@ -416,8 +412,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Rotation', 'Elevator', 'Arm', 'No Climb', 'Other'],
                   initialValue: _f.climbMethod,
-                  onChanged: (value) =>
-                      _f.climbMethod = value ?? _f.climbMethod,
+                  onChanged:
+                      (value) => _f.climbMethod = value ?? _f.climbMethod,
                 ),
               ),
               Padding(
@@ -476,8 +472,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: ['Outpost', 'Depot', 'Neutral Zone'],
                   label: 'Fuel Collection Location',
                   variable: _f.fuelCollectionLocation,
-                  onSelectionChanged: (value) =>
-                      _f.fuelCollectionLocation = value,
+                  onSelectionChanged:
+                      (value) => _f.fuelCollectionLocation = value,
                 ),
               ),
               // Pathing Here, will replace Pathway Preference and Trench Capability
@@ -487,8 +483,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: ['Bump', 'Trench'],
                   label: 'Pathway Preference',
                   initialValue: _f.pathwayPreference,
-                  onChanged: (value) =>
-                      _f.pathwayPreference = value ?? _f.pathwayPreference,
+                  onChanged:
+                      (value) =>
+                          _f.pathwayPreference = value ?? _f.pathwayPreference,
                 ),
               ),
               Padding(
@@ -497,8 +494,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: ['Trench Capable', 'Trench Incapable'],
                   height: 96,
                   initialValue: _f.trenchCapability,
-                  onChanged: (value) =>
-                      _f.trenchCapability = value ?? _f.trenchCapability,
+                  onChanged:
+                      (value) =>
+                          _f.trenchCapability = value ?? _f.trenchCapability,
                 ),
               ),
 
@@ -537,8 +535,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: ['4 Bar', 'Linear', 'Pivot'],
                   label: 'Collector Type',
                   initialValue: _f.collectorType,
-                  onChanged: (value) =>
-                      _f.collectorType = value ?? _f.collectorType,
+                  onChanged:
+                      (value) => _f.collectorType = value ?? _f.collectorType,
                 ),
               ),
               Padding(
@@ -604,7 +602,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   ],
                   label: 'Indexer Type',
                   initialValue: _f.indexerType,
-                  onChanged: (value) => _f.indexerType = value ?? _f.indexerType,
+                  onChanged:
+                      (value) => _f.indexerType = value ?? _f.indexerType,
                 ),
               ),
               Padding(
