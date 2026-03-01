@@ -114,6 +114,7 @@ class PitsScoutingSubmission {
     required String eventKey,
     required String scoutedBy,
     int season = 2026,
+    String? existingId,
   }) {
     return {
       'meta': {
@@ -122,6 +123,7 @@ class PitsScoutingSubmission {
         'season': season,
         'event': eventKey,
         'scoutedBy': scoutedBy,
+        if (existingId != null) 'existingId': existingId,
       },
       'teamName': teamName,
       'teamNumber': teamNumber,

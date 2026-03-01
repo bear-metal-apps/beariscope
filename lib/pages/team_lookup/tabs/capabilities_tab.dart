@@ -139,7 +139,6 @@ class _CapabilitiesBody extends StatelessWidget {
         bundle.getPitsField<String>('trenchCapability') ?? '—';
     final rangeFromField = bundle.getPitsListField('rangeFromField');
     final moveWhileShooting = bundle.getPitsListField('moveWhileShooting');
-    final playingStyles = bundle.getPitsListField('playingStyle');
     final collectionLocations = bundle.getPitsListField(
       'fuelCollectionLocation',
     );
@@ -158,11 +157,6 @@ class _CapabilitiesBody extends StatelessWidget {
     return _specsCard(
       context,
       rows: [
-        ScoutingDataRow(
-          label: 'Playing Style',
-          value: playingStyles.isNotEmpty ? playingStyles.join(', ') : '—',
-        ),
-        const ScoutingDataDivider(),
         ScoutingDataRow(label: 'Shooter Type', value: shooterType),
         ScoutingDataRow(label: 'Collector Type', value: collectorType),
         ScoutingDataRow(label: 'Indexer Type', value: indexerType),
@@ -278,7 +272,7 @@ class _CapabilitiesBody extends StatelessWidget {
           label: 'Claimed Consistency',
           value:
               climbConsistency != null
-                  ? '${climbConsistency.toStringAsFixed(1)}%'
+                  ? '${climbConsistency.toStringAsFixed(1)} / 10'
                   : '—',
         ),
         ScoutingDataRow(label: 'Auto Climb', value: autoClimb),

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:beariscope/models/pits_scouting_models.dart';
+import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_widgets.dart';
 import 'package:beariscope/components/beariscope_card.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
 import 'package:libkoala/providers/user_profile_provider.dart';
 
-class PitsScoutingTeamCard extends StatelessWidget {
+class PitsScoutingTeamCard extends ConsumerWidget {
   final String teamName;
   final int teamNumber;
   final bool scouted;
@@ -23,7 +25,7 @@ class PitsScoutingTeamCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return BeariscopeCard(
       title: teamName,
       subtitle: '$teamNumber',
@@ -35,6 +37,26 @@ class PitsScoutingTeamCard extends StatelessWidget {
         ),
       ),
       onTap: () async {
+        ScoutingDocument? existingDoc;
+        if (scouted) {
+          final eventKey = ref.read(currentEventProvider);
+          final allDocs =
+              ref.read(scoutingDataProvider).asData?.value ?? [];
+          final pitsDocs =
+              allDocs
+                  .where(
+                    (doc) =>
+                        doc.meta?['type'] == 'pits' &&
+                        doc.meta?['event'] == eventKey &&
+                        (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+                  )
+                  .toList()
+                ..sort(
+                  (a, b) => b.timestamp.compareTo(a.timestamp),
+                );
+          existingDoc = pitsDocs.firstOrNull;
+        }
+
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
@@ -43,6 +65,7 @@ class PitsScoutingTeamCard extends StatelessWidget {
                   teamNumber: teamNumber,
                   teamName: teamName,
                   scouted: scouted,
+                  initialDoc: existingDoc,
                 ),
           ),
         );
@@ -59,12 +82,14 @@ class PitsScoutingFormPage extends ConsumerStatefulWidget {
   final String teamName;
   final int teamNumber;
   final bool scouted;
+  final ScoutingDocument? initialDoc;
 
   const PitsScoutingFormPage({
     super.key,
     required this.teamName,
     required this.teamNumber,
     required this.scouted,
+    this.initialDoc,
   });
 
   @override
@@ -72,60 +97,137 @@ class PitsScoutingFormPage extends ConsumerStatefulWidget {
       _PitsScoutingFormPageState();
 }
 
+class _PitsFormData {
+  // Bot
+  String motorType;
+  String drivetrainType;
+  String swerveBrand;
+  String wheelType;
+  // Climb
+  String climbMethod;
+  Set<String> climbType;
+  Set<String> climbLevel;
+  double climbConsistency;
+  // Auto
+  String autoClimb;
+  Set<String> fuelCollectionLocation;
+  String pathwayPreference;
+  String trenchCapability;
+  // Outtake
+  String shooter;
+  String collectorType;
+  double accuracy;
+  Set<String> mobileShooting;
+  Set<String> rangeFromField;
+  // Indexer
+  String indexerType;
+  String powered;
+
+  _PitsFormData({
+    this.motorType = 'X60',
+    this.drivetrainType = 'Swerve',
+    this.swerveBrand = 'REV',
+    this.wheelType = 'Colson',
+    this.climbMethod = 'Rotation',
+    Set<String>? climbType,
+    Set<String>? climbLevel,
+    this.climbConsistency = 0.0,
+    this.autoClimb = 'Climb',
+    Set<String>? fuelCollectionLocation,
+    this.pathwayPreference = 'Bump',
+    this.trenchCapability = 'Trench Capable',
+    this.shooter = 'Turret',
+    this.collectorType = '4 Bar',
+    this.accuracy = 0.0,
+    Set<String>? mobileShooting,
+    Set<String>? rangeFromField,
+    this.indexerType = 'Dye Rotor',
+    this.powered = 'Powered',
+  })  : climbType = climbType ?? {},
+        climbLevel = climbLevel ?? {},
+        fuelCollectionLocation = fuelCollectionLocation ?? {},
+        mobileShooting = mobileShooting ?? {},
+        rangeFromField = rangeFromField ?? {};
+
+  factory _PitsFormData.fromDoc(Map<String, dynamic> d) {
+    String str(String key, String fallback) {
+      final v = d[key];
+      return (v is String && v.isNotEmpty) ? v : fallback;
+    }
+
+    Set<String> strSet(String key) => Set<String>.from(
+          ((d[key] as List?) ?? []).map((e) => e.toString()),
+        );
+
+    double dbl(String key, double fallback) =>
+        (d[key] as num?)?.toDouble() ?? fallback;
+
+    return _PitsFormData(
+      motorType: str('motorType', 'X60'),
+      drivetrainType: str('drivetrainType', 'Swerve'),
+      swerveBrand: str('swerveBrand', 'REV'),
+      wheelType: str('wheelType', 'Colson'),
+      climbMethod: str('climbMethod', 'Rotation'),
+      climbType: strSet('climbType'),
+      climbLevel: strSet('climbLevel'),
+      climbConsistency: dbl('climbConsistency', 0.0),
+      autoClimb: str('autoClimb', 'Climb'),
+      fuelCollectionLocation: strSet('fuelCollectionLocation'),
+      pathwayPreference: str('pathwayPreference', 'Bump'),
+      trenchCapability: str('trenchCapability', 'Trench Capable'),
+      shooter: str('shooter', 'Turret'),
+      collectorType: str('collectorType', '4 Bar'),
+      accuracy: dbl('averageAccuracy', 0.0),
+      mobileShooting: strSet('moveWhileShooting'),
+      rangeFromField: strSet('rangeFromField'),
+      indexerType: str('indexerType', 'Dye Rotor'),
+      powered: str('powered', 'Powered'),
+    );
+  }
+}
+
+
 class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
+  // Text fields kept as TECs (cursor / IME management).
   final TextEditingController _hopperSizeTEC = TextEditingController();
-  late String _motorType;
-  late String _drivetrainType;
-  late String _swerveBrand;
   final TextEditingController _swerveGRTEC = TextEditingController();
-  late String _wheelType;
   final TextEditingController _chassisLengthTEC = TextEditingController();
   final TextEditingController _chassisWidthTEC = TextEditingController();
   final TextEditingController _chassisHeightTEC = TextEditingController();
   final TextEditingController _horizontalExtensionTEC = TextEditingController();
   final TextEditingController _verticalExtensionTEC = TextEditingController();
   final TextEditingController _botWeightTEC = TextEditingController();
-  late String _climbMethod;
-  late Set<String> _climbType;
-  late Set<String> _climbLevel;
-  late double _climbConsistency;
-  late String _autoClimb;
-  late Set<String> _fuelCollectionLocation;
-  late String _trenchCapability;
-  late String _pathwayPreference;
-  late String _shooter;
   final TextEditingController _shooterNumberTEC = TextEditingController();
-  late String _collectorType;
   final TextEditingController _fuelOuttakeRateTEC = TextEditingController();
-  late double _accuracy;
-  late Set<String> _mobileShooting;
-  late Set<String> _rangeFromField;
-  late String _indexerType;
-  late String _powered;
   final TextEditingController _notesTEC = TextEditingController();
+
+  // All choice-based fields in one object.
+  late _PitsFormData _f;
 
   @override
   void initState() {
     super.initState();
-    _motorType = '';
-    _drivetrainType = '';
-    _swerveBrand = '';
-    _wheelType = '';
-    _climbMethod = '';
-    _climbType = <String>{};
-    _climbLevel = <String>{};
-    _climbConsistency = 0.0;
-    _autoClimb = '';
-    _fuelCollectionLocation = <String>{};
-    _pathwayPreference = '';
-    _trenchCapability = '';
-    _shooter = '';
-    _collectorType = '';
-    _accuracy = 0.0;
-    _mobileShooting = <String>{};
-    _rangeFromField = <String>{};
-    _indexerType = '';
-    _powered = '';
+    final d = widget.initialDoc?.data;
+    if (d != null) {
+      _f = _PitsFormData.fromDoc(d);
+      _hopperSizeTEC.text = (d['hopperSize'] as num?)?.toInt().toString() ?? '';
+      _swerveGRTEC.text = (d['swerveGearRatio'] as String?) ?? '';
+      _chassisLengthTEC.text = (d['chassisLength'] as num?)?.toString() ?? '';
+      _chassisWidthTEC.text = (d['chassisWidth'] as num?)?.toString() ?? '';
+      _chassisHeightTEC.text = (d['chassisHeight'] as num?)?.toString() ?? '';
+      _horizontalExtensionTEC.text =
+          (d['horizontalExtensionLimit'] as num?)?.toString() ?? '';
+      _verticalExtensionTEC.text =
+          (d['verticalExtensionLimit'] as num?)?.toString() ?? '';
+      _botWeightTEC.text = (d['weight'] as num?)?.toString() ?? '';
+      _shooterNumberTEC.text =
+          (d['shooterNumber'] as num?)?.toInt().toString() ?? '';
+      _fuelOuttakeRateTEC.text =
+          (d['fuelOuttakeRate'] as num?)?.toString() ?? '';
+      _notesTEC.text = (d['notes'] as String?) ?? '';
+    } else {
+      _f = _PitsFormData();
+    }
   }
 
   @override
@@ -138,6 +240,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
     _horizontalExtensionTEC.dispose();
     _verticalExtensionTEC.dispose();
     _botWeightTEC.dispose();
+    _shooterNumberTEC.dispose();
     _fuelOuttakeRateTEC.dispose();
     _notesTEC.dispose();
     super.dispose();
@@ -183,8 +286,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'Other',
                   ],
                   label: 'Motor Type',
-                  variable: _motorType,
-                  onChanged: (value) => _motorType = value ?? '',
+                  initialValue: _f.motorType,
+                  onChanged: (value) => _f.motorType = value ?? _f.motorType,
                 ),
               ),
               Padding(
@@ -192,8 +295,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Swerve', 'Tank', 'Mecanum'],
                   label: 'Drivetrain Type',
-                  variable: _drivetrainType,
-                  onChanged: (value) => _drivetrainType = value ?? '',
+                  initialValue: _f.drivetrainType,
+                  onChanged: (value) =>
+                      _f.drivetrainType = value ?? _f.drivetrainType,
                 ),
               ),
               Padding(
@@ -208,8 +312,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'No Swerve',
                   ],
                   label: 'Swerve Brand',
-                  variable: _swerveBrand,
-                  onChanged: (value) => _swerveBrand = value ?? '',
+                  initialValue: _f.swerveBrand,
+                  onChanged: (value) => _f.swerveBrand = value ?? _f.swerveBrand,
                 ),
               ),
               Padding(
@@ -228,8 +332,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Colson', 'Pneumatic', 'Spike', 'Billet', 'Other'],
                   label: 'Wheel Type',
-                  variable: _wheelType,
-                  onChanged: (value) => _wheelType = value ?? '',
+                  initialValue: _f.wheelType,
+                  onChanged: (value) => _f.wheelType = value ?? _f.wheelType,
                 ),
               ),
               Padding(
@@ -311,8 +415,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
                   options: ['Rotation', 'Elevator', 'Arm', 'No Climb', 'Other'],
-                  variable: _climbMethod,
-                  onChanged: (value) => _climbMethod = value ?? '',
+                  initialValue: _f.climbMethod,
+                  onChanged: (value) =>
+                      _f.climbMethod = value ?? _f.climbMethod,
                 ),
               ),
               Padding(
@@ -325,16 +430,16 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'Buzzer Beater',
                   ],
                   label: 'Climb Type',
-                  variable: _climbType,
-                  onSelectionChanged: (value) => _climbType = value,
+                  variable: _f.climbType,
+                  onSelectionChanged: (value) => _f.climbType = value,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: MultipleChoice(
                   options: ['Level 1', 'Level 2', 'Level 3'],
-                  variable: _climbLevel,
-                  onSelectionChanged: (value) => _climbLevel = value,
+                  variable: _f.climbLevel,
+                  onSelectionChanged: (value) => _f.climbLevel = value,
                 ),
               ),
               Padding(
@@ -344,8 +449,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   max: 10,
                   divisions: 10,
                   label: 'Climb Consistency out of 10',
-                  variable: _climbConsistency,
-                  onChanged: (value) => _climbConsistency = value,
+                  initialValue: _f.climbConsistency,
+                  onChanged: (value) => _f.climbConsistency = value,
                 ),
               ),
 
@@ -361,8 +466,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: RadioButton(
                   options: ['Climb', 'No Climb'],
                   height: 96,
-                  variable: _autoClimb,
-                  onChanged: (value) => _autoClimb = value ?? '',
+                  initialValue: _f.autoClimb,
+                  onChanged: (value) => _f.autoClimb = value ?? _f.autoClimb,
                 ),
               ),
               Padding(
@@ -370,9 +475,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: MultipleChoice(
                   options: ['Outpost', 'Depot', 'Neutral Zone'],
                   label: 'Fuel Collection Location',
-                  variable: _fuelCollectionLocation,
-                  onSelectionChanged:
-                      (value) => _fuelCollectionLocation = value,
+                  variable: _f.fuelCollectionLocation,
+                  onSelectionChanged: (value) =>
+                      _f.fuelCollectionLocation = value,
                 ),
               ),
               // Pathing Here, will replace Pathway Preference and Trench Capability
@@ -381,8 +486,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: DropdownButtonOneChoice(
                   options: ['Bump', 'Trench'],
                   label: 'Pathway Preference',
-                  variable: _pathwayPreference,
-                  onChanged: (value) => _pathwayPreference = value ?? '',
+                  initialValue: _f.pathwayPreference,
+                  onChanged: (value) =>
+                      _f.pathwayPreference = value ?? _f.pathwayPreference,
                 ),
               ),
               Padding(
@@ -390,8 +496,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: RadioButton(
                   options: ['Trench Capable', 'Trench Incapable'],
                   height: 96,
-                  variable: _trenchCapability,
-                  onChanged: (value) => _trenchCapability = value ?? '',
+                  initialValue: _f.trenchCapability,
+                  onChanged: (value) =>
+                      _f.trenchCapability = value ?? _f.trenchCapability,
                 ),
               ),
 
@@ -409,13 +516,12 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'Turret',
                     'Adjustable Hood',
                     'Drum',
-                    'Stationary'
-                        'Other',
+                    'Stationary',
+                    'Other',
                   ],
-                  initialValue: '',
                   label: 'Shooter',
-                  variable: _shooter,
-                  onChanged: (value) => _shooter = value ?? '',
+                  initialValue: _f.shooter,
+                  onChanged: (value) => _f.shooter = value ?? _f.shooter,
                 ),
               ),
               Padding(
@@ -430,8 +536,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: DropdownButtonOneChoice(
                   options: ['4 Bar', 'Linear', 'Pivot'],
                   label: 'Collector Type',
-                  variable: _collectorType,
-                  onChanged: (value) => _collectorType = value ?? '',
+                  initialValue: _f.collectorType,
+                  onChanged: (value) =>
+                      _f.collectorType = value ?? _f.collectorType,
                 ),
               ),
               Padding(
@@ -448,8 +555,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   max: 100,
                   divisions: 20,
                   label: 'Average Accuracy %',
-                  variable: _accuracy,
-                  onChanged: (value) => _accuracy = value,
+                  initialValue: _f.accuracy,
+                  onChanged: (value) => _f.accuracy = value,
                 ),
               ),
               Padding(
@@ -457,8 +564,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: MultipleChoice(
                   options: ['Mobile Shooting', 'Stationary Shooting'],
                   label: 'Move while Shooting?',
-                  variable: _mobileShooting,
-                  onSelectionChanged: (value) => _mobileShooting = value,
+                  variable: _f.mobileShooting,
+                  onSelectionChanged: (value) => _f.mobileShooting = value,
                 ),
               ),
               Padding(
@@ -472,8 +579,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'From Tower',
                   ],
                   label: 'Range from Field',
-                  variable: _rangeFromField,
-                  onSelectionChanged: (value) => _rangeFromField = value,
+                  variable: _f.rangeFromField,
+                  onSelectionChanged: (value) => _f.rangeFromField = value,
                 ),
               ),
 
@@ -496,8 +603,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     'Other',
                   ],
                   label: 'Indexer Type',
-                  variable: _indexerType,
-                  onChanged: (value) => _indexerType = value ?? '',
+                  initialValue: _f.indexerType,
+                  onChanged: (value) => _f.indexerType = value ?? _f.indexerType,
                 ),
               ),
               Padding(
@@ -505,8 +612,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                 child: RadioButton(
                   options: ['Powered', 'Not Powered'],
                   height: 96,
-                  variable: _powered,
-                  onChanged: (value) => _powered = value ?? '',
+                  initialValue: _f.powered,
+                  onChanged: (value) => _f.powered = value ?? _f.powered,
                 ),
               ),
               Padding(
@@ -526,11 +633,11 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                       teamName: widget.teamName,
                       teamNumber: widget.teamNumber,
                       hopperSize: int.tryParse(_hopperSizeTEC.text),
-                      motorType: _motorType,
-                      drivetrainType: _drivetrainType,
-                      swerveBrand: _swerveBrand,
+                      motorType: _f.motorType,
+                      drivetrainType: _f.drivetrainType,
+                      swerveBrand: _f.swerveBrand,
                       swerveGearRatio: _swerveGRTEC.text,
-                      wheelType: _wheelType,
+                      wheelType: _f.wheelType,
                       chassisLength: double.tryParse(_chassisLengthTEC.text),
                       chassisWidth: double.tryParse(_chassisWidthTEC.text),
                       chassisHeight: double.tryParse(_chassisHeightTEC.text),
@@ -541,31 +648,32 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         _verticalExtensionTEC.text,
                       ),
                       weight: double.tryParse(_botWeightTEC.text),
-                      climbMethod: _climbMethod,
-                      climbType: _climbType,
-                      climbLevel: _climbLevel,
-                      climbConsistency: _climbConsistency,
-                      autoClimb: _autoClimb,
-                      fuelCollectionLocation: _fuelCollectionLocation,
-                      pathwayPreference: _pathwayPreference,
-                      trenchCapability: _trenchCapability,
-                      shooter: _shooter,
+                      climbMethod: _f.climbMethod,
+                      climbType: _f.climbType,
+                      climbLevel: _f.climbLevel,
+                      climbConsistency: _f.climbConsistency,
+                      autoClimb: _f.autoClimb,
+                      fuelCollectionLocation: _f.fuelCollectionLocation,
+                      pathwayPreference: _f.pathwayPreference,
+                      trenchCapability: _f.trenchCapability,
+                      shooter: _f.shooter,
                       shooterNumber: int.tryParse(_shooterNumberTEC.text),
-                      collectorType: _collectorType,
+                      collectorType: _f.collectorType,
                       fuelOuttakeRate: double.tryParse(
                         _fuelOuttakeRateTEC.text,
                       ),
-                      averageAccuracy: _accuracy,
-                      moveWhileShooting: _mobileShooting,
-                      rangeFromField: _rangeFromField,
-                      indexerType: _indexerType,
-                      powered: _powered,
+                      averageAccuracy: _f.accuracy,
+                      moveWhileShooting: _f.mobileShooting,
+                      rangeFromField: _f.rangeFromField,
+                      indexerType: _f.indexerType,
+                      powered: _f.powered,
                       notes: _notesTEC.text,
                     );
 
                     final entry = submission.toIngestEntry(
                       eventKey: currentEventKey,
                       scoutedBy: scoutedBy,
+                      existingId: widget.initialDoc?.id,
                     );
                     try {
                       await ref
