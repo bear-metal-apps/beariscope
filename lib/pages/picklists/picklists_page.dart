@@ -31,7 +31,7 @@ class PicklistsPageState extends ConsumerState<PicklistsPage> {
       final box = await Hive.openBox('picklists');
       Map<String, dynamic>? foundPicklist;
 
-      // Search for picklist by password
+      // search for picklist by password
       for (final value in box.values) {
         final picklistMap = Map<String, dynamic>.from(value as Map);
         if (picklistMap['password'] == joinCode) {

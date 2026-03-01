@@ -74,7 +74,7 @@ class PicklistNotifier extends Notifier<List<Picklist>> {
         return;
       }
     }
-    // If not found, just add the new one
+    // if not found, just add the new one
     addPicklist(newPicklist);
   }
 }

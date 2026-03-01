@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:beariscope/components/beariscope_card.dart';
-import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
+import 'package:beariscope/pages/pits_scouting/pits_scouting_teams.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 
