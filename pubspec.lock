@@ -692,8 +692,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v6.2.0"
-      resolved-ref: "677297c42a79929c46cc573dbf4eb03067c32498"
+      ref: "v6.2.1"
+      resolved-ref: "6619724d5f64f2a524159ee4f7c35b8aa1a39a39"
       url: "https://github.com/bear-metal-apps/libkoala.git"
     source: git
     version: "6.2.0"

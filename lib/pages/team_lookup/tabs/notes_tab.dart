@@ -96,6 +96,22 @@ class _NotesBody extends StatelessWidget {
       );
     }
 
+    for (final doc in bundle.driveTeamDocs) {
+      final rawMatchKey = doc.meta?['matchKey']?.toString() ?? '';
+      final matchLabel = _NotesBody._formatMatchKey(rawMatchKey);
+      final scoutedBy = doc.meta?['scoutedBy']?.toString() ?? '';
+      final note = doc.data['note']?.toString().trim() ?? '';
+      feedItems.add(
+        _FeedItem(
+          sourceLabel: 'Drive Team \u00b7 $matchLabel',
+          scoutedBy: scoutedBy,
+          notes: note,
+          incidents: const [],
+          timestamp: doc.timestamp,
+        ),
+      );
+    }
+
     // TODO(strat): add strat notes entry once strat data is implemented.
 
     final hasAnyContent = feedItems.any(
@@ -158,6 +174,15 @@ class _NotesBody extends StatelessWidget {
 
   static dynamic _field(ScoutingDocument doc, String section, String fieldId) =>
       TeamScoutingBundle.getMatchField(doc, section, fieldId);
+
+  static String _formatMatchKey(String matchKey) {
+    final underscore = matchKey.lastIndexOf('_');
+    if (underscore < 0 || underscore == matchKey.length - 1) return matchKey;
+    final part = matchKey.substring(underscore + 1);
+    final match = RegExp(r'^([a-zA-Z]+)(\d+)').firstMatch(part);
+    if (match == null) return part.toUpperCase();
+    return '${match.group(1)!.toUpperCase()} ${match.group(2)!}';
+  }
 }
 
 class _FeedItem {

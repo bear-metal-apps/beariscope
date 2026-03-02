@@ -11,6 +11,7 @@ import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:libkoala/providers/permissions_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:beariscope/pages/team_lookup/team_providers.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -335,8 +336,15 @@ class TeamDetailsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final showNotes =
+        ref
+            .watch(permissionCheckerProvider)
+            ?.hasPermission(PermissionKey.notesRead) ??
+        false;
+
     return DefaultTabController(
-      length: 4,
+      key: ValueKey(showNotes),
+      length: showNotes ? 4 : 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text('$teamName - $teamNumber'),
@@ -388,19 +396,19 @@ class TeamDetailsPage extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Averages'),
-              Tab(text: 'Notes'),
-              Tab(text: 'Capabilities'),
-              Tab(text: 'Matches'),
+              const Tab(text: 'Averages'),
+              if (showNotes) const Tab(text: 'Notes'),
+              const Tab(text: 'Capabilities'),
+              const Tab(text: 'Matches'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
             AveragesTab(teamNumber: teamNumber),
-            NotesTab(teamNumber: teamNumber),
+            if (showNotes) NotesTab(teamNumber: teamNumber),
             CapabilitiesTab(teamNumber: teamNumber),
             MatchesTab(teamNumber: teamNumber),
           ],

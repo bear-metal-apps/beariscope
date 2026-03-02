@@ -18,10 +18,17 @@ class TeamScoutingBundle {
   // TODO(strat): wire strat data when strat upload is implemented.
   final ScoutingDocument? stratDoc;
 
+  /// All drive team scouting note documents for this team at the current event.
+  ///
+  /// Unlike [matchDocs], these are *not* filtered by user — every drive team
+  /// member's submissions are included so the Notes tab shows all perspectives.
+  final List<ScoutingDocument> driveTeamDocs;
+
   const TeamScoutingBundle({
     required this.matchDocs,
     required this.pitsDoc,
     required this.stratDoc,
+    required this.driveTeamDocs,
   });
 
   bool get hasMatchData => matchDocs.isNotEmpty;

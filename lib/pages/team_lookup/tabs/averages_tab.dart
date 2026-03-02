@@ -50,6 +50,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
       matchDocs: limited,
       pitsDoc: widget.bundle.pitsDoc,
       stratDoc: widget.bundle.stratDoc,
+      driveTeamDocs: widget.bundle.driveTeamDocs,
     );
   }
 
