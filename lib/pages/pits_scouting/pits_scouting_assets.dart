@@ -108,6 +108,7 @@ class _PitsFormData {
   // Auto
   String autoClimb;
   Set<String> fuelCollectionLocation;
+  String autoPaths;
   String pathwayPreference;
   String trenchCapability;
   // Outtake
@@ -131,6 +132,7 @@ class _PitsFormData {
     this.climbConsistency = 0.0,
     this.autoClimb = 'Climb',
     Set<String>? fuelCollectionLocation,
+    this.autoPaths = '',
     this.pathwayPreference = 'Bump',
     this.trenchCapability = 'Trench Capable',
     this.shooter = 'Turret',
@@ -169,6 +171,7 @@ class _PitsFormData {
       climbConsistency: dbl('climbConsistency', 0.0),
       autoClimb: str('autoClimb', 'Climb'),
       fuelCollectionLocation: strSet('fuelCollectionLocation'),
+      autoPaths: str('autoPaths', ''),
       pathwayPreference: str('pathwayPreference', 'Bump'),
       trenchCapability: str('trenchCapability', 'Trench Capable'),
       shooter: str('shooter', 'Turret'),
@@ -192,6 +195,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
   final TextEditingController _horizontalExtensionTEC = TextEditingController();
   final TextEditingController _verticalExtensionTEC = TextEditingController();
   final TextEditingController _botWeightTEC = TextEditingController();
+  final TextEditingController _autoPathsTEC = TextEditingController();
   final TextEditingController _shooterNumberTEC = TextEditingController();
   final TextEditingController _fuelOuttakeRateTEC = TextEditingController();
   final TextEditingController _notesTEC = TextEditingController();
@@ -215,6 +219,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
       _verticalExtensionTEC.text =
           (d['verticalExtensionLimit'] as num?)?.toString() ?? '';
       _botWeightTEC.text = (d['weight'] as num?)?.toString() ?? '';
+      _autoPathsTEC.text = (d['autoPaths'] as String?) ?? '';
       _shooterNumberTEC.text =
           (d['shooterNumber'] as num?)?.toInt().toString() ?? '';
       _fuelOuttakeRateTEC.text =
@@ -235,6 +240,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
     _horizontalExtensionTEC.dispose();
     _verticalExtensionTEC.dispose();
     _botWeightTEC.dispose();
+    _autoPathsTEC.dispose();
     _shooterNumberTEC.dispose();
     _fuelOuttakeRateTEC.dispose();
     _notesTEC.dispose();
@@ -255,6 +261,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Bot
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -301,7 +308,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   options: [
                     'REV',
                     'WCP',
-                    'SCS',
+                    'SDS',
                     'Thrifty Bot',
                     'Andymark',
                     'No Swerve',
@@ -399,7 +406,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   controller: _botWeightTEC,
                 ),
               ),
-
+              // Climb
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -476,7 +483,16 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                       (value) => _f.fuelCollectionLocation = value,
                 ),
               ),
-              // Pathing Here, will replace Pathway Preference and Trench Capability
+              // Pathing Here, will replace Pathway Preference, Trench Capability, and Auto Paths
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: TextField(
+                  controller: _autoPathsTEC,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  decoration: InputDecoration(labelText: 'Auto Paths'),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
@@ -499,7 +515,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                           _f.trenchCapability = value ?? _f.trenchCapability,
                 ),
               ),
-
+              // Outtake
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -581,7 +597,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                   onSelectionChanged: (value) => _f.rangeFromField = value,
                 ),
               ),
-
+              // Indexer
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 30, 20, 0),
                 child: Text(
@@ -653,6 +669,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                       climbConsistency: _f.climbConsistency,
                       autoClimb: _f.autoClimb,
                       fuelCollectionLocation: _f.fuelCollectionLocation,
+                      autoPaths: _autoPathsTEC.text,
                       pathwayPreference: _f.pathwayPreference,
                       trenchCapability: _f.trenchCapability,
                       shooter: _f.shooter,
