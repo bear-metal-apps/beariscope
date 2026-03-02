@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 class SinglePeriodEnforcer extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final newText = newValue.text;
     // Allow only one period
     if ('.'.allMatches(newText).length <= 1) {
@@ -37,7 +37,7 @@ class NumberTextField extends StatelessWidget {
       onChanged: onChanged,
       inputFormatters: <TextInputFormatter>[
         FilteringTextInputFormatter.allow(RegExp(r'[\d\.]')),
-        SinglePeriodEnforcer()
+        SinglePeriodEnforcer(),
       ],
     );
   }

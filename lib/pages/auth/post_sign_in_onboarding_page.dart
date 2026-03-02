@@ -170,9 +170,9 @@ class _PostSignInOnboardingPageState
       final cachedUserInfo = ref.read(userInfoProvider).asData?.value;
       final remainingSteps =
           cachedUserInfo != null
-              ? _requiredSteps(cachedUserInfo)
-                  .where((s) => s != _OnboardingStep.realName)
-                  .toList()
+              ? _requiredSteps(
+                cachedUserInfo,
+              ).where((s) => s != _OnboardingStep.realName).toList()
               : <_OnboardingStep>[];
 
       if (mounted) {
@@ -237,9 +237,7 @@ class _PostSignInOnboardingPageState
           final steps =
               _requiredSteps(userInfo)
                   .where(
-                    (s) =>
-                        !_nameStepComplete ||
-                        s != _OnboardingStep.realName,
+                    (s) => !_nameStepComplete || s != _OnboardingStep.realName,
                   )
                   .toList();
           if (steps.isEmpty) {

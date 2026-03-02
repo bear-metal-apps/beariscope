@@ -34,10 +34,11 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
   pitsDocs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
   final pitsDoc = pitsDocs.firstOrNull;
 
-  final driveTeamDocs = teamDocs
-      .where((doc) => doc.meta?['type']?.toString() == 'drive_team')
-      .toList()
-    ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+  final driveTeamDocs =
+      teamDocs
+          .where((doc) => doc.meta?['type']?.toString() == 'drive_team')
+          .toList()
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
   return TeamScoutingBundle(
     matchDocs: matchDocs,

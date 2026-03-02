@@ -273,10 +273,7 @@ class _DriveTeamMatchPreviewPageState
                         width: 586,
                         child: FilledButton(
                           onPressed: () {
-                            final is2046OnRed = containsTeam(
-                              redTeams,
-                              '2046',
-                            );
+                            final is2046OnRed = containsTeam(redTeams, '2046');
                             final is2046OnBlue = containsTeam(
                               blueTeams,
                               '2046',
@@ -454,9 +451,9 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save notes: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save notes: $e')));
       }
     }
   }
@@ -467,14 +464,16 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
     final theme = Theme.of(context);
 
     return notesAsync.when(
-      loading: () => const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, _) => SizedBox(
-        height: 200,
-        child: Center(child: Text('Error loading notes: $e')),
-      ),
+      loading:
+          () => const SizedBox(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      error:
+          (e, _) => SizedBox(
+            height: 200,
+            child: Center(child: Text('Error loading notes: $e')),
+          ),
       data: (existingNotes) {
         _initControllers(existingNotes);
 
@@ -482,9 +481,7 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
           return const Padding(
             padding: EdgeInsets.all(32),
             child: Center(
-              child: Text(
-                'Cannot load notes — 2046 not found in this match.',
-              ),
+              child: Text('Cannot load notes — 2046 not found in this match.'),
             ),
           );
         }
@@ -507,8 +504,10 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
                 for (final teamKey in widget.allianceMemberTeamKeys) ...[
                   Builder(
                     builder: (context) {
-                      final teamNumber =
-                          teamKey.replaceFirst(RegExp(r'^frc'), '');
+                      final teamNumber = teamKey.replaceFirst(
+                        RegExp(r'^frc'),
+                        '',
+                      );
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -539,13 +538,14 @@ class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: _isSaving ? null : _save,
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Save Notes'),
+                    child:
+                        _isSaving
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Text('Save Notes'),
                   ),
                 ),
               ],

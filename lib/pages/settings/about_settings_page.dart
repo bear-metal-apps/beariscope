@@ -58,15 +58,13 @@ class AboutSettingsPage extends ConsumerWidget {
                     } else {
                       final (info, codename) = snapshot.data!;
                       final version = info.version;
-                      if (codename    .isEmpty || codename == 'Unknown') {
+                      if (codename.isEmpty || codename == 'Unknown') {
                         return Text(version);
                       }
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('$version $codename'),
-                        ],
+                        children: [Text('$version $codename')],
                       );
                     }
                   },
