@@ -19,6 +19,7 @@ class _PostSignInOnboardingPageState
   final TextEditingController _nameController = TextEditingController();
   bool _isSavingName = false;
   bool _isFinishingFlow = false;
+  bool _nameStepComplete = false;
 
   @override
   void dispose() {
@@ -162,15 +163,29 @@ class _PostSignInOnboardingPageState
       await ref
           .read(userProfileServiceProvider)
           .updateProfile(name: rawName.trim());
-      final updatedUserInfo = await ref.refresh(userInfoProvider.future);
 
-      if (updatedUserInfo != null && _requiredSteps(updatedUserInfo).isEmpty) {
-        if (mounted) {
-          setState(() => _isSavingName = false);
-        }
-        await _finishFlow();
-        return;
+      // name saved successfully. don't rely on Auth0's /userinfo propagating
+      // the change immediately, mark the step as complete locally and check
+      // remaining steps using the currently cached userInfo.
+      final cachedUserInfo = ref.read(userInfoProvider).asData?.value;
+      final remainingSteps =
+          cachedUserInfo != null
+              ? _requiredSteps(cachedUserInfo)
+                  .where((s) => s != _OnboardingStep.realName)
+                  .toList()
+              : <_OnboardingStep>[];
+
+      if (mounted) {
+        setState(() {
+          _isSavingName = false;
+          _nameStepComplete = true;
+        });
       }
+
+      if (remainingSteps.isEmpty) {
+        await _finishFlow();
+      }
+      return;
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -219,7 +234,14 @@ class _PostSignInOnboardingPageState
             return const Center(child: CircularProgressIndicator());
           }
 
-          final steps = _requiredSteps(userInfo);
+          final steps =
+              _requiredSteps(userInfo)
+                  .where(
+                    (s) =>
+                        !_nameStepComplete ||
+                        s != _OnboardingStep.realName,
+                  )
+                  .toList();
           if (steps.isEmpty) {
             _scheduleFinishFlow();
             return const Center(child: CircularProgressIndicator());

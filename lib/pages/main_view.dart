@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:libkoala/libkoala.dart';
 import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
@@ -138,6 +139,14 @@ class _MainViewState extends ConsumerState<MainView> {
                 )
                 : widget.child;
 
+        // checks for showing no perms banner
+        final authMeLoaded = ref.watch(authMeProvider).hasValue;
+        final permissionChecker = ref.watch(permissionCheckerProvider);
+        final hasNoPermissions =
+            authMeLoaded &&
+            permissionChecker != null &&
+            permissionChecker.permissions.isEmpty;
+
         return Scaffold(
           key: _scaffoldKey,
           // Only enable drawer when at top level and on mobile
@@ -147,7 +156,13 @@ class _MainViewState extends ConsumerState<MainView> {
           body: MainViewController(
             isDesktop: isDesktop,
             openDrawer: () => _scaffoldKey.currentState?.openDrawer(),
-            child: childContent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (hasNoPermissions) const _NoPermissionsBanner(),
+                Expanded(child: childContent),
+              ],
+            ),
           ),
         );
       },
@@ -346,5 +361,43 @@ class _MainViewState extends ConsumerState<MainView> {
     );
 
     return children;
+  }
+}
+
+class _NoPermissionsBanner extends StatelessWidget {
+  const _NoPermissionsBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.errorContainer,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Symbols.warning_rounded,
+                color: colorScheme.onErrorContainer,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'You don\'t have any permissions yet and won\'t be able to use the app. Ask an Apps lead or Executive to give you access.',
+                  style: TextStyle(
+                    color: colorScheme.onErrorContainer,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

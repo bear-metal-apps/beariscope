@@ -359,7 +359,7 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         false;
 
     if (confirmed && context.mounted) {
-      await ref.read(authProvider).logout();
+      await ref.read(authProvider).logout(federated: true);
     }
   }
 
