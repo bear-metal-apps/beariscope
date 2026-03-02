@@ -128,13 +128,26 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'licenses',
                 builder: (_, _) {
-                  return FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
+                  return FutureBuilder<(PackageInfo, String)>(
+                    future: Future.wait([
+                      PackageInfo.fromPlatform(),
+                      rootBundle.loadString('assets/codename.txt'),
+                    ]).then(
+                      (results) => (
+                        results[0] as PackageInfo,
+                        (results[1] as String).trim(),
+                      ),
+                    ),
                     builder: (context, snapshot) {
-                      final version = snapshot.data?.version ?? '...';
+                      final version = snapshot.data?.$1.version ?? '...';
+                      final codename = snapshot.data?.$2 ?? '';
+                      final displayVersion =
+                          codename.isNotEmpty && codename != 'Unknown'
+                              ? '$version $codename'
+                              : version;
                       return LicensePage(
                         applicationName: 'Beariscope',
-                        applicationVersion: version,
+                        applicationVersion: displayVersion,
                       );
                     },
                   );
@@ -184,13 +197,26 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'licenses',
             builder: (_, _) {
-              return FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
+              return FutureBuilder<(PackageInfo, String)>(
+                future: Future.wait([
+                  PackageInfo.fromPlatform(),
+                  rootBundle.loadString('assets/codename.txt'),
+                ]).then(
+                  (results) => (
+                    results[0] as PackageInfo,
+                    (results[1] as String).trim(),
+                  ),
+                ),
                 builder: (context, snapshot) {
-                  final version = snapshot.data?.version ?? '...';
+                  final version = snapshot.data?.$1.version ?? '...';
+                  final codename = snapshot.data?.$2 ?? '';
+                  final displayVersion =
+                      codename.isNotEmpty && codename != 'Unknown'
+                          ? '$version \u2014 $codename'
+                          : version;
                   return LicensePage(
                     applicationName: 'Beariscope',
-                    applicationVersion: version,
+                    applicationVersion: displayVersion,
                   );
                 },
               );

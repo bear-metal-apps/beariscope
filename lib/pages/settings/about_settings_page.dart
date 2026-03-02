@@ -1,5 +1,6 @@
 import 'package:beariscope/components/settings_group.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -39,15 +40,34 @@ class AboutSettingsPage extends ConsumerWidget {
               ListTile(
                 leading: const Icon(Symbols.update_rounded),
                 title: const Text('Version'),
-                trailing: FutureBuilder<PackageInfo>(
-                  future: PackageInfo.fromPlatform(),
+                trailing: FutureBuilder<(PackageInfo, String)>(
+                  future: Future.wait([
+                    PackageInfo.fromPlatform(),
+                    rootBundle.loadString('assets/codename.txt'),
+                  ]).then(
+                    (results) => (
+                      results[0] as PackageInfo,
+                      (results[1] as String).trim(),
+                    ),
+                  ),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Text('Loading');
                     } else if (snapshot.hasError) {
                       return const Text('Error');
                     } else {
-                      return Text(snapshot.data?.version ?? 'Unknown');
+                      final (info, codename) = snapshot.data!;
+                      final version = info.version;
+                      if (codename    .isEmpty || codename == 'Unknown') {
+                        return Text(version);
+                      }
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('$version $codename'),
+                        ],
+                      );
                     }
                   },
                 ),
@@ -83,7 +103,6 @@ class AboutSettingsPage extends ConsumerWidget {
             title: 'Legal',
             children: [
               ListTile(
-                leading: const Icon(Symbols.policy_rounded),
                 title: const Text('Privacy Policy'),
                 trailing: const Icon(Symbols.open_in_new_rounded),
                 onTap:
