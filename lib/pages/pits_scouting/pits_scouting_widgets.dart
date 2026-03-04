@@ -1,6 +1,21 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+class SinglePeriodEnforcer extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final newText = newValue.text;
+    // Allow only one period
+    if ('.'.allMatches(newText).length <= 1) {
+      return newValue;
+    }
+    return oldValue;
+  }
+}
+
 class NumberTextField extends StatelessWidget {
   final String labelText;
   final TextEditingController? controller;
@@ -21,7 +36,8 @@ class NumberTextField extends StatelessWidget {
       keyboardType: TextInputType.number,
       onChanged: onChanged,
       inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.digitsOnly,
+        FilteringTextInputFormatter.allow(RegExp(r'[\d\.]')),
+        SinglePeriodEnforcer(),
       ],
     );
   }

@@ -62,6 +62,7 @@ class PitsScoutingSubmission {
   final double climbConsistency;
   final String autoClimb;
   final Set<String> fuelCollectionLocation;
+  final String autoPaths;
   final String pathwayPreference;
   final String trenchCapability;
   final String shooter;
@@ -96,6 +97,7 @@ class PitsScoutingSubmission {
     required this.climbConsistency,
     required this.autoClimb,
     required this.fuelCollectionLocation,
+    required this.autoPaths,
     required this.pathwayPreference,
     required this.trenchCapability,
     required this.shooter,
@@ -145,6 +147,7 @@ class PitsScoutingSubmission {
       'climbConsistency': climbConsistency,
       'autoClimb': autoClimb,
       'fuelCollectionLocation': fuelCollectionLocation.toList(),
+      'autoPaths': autoPaths,
       'pathwayPreference': pathwayPreference,
       'trenchCapability': trenchCapability,
       'shooter': shooter,

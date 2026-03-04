@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:libkoala/libkoala.dart';
-import 'package:libkoala/ui/widgets/profile_picture.dart';
 import 'package:material_symbols_icons/symbols.dart';
 
 class _NavItem {
