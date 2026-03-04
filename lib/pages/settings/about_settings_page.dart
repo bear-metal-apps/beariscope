@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutSettingsPage extends ConsumerWidget {
@@ -38,7 +39,6 @@ class AboutSettingsPage extends ConsumerWidget {
             title: 'App',
             children: [
               ListTile(
-                leading: const Icon(Symbols.update_rounded),
                 title: const Text('Version'),
                 trailing: FutureBuilder<(PackageInfo, String)>(
                   future: Future.wait([
@@ -58,19 +58,28 @@ class AboutSettingsPage extends ConsumerWidget {
                     } else {
                       final (info, codename) = snapshot.data!;
                       final version = info.version;
-                      if (codename    .isEmpty || codename == 'Unknown') {
+                      if (codename.isEmpty || codename == 'Unknown') {
                         return Text(version);
                       }
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('$version $codename'),
-                        ],
+                        children: [Text('$version $codename')],
                       );
                     }
                   },
                 ),
+              ),
+              ListTile(
+                title: const Text('Beariscope GitHub'),
+                subtitle: const Text('Source code & other downloads'),
+                trailing: const Icon(Symbols.open_in_new_rounded),
+                onTap:
+                    () => _launchUrl(
+                      context,
+                      'https://github.com/bear-metal-apps/beariscope',
+                      'Beariscope GitHub',
+                    ),
               ),
             ],
           ),

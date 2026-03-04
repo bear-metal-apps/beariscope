@@ -68,6 +68,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final canManageUsersRoles =
         permissionChecker?.hasPermission(PermissionKey.usersRolesManage) ??
         false;
+    final canProvision =
+        permissionChecker?.hasPermission(PermissionKey.deviceProvision) ??
+        false;
     // only show the event selector when the user has at least one permission
     final canSelectEvent =
         permissionChecker != null && permissionChecker.permissions.isNotEmpty;
@@ -207,7 +210,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
             const SizedBox(height: 16),
 
-            if (canViewScouts || canEditScouts || canManageUsersRoles)
+            if (canViewScouts ||
+                canEditScouts ||
+                canManageUsersRoles ||
+                canProvision)
               SettingsGroup(
                 title: 'Team',
                 children: [
@@ -227,10 +233,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       subtitle: const Text('Edit Roles, Permissions, Users'),
                       onTap: () => context.push('/settings/roles'),
                     ),
+                  if (canProvision)
+                    ListTile(
+                      leading: const Icon(Symbols.qr_code_rounded),
+                      title: const Text('Device Provisioning'),
+                      subtitle: const Text('Generate Pawfinder QR Code'),
+                      onTap:
+                          () => context.push('/settings/device_provisioning'),
+                    ),
                 ],
               ),
 
-            if (canViewScouts || canEditScouts || canManageUsersRoles)
+            if (canViewScouts ||
+                canEditScouts ||
+                canManageUsersRoles ||
+                canProvision)
               const SizedBox(height: 16),
 
             // About Section
