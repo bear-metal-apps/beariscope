@@ -115,10 +115,7 @@ class _FieldTile extends StatefulWidget {
   final String value;
   final bool obscure;
 
-  const _FieldTile({
-    required this.label,
-    required this.value,
-  });
+  const _FieldTile({required this.label, required this.value});
 
   @override
   State<_FieldTile> createState() => _FieldTileState();
