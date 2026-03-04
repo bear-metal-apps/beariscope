@@ -79,7 +79,10 @@ jobs:
         id: bump
         run: |
           VERSION="${{ steps.normalize.outputs.version }}"
-          BUILD_NUMBER="${{ github.run_number }}"
+          
+          # Read current build number from pubspec.yaml and increment it
+          CURRENT_BUILD=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
+          BUILD_NUMBER=$((CURRENT_BUILD + 1))
           FULL_VERSION="${VERSION}+${BUILD_NUMBER}"
           
           sed -i "s/^version: .*/version: ${FULL_VERSION}/" pubspec.yaml
