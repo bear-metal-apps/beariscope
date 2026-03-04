@@ -118,7 +118,6 @@ class _FieldTile extends StatefulWidget {
   const _FieldTile({
     required this.label,
     required this.value,
-    this.obscure = false,
   });
 
   @override
