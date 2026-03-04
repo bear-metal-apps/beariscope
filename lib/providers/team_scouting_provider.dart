@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// All documents come from the current event only — [scoutingDataProvider]
 /// is already filtered to the current event before this provider runs.
 ///
-/// Strat data is not yet implemented — [TeamScoutingBundle.stratDoc] is always
-/// null until strat upload is wired up.
+/// Strat docs are matched by team number appearing in any of the four ranking
+/// lists (not via a top-level teamNumber field).
 final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
   ref,
   teamNumber,
@@ -40,11 +40,30 @@ final teamScoutingProvider = FutureProvider.family<TeamScoutingBundle, int>((
           .toList()
         ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
+  // Strat docs are keyed by team number inside ranking lists, not by a top-level
+  // teamNumber field.  Search all event docs for strat entries that include this
+  // team in any of the four ranking lists.
+  const stratRankingKeys = [
+    'driverSkillRanking',
+    'defensiveSkillRanking',
+    'defensiveSusceptibilityRanking',
+    'mechanicalStabilityRanking',
+  ];
+  final teamStr = teamNumber.toString();
+  final stratDocs =
+      allDocs.where((doc) {
+          if (doc.meta?['type']?.toString() != 'strat') return false;
+          return stratRankingKeys.any((key) {
+            final v = doc.data[key];
+            return v is List && v.map((e) => e.toString()).contains(teamStr);
+          });
+        }).toList()
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
   return TeamScoutingBundle(
     matchDocs: matchDocs,
     pitsDoc: pitsDoc,
-    // TODO(strat): pass strat doc once strat upload is implemented.
-    stratDoc: null,
+    stratDocs: stratDocs,
     driveTeamDocs: driveTeamDocs,
   );
 });

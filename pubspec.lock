@@ -684,11 +684,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v6.2.1"
-      resolved-ref: "6619724d5f64f2a524159ee4f7c35b8aa1a39a39"
+      ref: "v6.3.0"
+      resolved-ref: f09649a81d7f6ff6e40a48dd57ef036eb3937eac
       url: "https://github.com/bear-metal-apps/libkoala.git"
     source: git
-    version: "6.2.0"
+    version: "6.3.0"
   lints:
     dependency: transitive
     description:
@@ -953,6 +953,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "5a1d2586170e172b8a8c8470bbbffd5eb0cd38a66c0d77155ea138d3af3a4445"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
+  qr_flutter:
+    dependency: "direct main"
+    description:
+      name: qr_flutter
+      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   riverpod:
     dependency: transitive
     description:

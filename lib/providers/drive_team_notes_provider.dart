@@ -3,13 +3,6 @@ import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/permissions_provider.dart';
 
-/// Returns the current user's drive team notes for the given [matchKey],
-/// keyed by team number.
-///
-/// Only returns notes submitted by the currently authenticated user — drive
-/// team members each have their own isolated view in match preview.
-///
-/// Returns an empty map while authentication / scouting data is still loading.
 final myDriveTeamNotesProvider =
     FutureProvider.family<Map<int, DriveTeamNote>, String>((
       ref,

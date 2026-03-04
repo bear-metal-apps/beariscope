@@ -1,6 +1,7 @@
 import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,19 +15,32 @@ class AveragesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(teamScoutingProvider(teamNumber));
+    final stratZScores =
+        ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
-      data: (bundle) => _AveragesBody(bundle: bundle),
+      data:
+          (bundle) => _AveragesBody(
+            bundle: bundle,
+            teamNumber: teamNumber,
+            stratZScores: stratZScores,
+          ),
     );
   }
 }
 
 class _AveragesBody extends StatefulWidget {
   final TeamScoutingBundle bundle;
+  final int teamNumber;
+  final StratZScoreData stratZScores;
 
-  const _AveragesBody({required this.bundle});
+  const _AveragesBody({
+    required this.bundle,
+    required this.teamNumber,
+    required this.stratZScores,
+  });
 
   @override
   State<_AveragesBody> createState() => _AveragesBodyState();
@@ -49,7 +63,7 @@ class _AveragesBodyState extends State<_AveragesBody> {
     return TeamScoutingBundle(
       matchDocs: limited,
       pitsDoc: widget.bundle.pitsDoc,
-      stratDoc: widget.bundle.stratDoc,
+      stratDocs: widget.bundle.stratDocs,
       driveTeamDocs: widget.bundle.driveTeamDocs,
     );
   }
@@ -238,9 +252,35 @@ class _AveragesBodyState extends State<_AveragesBody> {
                 ),
                 ScoutingDataRow(label: 'Avg Fouls', value: _fmtDec(avgFouls)),
                 const ScoutingDataDivider(),
-                // TODO(strat): replace with actual strat data once implemented.
-                const ScoutingDataRow(label: 'Driver Skill', value: '—'),
-                const ScoutingDataRow(label: 'Defense Rating', value: '—'),
+                ScoutingDataRow(
+                  label: 'Driver Skill',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.driverSkillZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Defensive Skill',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.defensiveSkillZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Defense Susceptibility',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.defensiveSusceptibilityZ[widget
+                        .teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Mech. Stability',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.mechanicalStabilityZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
               ],
             ),
           ),

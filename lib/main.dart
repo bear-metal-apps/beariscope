@@ -33,6 +33,7 @@ import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
+import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -193,6 +194,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (_, _) => const ScoutSelectionPage(),
           ),
           GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
+          GoRoute(
+            path: 'device_provisioning',
+            builder: (_, _) => const DeviceProvisioningPage(),
+          ),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',
@@ -252,10 +257,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         final isRoleManagementRoute = location == '/settings/roles';
         final isScoutManagementRoute = location == '/settings/user_selection';
         final isPicklistCreateRoute = location == '/picklists/create';
+        final isDeviceProvisioningRoute =
+            location == '/settings/device_provisioning';
         final needsPermissions =
             isRoleManagementRoute ||
             isScoutManagementRoute ||
-            isPicklistCreateRoute;
+            isPicklistCreateRoute ||
+            isDeviceProvisioningRoute;
 
         if (needsPermissions) {
           final authMe = ref.watch(authMeProvider);
@@ -290,6 +298,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                 checker?.hasPermission(PermissionKey.picklistsManage) ?? false;
             if (!canManagePicklists) {
               return '/picklists';
+            }
+          }
+
+          if (isDeviceProvisioningRoute) {
+            final canProvision =
+                checker?.hasPermission(PermissionKey.deviceProvision) ?? false;
+            if (!canProvision) {
+              return '/settings';
             }
           }
         }
