@@ -33,18 +33,22 @@ class RadioButton extends StatefulWidget {
     required this.options,
     this.initialValue,
     this.onChanged,
+    this.height,
+    this.variable,
   });
 
   final List<String> options;
   final String? initialValue;
   final ValueChanged<String?>? onChanged;
+  final double? height;
+  final String? variable;
 
   @override
   State<RadioButton> createState() => _RadioButtonState();
 }
 
 class _RadioButtonState extends State<RadioButton> {
-  String? _selectedValue;
+  late String? _selectedValue = widget.variable;
 
   @override
   void initState() {
@@ -54,26 +58,24 @@ class _RadioButtonState extends State<RadioButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        itemCount: widget.options.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(widget.options[index]),
-            leading: Radio<String>(
-              value: widget.options[index],
-              groupValue: _selectedValue,
-              onChanged: (String? value) {
-                setState(() {
-                  _selectedValue = value;
-                });
-                widget.onChanged?.call(value);
-              },
-            ),
-          );
-        },
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children:
+          widget.options.map((option) {
+            return ListTile(
+              title: Text(option),
+              leading: Radio<String>(
+                value: option,
+                groupValue: _selectedValue,
+                onChanged: (String? value) {
+                  setState(() {
+                    _selectedValue = value;
+                  });
+                  widget.onChanged?.call(value);
+                },
+              ),
+            );
+          }).toList(),
     );
   }
 }
@@ -85,19 +87,21 @@ class MultipleChoice extends StatefulWidget {
     this.initialSelection,
     this.onSelectionChanged,
     this.label,
+    this.variable,
   });
 
   final List<String> options;
   final List<String>? initialSelection;
   final ValueChanged<Set<String>>? onSelectionChanged;
   final String? label;
+  final Set<String>? variable;
 
   @override
   State<MultipleChoice> createState() => _MultipleChoiceState();
 }
 
 class _MultipleChoiceState extends State<MultipleChoice> {
-  Set<String> _selection = <String>{};
+  late Set<String> _selection = widget.variable ?? <String>{};
 
   @override
   void initState() {
@@ -150,19 +154,21 @@ class DropdownButtonOneChoice extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.label,
+    this.variable,
   });
 
   final List<String> options;
   final String? initialValue;
   final ValueChanged<String?>? onChanged;
   final String? label;
+  final String? variable;
 
   @override
   State<DropdownButtonOneChoice> createState() => _DropdownButtonState();
 }
 
 class _DropdownButtonState extends State<DropdownButtonOneChoice> {
-  String? _selectedValue;
+  late String? _selectedValue = widget.variable;
 
   @override
   void initState() {
@@ -198,6 +204,7 @@ class SegmentedSlider extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.label,
+    this.variable,
   });
 
   final double min;
@@ -206,13 +213,14 @@ class SegmentedSlider extends StatefulWidget {
   final double? initialValue;
   final ValueChanged<double>? onChanged;
   final String? label;
+  final double? variable;
 
   @override
   State<SegmentedSlider> createState() => _SegmentedSliderState();
 }
 
 class _SegmentedSliderState extends State<SegmentedSlider> {
-  late double _currentValue;
+  late double? _currentValue = widget.variable;
 
   @override
   void initState() {
@@ -233,11 +241,11 @@ class _SegmentedSliderState extends State<SegmentedSlider> {
           spacing: 16,
           children: <Widget>[
             Slider(
-              value: _currentValue,
+              value: _currentValue ?? 0,
               min: widget.min,
               max: widget.max,
               divisions: widget.divisions,
-              label: _currentValue.round().toString(),
+              label: _currentValue?.round().toString(),
               onChanged: (double value) {
                 setState(() {
                   _currentValue = value;

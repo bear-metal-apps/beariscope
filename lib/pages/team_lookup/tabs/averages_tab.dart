@@ -1,0 +1,305 @@
+import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
+import 'package:beariscope/models/match_field_ids.dart';
+import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/providers/strat_z_score_provider.dart';
+import 'package:beariscope/providers/team_scouting_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
+class AveragesTab extends ConsumerWidget {
+  final int teamNumber;
+
+  const AveragesTab({super.key, required this.teamNumber});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(teamScoutingProvider(teamNumber));
+    final stratZScores =
+        ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
+
+    return async.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data:
+          (bundle) => _AveragesBody(
+            bundle: bundle,
+            teamNumber: teamNumber,
+            stratZScores: stratZScores,
+          ),
+    );
+  }
+}
+
+class _AveragesBody extends StatefulWidget {
+  final TeamScoutingBundle bundle;
+  final int teamNumber;
+  final StratZScoreData stratZScores;
+
+  const _AveragesBody({
+    required this.bundle,
+    required this.teamNumber,
+    required this.stratZScores,
+  });
+
+  @override
+  State<_AveragesBody> createState() => _AveragesBodyState();
+}
+
+class _AveragesBodyState extends State<_AveragesBody> {
+  // null for all matches, otherwise n matches
+  int? _lastN;
+
+  static const _presets = [null, 1, 2, 3, 5];
+
+  TeamScoutingBundle get _filteredBundle {
+    if (_lastN == null) return widget.bundle;
+    final sorted = [...widget.bundle.matchDocs]..sort((a, b) {
+      final ma = TeamScoutingBundle.matchNumber(a) ?? -1;
+      final mb = TeamScoutingBundle.matchNumber(b) ?? -1;
+      return mb.compareTo(ma);
+    });
+    final limited = sorted.take(_lastN!).toList();
+    return TeamScoutingBundle(
+      matchDocs: limited,
+      pitsDoc: widget.bundle.pitsDoc,
+      stratDocs: widget.bundle.stratDocs,
+      driveTeamDocs: widget.bundle.driveTeamDocs,
+    );
+  }
+
+  String _label(int? n) => n == null ? 'All' : 'Last $n';
+
+  @override
+  Widget build(BuildContext context) {
+    final bundle = _filteredBundle;
+
+    if (!widget.bundle.hasMatchData) {
+      return const Center(child: Text('No match data recorded for this team.'));
+    }
+
+    final n = bundle.matchDocs.length;
+    final avgAutoFuel = bundle.avgMatchField(kSectionAuto, kAutoFuelScored);
+    final avgAutoAccuracy = bundle.avgMatchField(
+      kSectionAuto,
+      kAutoFuelAccuracy,
+    );
+    final autoL1Rate = bundle.rateMatchField(
+      kSectionAuto,
+      kAutoClimbL1,
+      (v) => v == 'Successful',
+    );
+    final avgTeleFuel = bundle.avgMatchField(kSectionTele, kTeleFuelScored);
+    final avgTeleAccuracy = bundle.avgMatchField(
+      kSectionTele,
+      kTeleFuelAccuracy,
+    );
+    final avgAutoFuelPassed = bundle.avgMatchField(
+      kSectionAuto,
+      kAutoFuelPassed,
+    );
+    final avgTeleFuelPassed = bundle.avgMatchField(
+      kSectionTele,
+      kTeleFuelPassed,
+    );
+    final avgTeleFuelPoached = bundle.avgMatchField(
+      kSectionTele,
+      kTeleFuelPoached,
+    );
+    final totalAvgFuel = avgAutoFuel + avgTeleFuel;
+
+    final endgameClimbRate = bundle.rateMatchField(
+      kSectionEndgame,
+      kEndClimb,
+      (v) => v != null && v.toString().isNotEmpty,
+    );
+    final mostCommonClimb =
+        bundle.modalMatchField(kSectionEndgame, kEndClimb) ?? '—';
+    final defenseRate = bundle.rateMatchField(
+      kSectionEndgame,
+      kEndPlayedDefenseOnShift,
+      (v) => v == true,
+    );
+    final avgCollecting = bundle.avgMatchField(kSectionTele, kTeleCollecting);
+    final avgOverBump = bundle.avgMatchField(kSectionTele, kTeleOverBump);
+    final avgUnderTrench = bundle.avgMatchField(kSectionTele, kTeleUnderTrench);
+    final avgFullHopper = bundle.avgMatchField(
+      kSectionTele,
+      kTelePeriodStartedWithFullHopper,
+    );
+    final avgFouls = bundle.avgMatchField(kSectionEndgame, kEndFouls);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children:
+                _presets.map((preset) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(_label(preset)),
+                      selected: _lastN == preset,
+                      onSelected: (_) => setState(() => _lastN = preset),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const ScoutingSectionHeader(
+          title: 'Scoring',
+          icon: Symbols.local_fire_department_rounded,
+        ),
+        const SizedBox(height: kScoutingHeaderGap),
+        Card(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ScoutingDataRow(
+                  label: 'Total Avg Fuel / Match',
+                  value: _fmtDec(totalAvgFuel),
+                  highlight: true,
+                ),
+                const ScoutingDataDivider(),
+                ScoutingDataRow(
+                  label: 'Auto Avg Fuel',
+                  value: _fmtDec(avgAutoFuel),
+                ),
+                ScoutingDataRow(
+                  label: 'Auto Accuracy',
+                  value: _fmt10Pct(avgAutoAccuracy),
+                ),
+                ScoutingDataRow(
+                  label: 'Auto L1 Climb Rate',
+                  value: _fmtPct(autoL1Rate * 100),
+                ),
+                const ScoutingDataDivider(),
+                ScoutingDataRow(
+                  label: 'Tele Avg Fuel',
+                  value: _fmtDec(avgTeleFuel),
+                ),
+                ScoutingDataRow(
+                  label: 'Tele Accuracy',
+                  value: _fmt10Pct(avgTeleAccuracy),
+                ),
+                ScoutingDataRow(
+                  label: 'Avg Fuel Passed (Auto)',
+                  value: _fmtDec(avgAutoFuelPassed),
+                ),
+                ScoutingDataRow(
+                  label: 'Avg Fuel Passed (Tele)',
+                  value: _fmtDec(avgTeleFuelPassed),
+                ),
+                ScoutingDataRow(
+                  label: 'Avg Fuel Poached',
+                  value: _fmtDec(avgTeleFuelPoached),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: kScoutingSectionGap),
+        const ScoutingSectionHeader(
+          title: 'Behaviour',
+          icon: Symbols.settings_rounded,
+        ),
+        const SizedBox(height: kScoutingHeaderGap),
+        Card(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ScoutingDataRow(
+                  label: 'Endgame Climb Rate',
+                  value: _fmtPct(endgameClimbRate * 100),
+                ),
+                ScoutingDataRow(
+                  label: 'Most Common Climb Level',
+                  value: mostCommonClimb,
+                ),
+                ScoutingDataRow(
+                  label: 'Defense Frequency (on shift)',
+                  value: _fmtPct(defenseRate * 100),
+                ),
+                const ScoutingDataDivider(),
+                ScoutingDataRow(
+                  label: 'Avg Collecting Time',
+                  value: '${_fmtDec(avgCollecting)} / 25 s',
+                ),
+                ScoutingDataRow(
+                  label: 'Avg Over-Bump (Tele)',
+                  value: _fmtDec(avgOverBump),
+                ),
+                ScoutingDataRow(
+                  label: 'Avg Under-Trench (Tele)',
+                  value: _fmtDec(avgUnderTrench),
+                ),
+                ScoutingDataRow(
+                  label: 'Full-Hopper Periods Avg',
+                  value: _fmtDec(avgFullHopper),
+                ),
+                ScoutingDataRow(label: 'Avg Fouls', value: _fmtDec(avgFouls)),
+                const ScoutingDataDivider(),
+                ScoutingDataRow(
+                  label: 'Driver Skill',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.driverSkillZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Defensive Skill',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.defensiveSkillZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Defense Susceptibility',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.defensiveSusceptibilityZ[widget
+                        .teamNumber],
+                  ),
+                  highlight: true,
+                ),
+                ScoutingDataRow(
+                  label: 'Mech. Stability',
+                  value: StratZScoreData.zLabel(
+                    widget.stratZScores.mechanicalStabilityZ[widget.teamNumber],
+                  ),
+                  highlight: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _lastN == null
+              ? 'Based on $n match${n == 1 ? '' : 'es'}'
+              : 'Last $n of ${widget.bundle.matchDocs.length} match${widget.bundle.matchDocs.length == 1 ? '' : 'es'}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  static String _fmtDec(double v) => v.toStringAsFixed(1);
+  static String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
+  static String _fmt10Pct(double v) => '${(v * 10).toStringAsFixed(1)}%';
+}

@@ -27,7 +27,7 @@ class _UtilitiesPageState extends State<UtilitiesPage> {
           padding: const WidgetStatePropertyAll<EdgeInsets>(
             EdgeInsets.symmetric(horizontal: 16.0),
           ),
-          leading: const Icon(Icons.search_rounded),
+          leading: const Icon(Symbols.search_rounded),
         ),
         leading:
             main.isDesktop

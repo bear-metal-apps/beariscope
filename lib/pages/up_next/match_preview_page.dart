@@ -1,8 +1,26 @@
 import 'package:beariscope/components/team_card.dart';
+import 'package:beariscope/models/drive_team_note.dart';
+import 'package:beariscope/providers/current_event_provider.dart';
+import 'package:beariscope/providers/drive_team_notes_provider.dart';
+import 'package:beariscope/providers/scouting_data_provider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:libkoala/providers/api_provider.dart';
+import 'package:libkoala/providers/permissions_provider.dart';
+import 'package:libkoala/providers/user_profile_provider.dart';
+
+final matchProvider = FutureProvider.family<Map<String, dynamic>, String>((
+  ref,
+  matchKey,
+) {
+  return ref
+      .watch(honeycombClientProvider)
+      .get<Map<String, dynamic>>(
+        '/matches?match=$matchKey',
+        cachePolicy: CachePolicy.cacheFirst,
+      );
+});
 
 class DriveTeamMatchPreviewPage extends ConsumerStatefulWidget {
   final String matchKey;
@@ -40,10 +58,9 @@ class _DriveTeamMatchPreviewPageState
 
   @override
   Widget build(BuildContext context) {
-    final matchProvider = getDataProvider(
-      endpoint: '/matches?match=${widget.matchKey}',
-    );
-    final matchAsync = ref.watch(matchProvider);
+    final requestProvider = matchProvider(widget.matchKey);
+    final matchAsync = ref.watch(requestProvider);
+    final permissionChecker = ref.watch(permissionCheckerProvider);
 
     return matchAsync.when(
       loading:
@@ -56,7 +73,7 @@ class _DriveTeamMatchPreviewPageState
             appBar: AppBar(title: Text('Match ${widget.matchKey}')),
             body: Center(
               child: FilledButton(
-                onPressed: () => ref.invalidate(matchProvider),
+                onPressed: () => ref.invalidate(requestProvider),
                 child: const Text('Retry'),
               ),
             ),
@@ -206,10 +223,7 @@ class _DriveTeamMatchPreviewPageState
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: TeamCard(
-                              teamName: cards[index][0],
-                              teamNumber: cards[index][1],
-                            ),
+                            child: TeamCard(teamKey: cards[index][1]),
                           );
                         },
                       ),
@@ -249,116 +263,52 @@ class _DriveTeamMatchPreviewPageState
                         );
                       },
                     ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: SizedBox(
-                      width: 586,
-                      child: FilledButton(
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            showDragHandle: true,
-                            isScrollControlled: true,
-                            useSafeArea: true,
-                            builder: (BuildContext context) {
-                              final is2046OnRed = containsTeam(
-                                redTeams,
-                                '2046',
-                              );
-                              final is2046OnBlue = containsTeam(
-                                blueTeams,
-                                '2046',
-                              );
-                              final notesTeams =
-                                  is2046OnRed
-                                      ? redTeams
-                                      : is2046OnBlue
-                                      ? blueTeams
-                                      : const <String>[];
-
-                              return SingleChildScrollView(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
+                  if (permissionChecker?.hasPermission(
+                        PermissionKey.driveTeamUpload,
+                      ) ??
+                      false)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: SizedBox(
+                        width: 586,
+                        child: FilledButton(
+                          onPressed: () {
+                            final is2046OnRed = containsTeam(redTeams, '2046');
+                            final is2046OnBlue = containsTeam(
+                              blueTeams,
+                              '2046',
+                            );
+                            final allianceTeams =
+                                is2046OnRed
+                                    ? redTeams
+                                    : is2046OnBlue
+                                    ? blueTeams
+                                    : const <String>[];
+                            final memberKeys =
+                                allianceTeams
+                                    .where(
+                                      (k) => teamNumberFromKey(k) != '2046',
+                                    )
+                                    .toList();
+                            final allianceLabel =
+                                is2046OnRed ? 'Red Alliance' : 'Blue Alliance';
+                            showModalBottomSheet(
+                              context: context,
+                              showDragHandle: true,
+                              isScrollControlled: true,
+                              useSafeArea: true,
+                              builder:
+                                  (context) => _DriveTeamNotesSheet(
+                                    matchKey: widget.matchKey,
+                                    allianceMemberTeamKeys: memberKeys,
+                                    allianceLabel: allianceLabel,
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (notesTeams.isEmpty)
-                                        const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
-                                          child: Text('Cannot load notes'),
-                                        )
-                                      else
-                                        ...(() {
-                                          final theme = Theme.of(context);
-                                          final title =
-                                              is2046OnRed
-                                                  ? 'Red Alliance'
-                                                  : 'Blue Alliance';
-                                          final widgets = <Widget>[
-                                            Text(
-                                              title,
-                                              style: theme.textTheme.titleMedium
-                                                  ?.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        theme
-                                                            .colorScheme
-                                                            .onSurface,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                          ];
-
-                                          for (final teamKey in notesTeams) {
-                                            if (teamNumberFromKey(teamKey) ==
-                                                '2046') {
-                                              continue;
-                                            }
-                                            final teamNumber =
-                                                teamNumberFromKey(teamKey);
-                                            widgets.addAll([
-                                              Text(
-                                                teamNumber.isEmpty
-                                                    ? teamKey
-                                                    : teamNumber,
-                                                style: theme.textTheme.bodyLarge
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              const TextField(
-                                                maxLines: null,
-                                                decoration: InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: 'Notes',
-                                                ),
-                                              ),
-                                              const SizedBox(height: 16),
-                                            ]);
-                                          }
-
-                                          return widgets;
-                                        })(),
-                                      const SizedBox(height: 16),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: const Text('Take Notes'),
+                            );
+                          },
+                          child: const Text('Take Notes'),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               );
             },
@@ -403,5 +353,206 @@ class _DriveTeamMatchPreviewPageState
     }
 
     return Positioned(left: x, child: Text(label, style: style));
+  }
+}
+
+class _DriveTeamNotesSheet extends ConsumerStatefulWidget {
+  final String matchKey;
+  final List<String> allianceMemberTeamKeys;
+  final String allianceLabel;
+
+  const _DriveTeamNotesSheet({
+    required this.matchKey,
+    required this.allianceMemberTeamKeys,
+    required this.allianceLabel,
+  });
+
+  @override
+  ConsumerState<_DriveTeamNotesSheet> createState() =>
+      _DriveTeamNotesSheetState();
+}
+
+class _DriveTeamNotesSheetState extends ConsumerState<_DriveTeamNotesSheet> {
+  final Map<String, TextEditingController> _controllers = {};
+
+  final Map<String, String> _existingIds = {};
+
+  bool _initialized = false;
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  //populates the controllers with existing notes
+  void _initControllers(Map<int, DriveTeamNote> existingNotes) {
+    if (_initialized) return;
+    _initialized = true;
+
+    for (final teamKey in widget.allianceMemberTeamKeys) {
+      final teamNumber = teamKey.replaceFirst(RegExp(r'^frc'), '');
+      final teamNum = int.tryParse(teamNumber);
+      final controller = TextEditingController();
+
+      if (teamNum != null && existingNotes.containsKey(teamNum)) {
+        final existing = existingNotes[teamNum]!;
+        controller.text = existing.note;
+        if (existing.id != null && existing.id!.isNotEmpty) {
+          _existingIds[teamNumber] = existing.id!;
+        }
+      }
+
+      _controllers[teamNumber] = controller;
+    }
+  }
+
+  Future<void> _save() async {
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    try {
+      final userInfo = ref.read(userInfoProvider).asData?.value;
+      final authMe = await ref.read(authMeProvider.future);
+      final eventKey = ref.read(currentEventProvider);
+
+      final scoutedBy = userInfo?.name?.trim() ?? 'Unknown User';
+      final userId = authMe?.user.id ?? '';
+
+      final entries = <Map<String, Object?>>[];
+      for (final entry in _controllers.entries) {
+        final text = entry.value.text.trim();
+        if (text.isEmpty) continue;
+        final teamNum = int.tryParse(entry.key) ?? 0;
+        final note = DriveTeamNote(
+          id: _existingIds[entry.key],
+          matchKey: widget.matchKey,
+          teamNumber: teamNum,
+          note: text,
+          scoutedBy: scoutedBy,
+          userId: userId,
+          eventKey: eventKey,
+          season: 2026,
+        );
+        entries.add(note.toIngestEntry());
+      }
+
+      if (entries.isNotEmpty) {
+        final client = ref.read(honeycombClientProvider);
+        await client.post('/scout/ingest', data: {'entries': entries});
+        // sync the local Hive cache so notes survive a page-exit and re-entry.
+        await ref.read(scoutingDataProvider.notifier).refresh();
+      }
+
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save notes: $e')));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notesAsync = ref.watch(myDriveTeamNotesProvider(widget.matchKey));
+    final theme = Theme.of(context);
+
+    return notesAsync.when(
+      loading:
+          () => const SizedBox(
+            height: 200,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      error:
+          (e, _) => SizedBox(
+            height: 200,
+            child: Center(child: Text('Error loading notes: $e')),
+          ),
+      data: (existingNotes) {
+        _initControllers(existingNotes);
+
+        if (widget.allianceMemberTeamKeys.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(32),
+            child: Center(
+              child: Text('Cannot load notes — 2046 not found in this match.'),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.allianceLabel,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                for (final teamKey in widget.allianceMemberTeamKeys) ...[
+                  Builder(
+                    builder: (context) {
+                      final teamNumber = teamKey.replaceFirst(
+                        RegExp(r'^frc'),
+                        '',
+                      );
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            teamNumber.isEmpty ? teamKey : teamNumber,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _controllers[teamNumber],
+                            maxLines: null,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: 'Notes',
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _isSaving ? null : _save,
+                    child:
+                        _isSaving
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Text('Save Notes'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

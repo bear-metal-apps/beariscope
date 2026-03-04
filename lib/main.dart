@@ -1,6 +1,9 @@
 import 'package:beariscope/pages/auth/splash_screen.dart';
 import 'package:beariscope/pages/auth/welcome_page.dart';
+import 'package:beariscope/pages/auth/post_sign_in_onboarding_page.dart';
 import 'package:beariscope/pages/corrections/corrections_page.dart';
+import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
+import 'package:beariscope/pages/settings/scout_selection_page.dart';
 import 'package:beariscope/pages/up_next/match_preview_page.dart';
 import 'package:beariscope/pages/picklists/picklists_create_page.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_home_page.dart';
@@ -13,7 +16,7 @@ import 'package:beariscope/pages/settings/appearance_settings_page.dart';
 import 'package:beariscope/pages/settings/notifications_settings_page.dart';
 import 'package:beariscope/pages/settings/settings_page.dart';
 import 'package:beariscope/pages/team_lookup/team_lookup_page.dart';
-import 'package:beariscope/utilities/utilities_page.dart';
+import 'package:beariscope/pages/utilities/utilities_page.dart';
 import 'package:beariscope/utils/platform_utils_stub.dart'
     if (dart.library.io) 'package:beariscope/utils/platform_utils.dart';
 import 'package:beariscope/utils/window_size_stub.dart'
@@ -26,9 +29,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 import 'package:libkoala/libkoala.dart';
+import 'package:libkoala/providers/auth_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beariscope/pages/settings/team_role.dart';
+import 'package:beariscope/pages/settings/device_provisioning_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +42,7 @@ Future<void> main() async {
 
   await Hive.initFlutter();
   await Hive.openBox('api_cache');
+  await Hive.openBox<String>('scouting_data');
 
   if (PlatformUtils.isDesktop()) {
     setWindowMinSize(const Size(500, 600));
@@ -44,7 +50,29 @@ Future<void> main() async {
     setWindowTitle('Beariscope');
   }
 
-  runApp(const ProviderScope(child: Beariscope()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        auth0ConfigProvider.overrideWith((ref) {
+          return const Auth0Config(
+            domain: 'bearmetal2046.us.auth0.com',
+            clientId: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            audience: 'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
+            redirectUris: {
+              DeviceOS.ios: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.macos: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.android: 'org.tahomarobotics.beariscope://callback',
+              DeviceOS.web: 'https://scout.bearmet.al/auth.html',
+              DeviceOS.windows: 'http://localhost:4000/auth',
+              DeviceOS.linux: 'http://localhost:4000/auth',
+            },
+            storageKeyPrefix: 'beariscope_',
+          );
+        }),
+      ],
+      child: const Beariscope(),
+    ),
+  );
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -59,6 +87,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(path: '/welcome', builder: (_, _) => const WelcomePage()),
+      GoRoute(
+        path: '/post_sign_in_onboarding',
+        builder: (_, _) => const PostSignInOnboardingPage(),
+      ),
       ShellRoute(
         builder: (_, _, child) => MainView(child: child),
         routes: [
@@ -97,13 +129,26 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'licenses',
                 builder: (_, _) {
-                  return FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
+                  return FutureBuilder<(PackageInfo, String)>(
+                    future: Future.wait([
+                      PackageInfo.fromPlatform(),
+                      rootBundle.loadString('assets/codename.txt'),
+                    ]).then(
+                      (results) => (
+                        results[0] as PackageInfo,
+                        (results[1] as String).trim(),
+                      ),
+                    ),
                     builder: (context, snapshot) {
-                      final version = snapshot.data?.version ?? '...';
+                      final version = snapshot.data?.$1.version ?? '...';
+                      final codename = snapshot.data?.$2 ?? '';
+                      final displayVersion =
+                          codename.isNotEmpty && codename != 'Unknown'
+                              ? '$version $codename'
+                              : version;
                       return LicensePage(
                         applicationName: 'Beariscope',
-                        applicationVersion: version,
+                        applicationVersion: displayVersion,
                       );
                     },
                   );
@@ -123,7 +168,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/utilities',
-            builder: (context, state) => const UtilitiesPage(),
+            pageBuilder:
+                (_, _) => const NoTransitionPage(child: UtilitiesPage()),
           ),
         ],
       ),
@@ -143,18 +189,39 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: 'appearance',
             builder: (_, _) => const AppearanceSettingsPage(),
           ),
+          GoRoute(
+            path: 'user_selection',
+            builder: (_, _) => const ScoutSelectionPage(),
+          ),
           GoRoute(path: 'roles', builder: (_, _) => const TeamRolesPage()),
+          GoRoute(
+            path: 'device_provisioning',
+            builder: (_, _) => const DeviceProvisioningPage(),
+          ),
           GoRoute(path: 'about', builder: (_, _) => const AboutSettingsPage()),
           GoRoute(
             path: 'licenses',
             builder: (_, _) {
-              return FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
+              return FutureBuilder<(PackageInfo, String)>(
+                future: Future.wait([
+                  PackageInfo.fromPlatform(),
+                  rootBundle.loadString('assets/codename.txt'),
+                ]).then(
+                  (results) => (
+                    results[0] as PackageInfo,
+                    (results[1] as String).trim(),
+                  ),
+                ),
                 builder: (context, snapshot) {
-                  final version = snapshot.data?.version ?? '...';
+                  final version = snapshot.data?.$1.version ?? '...';
+                  final codename = snapshot.data?.$2 ?? '';
+                  final displayVersion =
+                      codename.isNotEmpty && codename != 'Unknown'
+                          ? '$version \u2014 $codename'
+                          : version;
                   return LicensePage(
                     applicationName: 'Beariscope',
-                    applicationVersion: version,
+                    applicationVersion: displayVersion,
                   );
                 },
               );
@@ -179,7 +246,73 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // if on welcome and authed then leave
       if (auth == AuthStatus.authenticated) {
-        if (location == '/welcome' || location == '/splash') {
+        final pendingPostSignInFlow = ref.watch(postSignInFlowPendingProvider);
+        if (pendingPostSignInFlow) {
+          if (location != '/post_sign_in_onboarding') {
+            return '/post_sign_in_onboarding';
+          }
+          return null;
+        }
+
+        final isRoleManagementRoute = location == '/settings/roles';
+        final isScoutManagementRoute = location == '/settings/user_selection';
+        final isPicklistCreateRoute = location == '/picklists/create';
+        final isDeviceProvisioningRoute =
+            location == '/settings/device_provisioning';
+        final needsPermissions =
+            isRoleManagementRoute ||
+            isScoutManagementRoute ||
+            isPicklistCreateRoute ||
+            isDeviceProvisioningRoute;
+
+        if (needsPermissions) {
+          final authMe = ref.watch(authMeProvider);
+          if (authMe.isLoading) {
+            return location == '/splash' ? null : '/splash';
+          }
+
+          final checker = ref.watch(permissionCheckerProvider);
+
+          if (isRoleManagementRoute) {
+            final canManageRoles =
+                checker?.hasPermission(PermissionKey.usersRolesManage) ?? false;
+            if (!canManageRoles) {
+              return '/settings';
+            }
+          }
+
+          if (isScoutManagementRoute) {
+            final canViewScouts =
+                checker?.hasAnyPermission([
+                  PermissionKey.scoutsRead,
+                  PermissionKey.scoutsManage,
+                ]) ??
+                false;
+            if (!canViewScouts) {
+              return '/settings';
+            }
+          }
+
+          if (isPicklistCreateRoute) {
+            final canManagePicklists =
+                checker?.hasPermission(PermissionKey.picklistsManage) ?? false;
+            if (!canManagePicklists) {
+              return '/picklists';
+            }
+          }
+
+          if (isDeviceProvisioningRoute) {
+            final canProvision =
+                checker?.hasPermission(PermissionKey.deviceProvision) ?? false;
+            if (!canProvision) {
+              return '/settings';
+            }
+          }
+        }
+
+        if (location == '/welcome' ||
+            location == '/splash' ||
+            location == '/post_sign_in_onboarding') {
           return '/up_next';
         }
       }
@@ -239,16 +372,26 @@ ThemeData _createTheme(Brightness brightness, Color accentColor) {
     brightness: brightness,
     useMaterial3: true,
     colorScheme: colorScheme,
-    iconTheme: const IconThemeData(fill: 0.0, weight: 600),
+    iconTheme: IconThemeData(
+      fill: 0.0,
+      weight: 600,
+      color: colorScheme.onSurface,
+    ),
     textTheme: GoogleFonts.nunitoSansTextTheme(
       ThemeData(brightness: brightness, colorScheme: colorScheme).textTheme,
     ),
   );
 
   return baseTheme.copyWith(
-    appBarTheme: AppBarTheme(
+    appBarTheme: baseTheme.appBarTheme.copyWith(
       centerTitle: false,
       titleTextStyle: baseTheme.textTheme.titleLarge!.copyWith(
+        fontFamily: 'Xolonium',
+        fontSize: 20,
+      ),
+    ),
+    dialogTheme: baseTheme.dialogTheme.copyWith(
+      titleTextStyle: baseTheme.textTheme.headlineSmall!.copyWith(
         fontFamily: 'Xolonium',
         fontSize: 20,
       ),

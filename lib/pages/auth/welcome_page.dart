@@ -1,8 +1,10 @@
+import 'package:beariscope/providers/post_sign_in_flow_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:libkoala/providers/auth_provider.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends ConsumerWidget {
   const WelcomePage({super.key});
@@ -36,24 +38,43 @@ class WelcomePage extends ConsumerWidget {
                 children: [
                   FilledButton.icon(
                     onPressed: () async {
+                      ref
+                          .read(postSignInFlowPendingProvider.notifier)
+                          .setPending();
+
                       try {
                         await auth.login([
                           'openid',
                           'profile',
+                          'email',
                           'offline_access',
-                          'User.Read',
-                          'api://bearmet.al/honeycomb/access',
+                          'ORLhqJbHiTfgdF3Q8hqIbmdwT1wTkkP7',
                         ]);
                       } on OfflineAuthException {
+                        ref
+                            .read(postSignInFlowPendingProvider.notifier)
+                            .clearPending();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('No internet connection')),
                           );
                         }
+                      } catch (e) {
+                        ref
+                            .read(postSignInFlowPendingProvider.notifier)
+                            .clearPending();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Sign in failed: $e'),
+                              duration: Duration(seconds: 8),
+                            ),
+                          );
+                        }
                       }
                     },
-                    label: const Text('Sign In With BMBC Account'),
-                    icon: const Icon(Symbols.login_rounded),
+                    label: const Text('Sign In'),
+                    icon: const Icon(Symbols.open_in_new_rounded),
                   ),
                   // OutlinedButton.icon(
                   //   onPressed: () {
@@ -87,6 +108,23 @@ class WelcomePage extends ConsumerWidget {
                   //   icon: const Icon(Symbols.eyeglasses_rounded),
                   // ),
                 ],
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                final uri = Uri.parse(
+                  'https://bear-metal-apps.github.io/beariscope/privacy-policy',
+                );
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                }
+              },
+              child: Text(
+                'Privacy Policy',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],

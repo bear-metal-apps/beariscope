@@ -1,5 +1,7 @@
+import 'package:beariscope/components/beariscope_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpNextMatchCard extends StatelessWidget {
@@ -16,36 +18,10 @@ class UpNextMatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      margin: const EdgeInsets.all(0),
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      child: InkWell(
-        onTap: () => context.push('/up_next/$matchKey'),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(time),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    return BeariscopeCard(
+      title: displayName,
+      subtitle: time,
+      onTap: () => context.push('/up_next/$matchKey'),
     );
   }
 }
@@ -64,60 +40,24 @@ class UpNextEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String tbaUrl = 'https://www.thebluealliance.com/event/$eventKey';
-
-    return Card(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      margin: const EdgeInsets.all(0),
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      child: InkWell(
-        onTap: () async {
-          final uri = Uri.parse(tbaUrl);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } else {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Could not open TBA')),
-              );
-            }
+    return BeariscopeCard(
+      title: name,
+      subtitle: dateLabel,
+      trailing: Icon(Symbols.open_in_new_rounded, size: 20),
+      onTap: () async {
+        final uri = Uri.parse(
+          'https://www.thebluealliance.com/event/$eventKey',
+        );
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          if (context.mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Could not open TBA')));
           }
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      dateLabel,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.open_in_new,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
-      ),
+        }
+      },
     );
   }
 }
