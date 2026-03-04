@@ -2,6 +2,7 @@ import 'package:beariscope/pages/main_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_map_view.dart';
 import 'package:beariscope/pages/pits_scouting/pits_scouting_assets.dart';
 import 'package:beariscope/models/pits_scouting_models.dart';
+import 'package:beariscope/models/scouting_document.dart';
 import 'package:beariscope/pages/team_lookup/team_model.dart';
 import 'package:beariscope/providers/current_event_provider.dart';
 import 'package:beariscope/providers/pits_scouting_provider.dart';
@@ -34,6 +35,23 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
     String teamName,
     bool scouted,
   ) {
+    ScoutingDocument? existingDoc;
+    if (scouted) {
+      final eventKey = ref.read(currentEventProvider);
+      final allDocs = ref.read(scoutingDataProvider).asData?.value ?? [];
+      final pitsDocs =
+          allDocs
+              .where(
+                (doc) =>
+                    doc.meta?['type'] == 'pits' &&
+                    doc.meta?['event'] == eventKey &&
+                    (doc.data['teamNumber'] as num?)?.toInt() == teamNumber,
+              )
+              .toList()
+            ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      existingDoc = pitsDocs.firstOrNull;
+    }
+
     Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -42,6 +60,7 @@ class PitsScoutingHomePageState extends ConsumerState<PitsScoutingHomePage> {
               teamNumber: teamNumber,
               teamName: teamName,
               scouted: scouted,
+              initialDoc: existingDoc,
             ),
       ),
     ).then((result) {
