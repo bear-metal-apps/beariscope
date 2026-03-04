@@ -1,6 +1,7 @@
 import 'package:beariscope/pages/team_lookup/tabs/scouting_tab_widgets.dart';
 import 'package:beariscope/models/match_field_ids.dart';
 import 'package:beariscope/models/team_scouting_bundle.dart';
+import 'package:beariscope/providers/strat_z_score_provider.dart';
 import 'package:beariscope/providers/team_scouting_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,19 +15,32 @@ class CapabilitiesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(teamScoutingProvider(teamNumber));
+    final stratZScores =
+        ref.watch(stratZScoresProvider).asData?.value ?? StratZScoreData.empty;
 
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
-      data: (bundle) => _CapabilitiesBody(bundle: bundle),
+      data:
+          (bundle) => _CapabilitiesBody(
+            bundle: bundle,
+            teamNumber: teamNumber,
+            stratZScores: stratZScores,
+          ),
     );
   }
 }
 
 class _CapabilitiesBody extends StatelessWidget {
   final TeamScoutingBundle bundle;
+  final int teamNumber;
+  final StratZScoreData stratZScores;
 
-  const _CapabilitiesBody({required this.bundle});
+  const _CapabilitiesBody({
+    required this.bundle,
+    required this.teamNumber,
+    required this.stratZScores,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +221,16 @@ class _CapabilitiesBody extends StatelessWidget {
                   : '—',
         ),
         // TODO(strat): add susceptibility to defense from strat data.
+        if (bundle.hasStratData) ...[
+          const ScoutingDataDivider(),
+          ScoutingDataRow(
+            label: 'Defense Susceptibility',
+            value: StratZScoreData.zLabel(
+              stratZScores.defensiveSusceptibilityZ[teamNumber],
+            ),
+            highlight: true,
+          ),
+        ],
       ],
     );
   }
@@ -305,6 +329,24 @@ class _CapabilitiesBody extends StatelessWidget {
           ),
         ],
         // TODO(strat): add mechanical soundness from strat data.
+        if (bundle.hasStratData) ...[
+          const ScoutingDataDivider(),
+          ScoutingDataRow(
+            label: 'Mech. Stability',
+            value: StratZScoreData.zLabel(
+              stratZScores.mechanicalStabilityZ[teamNumber],
+            ),
+            highlight: true,
+          ),
+          ScoutingDataRow(
+            label: 'Defense Activity Level',
+            value:
+                bundle.avgDefenseActivityLevel != null
+                    ? '${bundle.avgDefenseActivityLevel!.toStringAsFixed(1)} / 10'
+                    : '—',
+            highlight: true,
+          ),
+        ],
       ],
     );
   }

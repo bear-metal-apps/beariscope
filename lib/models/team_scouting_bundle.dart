@@ -14,9 +14,8 @@ class TeamScoutingBundle {
   /// event than [matchDocs] if the current event has no pits entry yet.
   final ScoutingDocument? pitsDoc;
 
-  /// Strat scouting document.
-  // TODO(strat): wire strat data when strat upload is implemented.
-  final ScoutingDocument? stratDoc;
+  /// All strat scouting documents this team appears in (any of the 4 ranking lists).
+  final List<ScoutingDocument> stratDocs;
 
   /// All drive team scouting note documents for this team at the current event.
   ///
@@ -27,15 +26,14 @@ class TeamScoutingBundle {
   const TeamScoutingBundle({
     required this.matchDocs,
     required this.pitsDoc,
-    required this.stratDoc,
+    required this.stratDocs,
     required this.driveTeamDocs,
   });
 
   bool get hasMatchData => matchDocs.isNotEmpty;
   bool get hasPitsData => pitsDoc != null;
 
-  // TODO(strat): update once strat data is implemented.
-  bool get hasStratData => stratDoc != null;
+  bool get hasStratData => stratDocs.isNotEmpty;
 
   // ---------------------------------------------------------------------------
   // Static field accessor – match documents
@@ -164,15 +162,38 @@ class TeamScoutingBundle {
   // Strat field accessors
   // ---------------------------------------------------------------------------
 
-  // TODO(strat): add strat field accessors once strat data schema is defined.
+  /// Number of strat scouting docs this team appears in.
+  int get stratAppearanceCount => stratDocs.length;
 
-  /// Driver skill rating (1–10). Returns null until strat data is available.
-  // TODO(strat): return stratDoc?.data['driverSkill']
-  int? get stratDriverSkill => null;
+  /// Average defenseActivityLevel (0–10) across all strat docs, or null if none.
+  double? get avgDefenseActivityLevel {
+    if (stratDocs.isEmpty) return null;
+    double sum = 0;
+    int count = 0;
+    for (final doc in stratDocs) {
+      final v = doc.data['defenseActivityLevel'];
+      if (v is num) {
+        sum += v.toDouble();
+        count++;
+      }
+    }
+    return count == 0 ? null : sum / count;
+  }
 
-  /// Defense rating (1–10). Returns null until strat data is available.
-  // TODO(strat): return stratDoc?.data['defenseRating']
-  int? get stratDefenseRating => null;
+  /// Average humanPlayerScore across all strat docs, or null if none.
+  double? get avgHumanPlayerScore {
+    if (stratDocs.isEmpty) return null;
+    double sum = 0;
+    int count = 0;
+    for (final doc in stratDocs) {
+      final v = doc.data['humanPlayerScore'];
+      if (v is num) {
+        sum += v.toDouble();
+        count++;
+      }
+    }
+    return count == 0 ? null : sum / count;
+  }
 
   // ---------------------------------------------------------------------------
   // Utility

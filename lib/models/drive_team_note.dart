@@ -64,13 +64,14 @@ class DriveTeamNote {
   factory DriveTeamNote.fromScoutingDocument(ScoutingDocument doc) {
     final meta = doc.meta ?? {};
     final tn = doc.data['teamNumber'];
-    final teamNumber = tn is int
-        ? tn
-        : tn is double
+    final teamNumber =
+        tn is int
+            ? tn
+            : tn is double
             ? tn.toInt()
             : tn is String
-                ? int.tryParse(tn) ?? 0
-                : 0;
+            ? int.tryParse(tn) ?? 0
+            : 0;
 
     return DriveTeamNote(
       id: doc.id.isNotEmpty ? doc.id : null,
