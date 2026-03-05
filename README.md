@@ -20,7 +20,7 @@
 > Beariscope is under active development. We're running it internally this season and plan to open it up to other teams next year.
 ---
 
-Beariscope is a strategy data app built by FRC Team 2046, Bear Metal. Pull up any team's scouting averages, hardware capabilities, written notes, and match-by-match performance without hunting through a spreadsheet or asking around. Your upcoming schedule and detailed match previews are right there too. It runs on your phone, tablet, or laptop and everything stays synced through the cloud.
+Beariscope is a strategy data app built by FRC Team 2046, Bear Metal. Made with Flutter.
 
 ## Features
 
