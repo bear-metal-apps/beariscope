@@ -1,5 +1,6 @@
-<h1 align="center">Beariscope</h1>
 <p align="center">
+  <img src="docs/assets/banner.png" alt="Beariscope" />
+</p><p align="center">
   <b>The ultimate FRC strategy data viewer</b>
 </p>
 
