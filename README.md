@@ -20,17 +20,17 @@
 > Beariscope is under active development. We're running it internally this season and plan to open it up to other teams next year.
 ---
 
-Beariscope is a strategy data app built by FRC Team 2046, Bear Metal. Made with Flutter.
+Beariscope is a FRC strategy app by Team 2046, Bear Metal.
 
 ## Features
 
 - **Team Lookup** - view any team's scouting data across averages, hardware capabilities, match-by-match breakdowns, and written notes
-- **Match previews** - swipe through all 6 robots in an upcoming match before you step on the field
-- **Up Next** - your full event schedule with current and past matches, always up to date
+- **Match previews** - swipe through all 6 robots in an upcoming match
+- **Up Next** - a full event schedule with current and past matches
 - **Pits scouting** - fill out pit forms directly in the app, with both a list view and an interactive pit map pulled from Nexus
-- **Cloud sync** - all scouting data lives in the cloud; everyone on the team sees the same thing
+- **Cloud sync** - all scouting data lives in the cloud
 - **Role-based access** - different permissions for scouts, strategists, and drive team
-- **Mobile *and* desktop** - works on iOS, Android, and your laptop
+- **Mobile, desktop, and web!** - works on iOS, Android, your laptop, and as a web app in a pinch
 
 ## If you haven't checked out our..
 - [Scouting App](https://github.com/bear-metal-apps/pawfinder)
