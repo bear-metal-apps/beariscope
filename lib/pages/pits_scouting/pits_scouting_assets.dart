@@ -307,7 +307,7 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: DropdownButtonOneChoice(
-                  options: ['Rotation', 'Elevator', 'Arm', 'No Climb', 'Other'],
+                  options: ['Rotation', 'Elevator', 'Telescoping', 'No Climb', 'Other'],
                   variable: _climbMethod,
                   onChanged: (value) => _climbMethod = value ?? '',
                 ),
@@ -495,15 +495,6 @@ class _ScoutingPageState extends ConsumerState<_ScoutingPage> {
                   label: 'Indexer Type',
                   variable: _indexerType,
                   onChanged: (value) => _indexerType = value ?? '',
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: RadioButton(
-                  options: ['Powered', 'Not Powered'],
-                  height: 96,
-                  variable: _powered,
-                  onChanged: (value) => _powered = value ?? '',
                 ),
               ),
               Padding(
