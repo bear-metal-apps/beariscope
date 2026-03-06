@@ -120,14 +120,20 @@ class _AveragesBodyState extends State<_AveragesBody> {
       kEndPlayedDefenseOnShift,
       (v) => v == true,
     );
-    final avgCollecting = bundle.avgMatchField(kSectionTele, kTeleCollecting);
     final avgOverBump = bundle.avgMatchField(kSectionTele, kTeleOverBump);
     final avgUnderTrench = bundle.avgMatchField(kSectionTele, kTeleUnderTrench);
     final avgFullHopper = bundle.avgMatchField(
       kSectionTele,
       kTelePeriodStartedWithFullHopper,
     );
-    final avgFouls = bundle.avgMatchField(kSectionEndgame, kEndFouls);
+    final avgFouls = bundle.avgMatchField(kSectionTele, kEndFouls);
+    final stoppedWorkingRate = bundle.rateMatchField(
+      kSectionTele,
+      kTeleStoppedWorking,
+      (v) => v == true,
+    );
+    final mostCommonPlayStyle =
+        bundle.modalMatchField(kSectionEndgame, kEndPlayStyle) ?? '—';
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -233,11 +239,15 @@ class _AveragesBodyState extends State<_AveragesBody> {
                   label: 'Defense Frequency (on shift)',
                   value: _fmtPct(defenseRate * 100),
                 ),
-                const ScoutingDataDivider(),
                 ScoutingDataRow(
-                  label: 'Avg Collecting Time',
-                  value: '${_fmtDec(avgCollecting)} / 25 s',
+                  label: 'Stopped Working Rate',
+                  value: _fmtPct(stoppedWorkingRate * 100),
                 ),
+                ScoutingDataRow(
+                  label: 'Most Common Play Style',
+                  value: mostCommonPlayStyle,
+                ),
+                const ScoutingDataDivider(),
                 ScoutingDataRow(
                   label: 'Avg Over-Bump (Tele)',
                   value: _fmtDec(avgOverBump),
@@ -251,36 +261,6 @@ class _AveragesBodyState extends State<_AveragesBody> {
                   value: _fmtDec(avgFullHopper),
                 ),
                 ScoutingDataRow(label: 'Avg Fouls', value: _fmtDec(avgFouls)),
-                const ScoutingDataDivider(),
-                ScoutingDataRow(
-                  label: 'Driver Skill',
-                  value: StratZScoreData.zLabel(
-                    widget.stratZScores.driverSkillZ[widget.teamNumber],
-                  ),
-                  highlight: true,
-                ),
-                ScoutingDataRow(
-                  label: 'Defensive Skill',
-                  value: StratZScoreData.zLabel(
-                    widget.stratZScores.defensiveSkillZ[widget.teamNumber],
-                  ),
-                  highlight: true,
-                ),
-                ScoutingDataRow(
-                  label: 'Defense Susceptibility',
-                  value: StratZScoreData.zLabel(
-                    widget.stratZScores.defensiveSusceptibilityZ[widget
-                        .teamNumber],
-                  ),
-                  highlight: true,
-                ),
-                ScoutingDataRow(
-                  label: 'Mech. Stability',
-                  value: StratZScoreData.zLabel(
-                    widget.stratZScores.mechanicalStabilityZ[widget.teamNumber],
-                  ),
-                  highlight: true,
-                ),
               ],
             ),
           ),

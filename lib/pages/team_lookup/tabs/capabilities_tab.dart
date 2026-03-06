@@ -54,35 +54,51 @@ class _CapabilitiesBody extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const ScoutingSectionHeader(
-          title: 'Hardware',
+          title: 'Drivebase & Mobility',
           icon: Symbols.build_rounded,
         ),
         const SizedBox(height: kScoutingHeaderGap),
-        _hardwareCard(context),
+        _botCard(context),
         const SizedBox(height: kScoutingSectionGap),
         const ScoutingSectionHeader(
-          title: 'Shooter / Collector / Range',
-          icon: Symbols.adjust_rounded,
+          title: 'Scoring & Ball Handling',
+          icon: Symbols.local_fire_department_rounded,
         ),
         const SizedBox(height: kScoutingHeaderGap),
-        _shooterCollectorCard(context),
+        _outtakeCard(context),
         const SizedBox(height: kScoutingSectionGap),
         const ScoutingSectionHeader(
-          title: 'Climb',
+          title: 'Auto & Pathing',
+          icon: Symbols.route_rounded,
+        ),
+        const SizedBox(height: kScoutingHeaderGap),
+        _autoCard(context),
+        const SizedBox(height: kScoutingSectionGap),
+        const ScoutingSectionHeader(
+          title: 'Endgame & Defense',
           icon: Symbols.moving_rounded,
         ),
         const SizedBox(height: kScoutingHeaderGap),
         _climbCard(context),
+        if (bundle.hasStratData) ...[
+          const SizedBox(height: kScoutingSectionGap),
+          const ScoutingSectionHeader(
+            title: 'Z-Score Metrics',
+            icon: Symbols.analytics_rounded,
+          ),
+          const SizedBox(height: kScoutingHeaderGap),
+          _zScoreCard(context),
+        ],
         const SizedBox(height: 16),
       ],
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Hardware card
+  // Bot card
   // ---------------------------------------------------------------------------
 
-  Widget _hardwareCard(BuildContext context) {
+  Widget _botCard(BuildContext context) {
     final drivetrainType = bundle.getPitsField<String>('drivetrainType') ?? '—';
     final swerveBrand = bundle.getPitsField<String>('swerveBrand');
     final swerveGearRatio = bundle.getPitsField<String>('swerveGearRatio');
@@ -95,7 +111,6 @@ class _CapabilitiesBody extends StatelessWidget {
     final hExt = bundle.getPitsDouble('horizontalExtensionLimit');
     final vExt = bundle.getPitsDouble('verticalExtensionLimit');
     final hopperSize = bundle.getPitsField<int>('hopperSize') as num?;
-    final pathwayPref = bundle.getPitsField<String>('pathwayPreference') ?? '—';
 
     final showSwerve = drivetrainType == 'Swerve';
 
@@ -133,48 +148,100 @@ class _CapabilitiesBody extends StatelessWidget {
           label: 'Hopper Size',
           value: hopperSize != null ? '${hopperSize.toInt()} balls' : '—',
         ),
-        ScoutingDataRow(label: 'Pathway Preference', value: pathwayPref),
       ],
     );
   }
 
   // ---------------------------------------------------------------------------
-  // Shooter / Collector / Range card
+  // Auto card
   // ---------------------------------------------------------------------------
 
-  Widget _shooterCollectorCard(BuildContext context) {
-    final shooterType = bundle.getPitsField<String>('shooter') ?? '—';
-    final collectorType = bundle.getPitsField<String>('collectorType') ?? '—';
-    final indexerType = bundle.getPitsField<String>('indexerType') ?? '—';
-    final powered = bundle.getPitsField<String>('powered') ?? '—';
-    final outtakeRate = bundle.getPitsDouble('fuelOuttakeRate');
-    final pitsAccuracy = bundle.getPitsDouble('averageAccuracy');
-    final trenchCapability =
-        bundle.getPitsField<String>('trenchCapability') ?? '—';
-    final rangeFromField = bundle.getPitsListField('rangeFromField');
-    final moveWhileShooting = bundle.getPitsListField('moveWhileShooting');
+  Widget _autoCard(BuildContext context) {
+    final autoClimb = bundle.getPitsField<String>('autoClimb') ?? '—';
     final collectionLocations = bundle.getPitsListField(
       'fuelCollectionLocation',
     );
-
-    // Actual accuracy from match data (tele, since that's where most shots are).
-    final actualTeleAccuracy = bundle.avgMatchField(
-      kSectionTele,
-      kTeleFuelAccuracy,
-    );
-    final actualAutoAccuracy = bundle.avgMatchField(
-      kSectionAuto,
-      kAutoFuelAccuracy,
-    );
+    final autoPaths = bundle.getPitsField<String>('autoPaths') ?? '—';
+    final pathwayPreference =
+        bundle.getPitsField<String>('pathwayPreference') ?? '—';
+    final trenchCapability =
+        bundle.getPitsField<String>('trenchCapability') ?? '—';
     final hasMatchData = bundle.hasMatchData;
+    final modalStartPosition =
+        hasMatchData
+            ? bundle.modalMatchField(kSectionAuto, kAutoStartPositions)
+            : null;
+    final outpostRate =
+        hasMatchData
+            ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromOutpost)
+            : null;
+    final depotRate =
+        hasMatchData
+            ? bundle.boolRateMatchField(kSectionAuto, kAutoCollectFromDepot)
+            : null;
+
+    return _specsCard(
+      context,
+      rows: [
+        ScoutingDataRow(label: 'Auto Paths', value: _textOrDash(autoPaths)),
+        ScoutingDataRow(label: 'Auto Climb', value: autoClimb),
+        ScoutingDataRow(
+          label: 'Fuel Collection Spots',
+          value: _joinedOrDash(collectionLocations),
+        ),
+        ScoutingDataRow(label: 'Pathway Preference', value: pathwayPreference),
+        ScoutingDataRow(label: 'Trench Capable', value: trenchCapability),
+        if (hasMatchData) ...[
+          const ScoutingDataDivider(),
+          ScoutingDataRow(
+            label: 'Most Common Start Pos.',
+            value: modalStartPosition ?? '—',
+          ),
+          ScoutingDataRow(
+            label: 'Outpost Collect Rate',
+            value: outpostRate != null ? _fmtPct(outpostRate * 100) : '—',
+          ),
+          ScoutingDataRow(
+            label: 'Depot Collect Rate',
+            value: depotRate != null ? _fmtPct(depotRate * 100) : '—',
+          ),
+        ],
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Outtake card
+  // ---------------------------------------------------------------------------
+
+  Widget _outtakeCard(BuildContext context) {
+    final shooterType = bundle.getPitsField<String>('shooter') ?? '—';
+    final shooterCount = bundle.getPitsField<num>('shooterNumber');
+    final collectorType = bundle.getPitsField<String>('collectorType') ?? '—';
+    final indexerType = bundle.getPitsField<String>('indexerType') ?? '—';
+    final outtakeRate = bundle.getPitsDouble('fuelOuttakeRate');
+    final pitsAccuracy = bundle.getPitsDouble('averageAccuracy');
+    final moveWhileShooting = bundle.getPitsListField('moveWhileShooting');
+    final rangeFromField = _firstNonEmptyPitsList([
+      'rangeFromField',
+      'shootingRange',
+    ]);
+    // Keep observed tele accuracy alongside the pits claim for direct comparison.
+    final actualTeleAccuracy =
+        bundle.hasMatchData
+            ? bundle.avgMatchField(kSectionTele, kTeleFuelAccuracy)
+            : null;
 
     return _specsCard(
       context,
       rows: [
         ScoutingDataRow(label: 'Shooter Type', value: shooterType),
+        ScoutingDataRow(
+          label: 'Number of Shooters',
+          value: shooterCount != null ? shooterCount.toInt().toString() : '—',
+        ),
         ScoutingDataRow(label: 'Collector Type', value: collectorType),
         ScoutingDataRow(label: 'Indexer Type', value: indexerType),
-        ScoutingDataRow(label: 'Powered Indexer', value: powered),
         ScoutingDataRow(
           label: 'Outtake Rate',
           value:
@@ -184,53 +251,26 @@ class _CapabilitiesBody extends StatelessWidget {
         ),
         const ScoutingDataDivider(),
         ScoutingDataRow(
+          label: 'Mobile Shooting',
+          value: _joinedOrDash(moveWhileShooting),
+        ),
+        ScoutingDataRow(
+          label: 'Range from Field',
+          value: _joinedOrDash(rangeFromField, separator: ' · '),
+        ),
+        ScoutingDataRow(
           label: 'Claimed Accuracy (Pits)',
           value:
               pitsAccuracy != null
                   ? '${pitsAccuracy.toStringAsFixed(1)}%'
                   : '—',
         ),
-        if (hasMatchData) ...[
+        if (actualTeleAccuracy != null)
           ScoutingDataRow(
-            label: 'Actual Auto Accuracy (Avg)',
-            value: '${actualAutoAccuracy.toStringAsFixed(1)}%',
+            label: 'Observed Tele Accuracy',
+            value: _fmtPct(actualTeleAccuracy),
             highlight: true,
           ),
-          ScoutingDataRow(
-            label: 'Actual Tele Accuracy (Avg)',
-            value: '${actualTeleAccuracy.toStringAsFixed(1)}%',
-            highlight: true,
-          ),
-        ],
-        const ScoutingDataDivider(),
-        ScoutingDataRow(label: 'Trench Capable', value: trenchCapability),
-        ScoutingDataRow(
-          label: 'Mobile Shooting',
-          value:
-              moveWhileShooting.isNotEmpty ? moveWhileShooting.join(', ') : '—',
-        ),
-        ScoutingDataRow(
-          label: 'Range from Field',
-          value: rangeFromField.isNotEmpty ? rangeFromField.join(' · ') : '—',
-        ),
-        ScoutingDataRow(
-          label: 'Fuel Collection Spots',
-          value:
-              collectionLocations.isNotEmpty
-                  ? collectionLocations.join(', ')
-                  : '—',
-        ),
-        // TODO(strat): add susceptibility to defense from strat data.
-        if (bundle.hasStratData) ...[
-          const ScoutingDataDivider(),
-          ScoutingDataRow(
-            label: 'Defense Susceptibility',
-            value: StratZScoreData.zLabel(
-              stratZScores.defensiveSusceptibilityZ[teamNumber],
-            ),
-            highlight: true,
-          ),
-        ],
       ],
     );
   }
@@ -241,10 +281,8 @@ class _CapabilitiesBody extends StatelessWidget {
 
   Widget _climbCard(BuildContext context) {
     final climbMethod = bundle.getPitsField<String>('climbMethod') ?? '—';
-    final climbTypes = bundle.getPitsListField('climbType');
     final climbLevels = bundle.getPitsListField('climbLevel');
     final climbConsistency = bundle.getPitsDouble('climbConsistency');
-    final autoClimb = bundle.getPitsField<String>('autoClimb') ?? '—';
 
     // Derive actual endgame climb stats from match data.
     final n = bundle.matchDocs.length;
@@ -271,13 +309,16 @@ class _CapabilitiesBody extends StatelessWidget {
         }
       }
     }
-
-    final autoL1Rate =
+    final mostCommonClimbLocation =
+        hasMatchData
+            ? bundle.modalMatchField(kSectionEndgame, kEndClimbLocation)
+            : null;
+    final defenseOffShiftRate =
         hasMatchData
             ? bundle.rateMatchField(
-              kSectionAuto,
-              kAutoClimbL1,
-              (v) => v == 'Successful',
+              kSectionEndgame,
+              kEndPlayedDefenseOffShift,
+              (v) => v == true,
             )
             : null;
 
@@ -286,12 +327,8 @@ class _CapabilitiesBody extends StatelessWidget {
       rows: [
         ScoutingDataRow(label: 'Mechanism', value: climbMethod),
         ScoutingDataRow(
-          label: 'Climb Types',
-          value: climbTypes.isNotEmpty ? climbTypes.join(', ') : '—',
-        ),
-        ScoutingDataRow(
           label: 'Claimed Levels',
-          value: climbLevels.isNotEmpty ? climbLevels.join(', ') : '—',
+          value: _joinedOrDash(climbLevels),
         ),
         ScoutingDataRow(
           label: 'Claimed Consistency',
@@ -300,17 +337,21 @@ class _CapabilitiesBody extends StatelessWidget {
                   ? '${climbConsistency.toStringAsFixed(1)} / 10'
                   : '—',
         ),
-        ScoutingDataRow(label: 'Auto Climb', value: autoClimb),
         if (hasMatchData) ...[
           const ScoutingDataDivider(),
           ScoutingDataRow(
             label: 'Actual Endgame Climb Rate',
             value:
                 actualClimbRate != null
-                    ? '${(actualClimbRate * 100).toStringAsFixed(1)}% ($n matches)'
+                    ? '${_fmtPct(actualClimbRate * 100)} ($n matches)'
                     : '—',
             highlight: true,
           ),
+          if (mostCommonClimbLocation != null)
+            ScoutingDataRow(
+              label: 'Most Common Bar Position',
+              value: mostCommonClimbLocation,
+            ),
           if (climbCounts.isNotEmpty)
             ScoutingDataRow(
               label: 'Level Breakdown',
@@ -319,25 +360,14 @@ class _CapabilitiesBody extends StatelessWidget {
                   .join(' · '),
               highlight: true,
             ),
-          ScoutingDataRow(
-            label: 'Actual Auto L1 Rate',
-            value:
-                autoL1Rate != null
-                    ? '${(autoL1Rate * 100).toStringAsFixed(1)}%'
-                    : '—',
-            highlight: true,
-          ),
+          if (defenseOffShiftRate != null)
+            ScoutingDataRow(
+              label: 'Defense Freq. (Off Shift)',
+              value: _fmtPct(defenseOffShiftRate * 100),
+            ),
         ],
-        // TODO(strat): add mechanical soundness from strat data.
         if (bundle.hasStratData) ...[
           const ScoutingDataDivider(),
-          ScoutingDataRow(
-            label: 'Mech. Stability',
-            value: StratZScoreData.zLabel(
-              stratZScores.mechanicalStabilityZ[teamNumber],
-            ),
-            highlight: true,
-          ),
           ScoutingDataRow(
             label: 'Defense Activity Level',
             value:
@@ -352,8 +382,65 @@ class _CapabilitiesBody extends StatelessWidget {
   }
 
   // ---------------------------------------------------------------------------
+  // Z-score card
+  // ---------------------------------------------------------------------------
+
+  Widget _zScoreCard(BuildContext context) {
+    return _specsCard(
+      context,
+      rows: [
+        ScoutingDataRow(
+          label: 'Driver Skill',
+          value: StratZScoreData.zLabel(stratZScores.driverSkillZ[teamNumber]),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defensive Skill',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveSkillZ[teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Defense Susceptibility',
+          value: StratZScoreData.zLabel(
+            stratZScores.defensiveSusceptibilityZ[teamNumber],
+          ),
+          highlight: true,
+        ),
+        ScoutingDataRow(
+          label: 'Mech. Stability',
+          value: StratZScoreData.zLabel(
+            stratZScores.mechanicalStabilityZ[teamNumber],
+          ),
+          highlight: true,
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // Shared widget helpers
   // ---------------------------------------------------------------------------
+
+  List<String> _firstNonEmptyPitsList(List<String> keys) {
+    for (final key in keys) {
+      final values = bundle.getPitsListField(key);
+      if (values.isNotEmpty) return values;
+    }
+    return const [];
+  }
+
+  String _joinedOrDash(List<String> values, {String separator = ', '}) {
+    return values.isNotEmpty ? values.join(separator) : '—';
+  }
+
+  String _textOrDash(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? '—' : trimmed;
+  }
+
+  String _fmtPct(double v) => '${v.toStringAsFixed(1)}%';
 
   Widget _specsCard(BuildContext context, {required List<Widget> rows}) {
     return Card(

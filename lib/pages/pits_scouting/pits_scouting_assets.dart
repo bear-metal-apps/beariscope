@@ -100,26 +100,28 @@ class _PitsFormData {
   String drivetrainType;
   String swerveBrand;
   String wheelType;
+
   // Climb
   String climbMethod;
-  Set<String> climbType;
   Set<String> climbLevel;
   double climbConsistency;
+
   // Auto
   String autoClimb;
   Set<String> fuelCollectionLocation;
   String autoPaths;
   String pathwayPreference;
   String trenchCapability;
+
   // Outtake
   String shooter;
   String collectorType;
   double accuracy;
   Set<String> mobileShooting;
-  Set<String> rangeFromField;
+  Set<String> shootingRange;
+
   // Indexer
   String indexerType;
-  String powered;
 
   _PitsFormData({
     this.motorType = 'X60',
@@ -127,7 +129,6 @@ class _PitsFormData {
     this.swerveBrand = 'REV',
     this.wheelType = 'Colson',
     this.climbMethod = 'Rotation',
-    Set<String>? climbType,
     Set<String>? climbLevel,
     this.climbConsistency = 0.0,
     this.autoClimb = 'Climb',
@@ -139,14 +140,12 @@ class _PitsFormData {
     this.collectorType = '4 Bar',
     this.accuracy = 0.0,
     Set<String>? mobileShooting,
-    Set<String>? rangeFromField,
+    Set<String>? shootingRange,
     this.indexerType = 'Dye Rotor',
-    this.powered = 'Powered',
-  }) : climbType = climbType ?? {},
-       climbLevel = climbLevel ?? {},
+  }) : climbLevel = climbLevel ?? {},
        fuelCollectionLocation = fuelCollectionLocation ?? {},
        mobileShooting = mobileShooting ?? {},
-       rangeFromField = rangeFromField ?? {};
+       shootingRange = shootingRange ?? {};
 
   factory _PitsFormData.fromDoc(Map<String, dynamic> d) {
     String str(String key, String fallback) {
@@ -166,7 +165,6 @@ class _PitsFormData {
       swerveBrand: str('swerveBrand', 'REV'),
       wheelType: str('wheelType', 'Colson'),
       climbMethod: str('climbMethod', 'Rotation'),
-      climbType: strSet('climbType'),
       climbLevel: strSet('climbLevel'),
       climbConsistency: dbl('climbConsistency', 0.0),
       autoClimb: str('autoClimb', 'Climb'),
@@ -178,9 +176,8 @@ class _PitsFormData {
       collectorType: str('collectorType', '4 Bar'),
       accuracy: dbl('averageAccuracy', 0.0),
       mobileShooting: strSet('moveWhileShooting'),
-      rangeFromField: strSet('rangeFromField'),
+      shootingRange: strSet('shootingRange'),
       indexerType: str('indexerType', 'Dye Rotor'),
-      powered: str('powered', 'Powered'),
     );
   }
 }
@@ -328,9 +325,7 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     controller: _swerveGRTEC,
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
-                    decoration: InputDecoration(
-                      labelText: 'Swerve Gear Ratio (If none, type 0)',
-                    ),
+                    decoration: InputDecoration(labelText: 'Swerve Gear Ratio'),
                   ),
                 ),
                 Padding(
@@ -348,64 +343,40 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     onChanged: (value) => _f.wheelType = value ?? _f.wheelType,
                   ),
                 ),
+
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: 30, height: 10),
-                      Expanded(
-                        flex: 3,
-                        child: NumberTextField(
-                          labelText: 'Chassis Length (in)',
-                          controller: _chassisLengthTEC,
-                        ),
-                      ),
-                      Expanded(child: SizedBox(height: 10)),
-                      Expanded(
-                        flex: 3,
-                        child: NumberTextField(
-                          labelText: 'Chassis Width (in)',
-                          controller: _chassisWidthTEC,
-                        ),
-                      ),
-                      Expanded(child: SizedBox(height: 10)),
-                      Expanded(
-                        flex: 3,
-                        child: NumberTextField(
-                          labelText: 'Chassis Height (in)',
-                          controller: _chassisHeightTEC,
-                        ),
-                      ),
-                      SizedBox(width: 30, height: 10),
-                    ],
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  child: NumberTextField(
+                    labelText: 'Chassis Length (in)',
+                    controller: _chassisLengthTEC,
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(width: 30, height: 10),
-                      Expanded(
-                        flex: 3,
-                        child: NumberTextField(
-                          labelText: 'Horizontal Extension Limit (in)',
-                          controller: _horizontalExtensionTEC,
-                        ),
-                      ),
-                      Expanded(child: SizedBox(height: 10)),
-                      Expanded(
-                        flex: 3,
-                        child: NumberTextField(
-                          labelText: 'Vertical Extension Limit (in)',
-                          controller: _verticalExtensionTEC,
-                        ),
-                      ),
-                      SizedBox(width: 30, height: 10),
-                    ],
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  child: NumberTextField(
+                    labelText: 'Chassis Width (in)',
+                    controller: _chassisWidthTEC,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  child: NumberTextField(
+                    labelText: 'Chassis Height (in)',
+                    controller: _chassisHeightTEC,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  child: NumberTextField(
+                    labelText: 'Horizontal Extension Limit (in)',
+                    controller: _horizontalExtensionTEC,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+                  child: NumberTextField(
+                    labelText: 'Vertical Extension Limit (in)',
+                    controller: _verticalExtensionTEC,
                   ),
                 ),
                 Padding(
@@ -436,20 +407,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     initialValue: _f.climbMethod,
                     onChanged:
                         (value) => _f.climbMethod = value ?? _f.climbMethod,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: MultipleChoice(
-                    options: [
-                      'Pivot',
-                      'Telescoping',
-                      'Elevator/Monkey Bar',
-                      'Buzzer Beater',
-                    ],
-                    label: 'Climb Type',
-                    variable: _f.climbType,
-                    onSelectionChanged: (value) => _f.climbType = value,
                   ),
                 ),
                 Padding(
@@ -608,9 +565,9 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                       'From Outpost',
                       'From Tower',
                     ],
-                    label: 'Range from Field',
-                    variable: _f.rangeFromField,
-                    onSelectionChanged: (value) => _f.rangeFromField = value,
+                    label: 'Shooting Range',
+                    variable: _f.shootingRange,
+                    onSelectionChanged: (value) => _f.shootingRange = value,
                   ),
                 ),
                 // Indexer
@@ -636,15 +593,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                     initialValue: _f.indexerType,
                     onChanged:
                         (value) => _f.indexerType = value ?? _f.indexerType,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: RadioButton(
-                    options: ['Powered', 'Not Powered'],
-                    height: 96,
-                    initialValue: _f.powered,
-                    onChanged: (value) => _f.powered = value ?? _f.powered,
                   ),
                 ),
                 Padding(
@@ -682,7 +630,6 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         ),
                         weight: double.tryParse(_botWeightTEC.text),
                         climbMethod: _f.climbMethod,
-                        climbType: _f.climbType,
                         climbLevel: _f.climbLevel,
                         climbConsistency: _f.climbConsistency,
                         autoClimb: _f.autoClimb,
@@ -698,9 +645,8 @@ class _PitsScoutingFormPageState extends ConsumerState<PitsScoutingFormPage> {
                         ),
                         averageAccuracy: _f.accuracy,
                         moveWhileShooting: _f.mobileShooting,
-                        rangeFromField: _f.rangeFromField,
+                        shootingRange: _f.shootingRange,
                         indexerType: _f.indexerType,
-                        powered: _f.powered,
                         notes: _notesTEC.text,
                       );
 

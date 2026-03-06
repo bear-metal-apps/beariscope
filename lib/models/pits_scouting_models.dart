@@ -57,7 +57,6 @@ class PitsScoutingSubmission {
   final double? verticalExtensionLimit;
   final double? weight;
   final String climbMethod;
-  final Set<String> climbType;
   final Set<String> climbLevel;
   final double climbConsistency;
   final String autoClimb;
@@ -71,9 +70,8 @@ class PitsScoutingSubmission {
   final double? fuelOuttakeRate;
   final double averageAccuracy;
   final Set<String> moveWhileShooting;
-  final Set<String> rangeFromField;
+  final Set<String> shootingRange;
   final String indexerType;
-  final String powered;
   final String notes;
 
   const PitsScoutingSubmission({
@@ -92,7 +90,6 @@ class PitsScoutingSubmission {
     required this.verticalExtensionLimit,
     required this.weight,
     required this.climbMethod,
-    required this.climbType,
     required this.climbLevel,
     required this.climbConsistency,
     required this.autoClimb,
@@ -106,9 +103,8 @@ class PitsScoutingSubmission {
     required this.fuelOuttakeRate,
     required this.averageAccuracy,
     required this.moveWhileShooting,
-    required this.rangeFromField,
+    required this.shootingRange,
     required this.indexerType,
-    required this.powered,
     required this.notes,
   });
 
@@ -142,7 +138,6 @@ class PitsScoutingSubmission {
       'verticalExtensionLimit': verticalExtensionLimit,
       'weight': weight,
       'climbMethod': climbMethod,
-      'climbType': climbType.toList(),
       'climbLevel': climbLevel.toList(),
       'climbConsistency': climbConsistency,
       'autoClimb': autoClimb,
@@ -156,9 +151,8 @@ class PitsScoutingSubmission {
       'fuelOuttakeRate': fuelOuttakeRate,
       'averageAccuracy': averageAccuracy,
       'moveWhileShooting': moveWhileShooting.toList(),
-      'rangeFromField': rangeFromField.toList(),
+      'rangeFromField': shootingRange.toList(),
       'indexerType': indexerType,
-      'powered': powered,
       'notes': notes,
     };
   }

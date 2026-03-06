@@ -205,14 +205,14 @@ class _MatchCard extends StatelessWidget {
     final climb = _f(kSectionEndgame, kEndClimb);
     final climbLoc = _f(kSectionEndgame, kEndClimbLocation)?.toString();
 
-    final fouls = _f(kSectionEndgame, kEndFouls);
+    final fouls = _f(kSectionTele, kEndFouls);
     final foulsCount = fouls is num ? fouls.toInt() : 0;
 
     final incidents = [
       if (_f(kSectionAuto, kAutoAStop) == true)
         scoutingIncidentChip(context, 'A-Stop'),
-      if (_f(kSectionTele, kTeleEStop) == true)
-        scoutingIncidentChip(context, 'E-Stop'),
+      if (_f(kSectionTele, kTeleStoppedWorking) == true)
+        scoutingIncidentChip(context, 'Stopped Working'),
       if (_f(kSectionTele, kTeleLostComms) == true)
         scoutingIncidentChip(context, 'Comms Loss'),
       if (_f(kSectionAuto, kAutoCollided) == true)
@@ -393,15 +393,10 @@ class _MatchDetailSection extends StatelessWidget {
               ),
               _row(
                 context,
-                'Inactive Passing',
-                _f(kSectionTele, kTeleInactivePassing),
+                'Stopped Working',
+                _f(kSectionTele, kTeleStoppedWorking),
               ),
-              _row(
-                context,
-                'Collecting Time',
-                _f(kSectionTele, kTeleCollecting),
-                format: (v) => '${v.toStringAsFixed(1)} s',
-              ),
+              _row(context, 'Lost Comms', _f(kSectionTele, kTeleLostComms)),
               _row(
                 context,
                 'Full-Hopper Periods',
@@ -409,13 +404,7 @@ class _MatchDetailSection extends StatelessWidget {
               ),
               _row(context, 'Over Bump', _f(kSectionTele, kTeleOverBump)),
               _row(context, 'Under Trench', _f(kSectionTele, kTeleUnderTrench)),
-              _row(
-                context,
-                'Defense (qualitative)',
-                _f(kSectionTele, kTeleDefense),
-              ),
-              _row(context, 'E-Stop', _f(kSectionTele, kTeleEStop)),
-              _row(context, 'Lost Comms', _f(kSectionTele, kTeleLostComms)),
+              _row(context, 'Fouls', _f(kSectionTele, kEndFouls)),
             ],
           ),
           _phaseSection(
@@ -441,7 +430,7 @@ class _MatchDetailSection extends StatelessWidget {
                 'Defense Off Shift',
                 _f(kSectionEndgame, kEndPlayedDefenseOffShift),
               ),
-              _row(context, 'Fouls', _f(kSectionEndgame, kEndFouls)),
+              _row(context, 'Play Style', _f(kSectionEndgame, kEndPlayStyle)),
               _row(context, 'Scout Notes', _f(kSectionEndgame, kEndNotes)),
               // TODO(strat): add strat fields once strat data is implemented.
             ],

@@ -68,7 +68,7 @@ const kTeleEStop = 'e_stop';
 const kTeleLostComms = 'lost_comms';
 
 /// Number of periods where the robot started with a full hopper.
-const kTelePeriodStartedWithFullHopper = 'period_started_with_full_hopper';
+const kTelePeriodStartedWithFullHopper = 'periods_started_with_full_hopper';
 
 /// Number of times the robot traveled over the bump during teleop.
 const kTeleOverBump = 'over_bump';
@@ -84,6 +84,9 @@ const kTeleCollecting = 'collecting';
 
 /// Qualitative defense rating assigned by scout (int, higher = more defense).
 const kTeleDefense = 'defense';
+
+/// Whether the robot stopped working (mechanically/electrically) during teleop.
+const kTeleStoppedWorking = 'stopped_working';
 
 /// Climb level achieved: "L1" | "L2" | "L3" (absent/null = no climb).
 const kEndClimb = 'climb';
@@ -102,3 +105,6 @@ const kEndFouls = 'fouls';
 
 /// Free-text match notes entered by the scout.
 const kEndNotes = 'notes';
+
+/// Preferred play style(s): "Passing" | "Cycling" | "Shooting" | "Defense" (multi-select).
+const kEndPlayStyle = 'play_style';
