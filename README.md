@@ -5,10 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/betterbearmetalcode/beariscope/releases">
+  <a href="https://github.com/bear-metal-apps/beariscope/releases">
     <img src="https://img.shields.io/github/v/release/betterbearmetalcode/beariscope?label=Latest%20Release" alt="Release"/>
   </a>
-  <a href="https://github.com/betterbearmetalcode/beariscope/blob/main/LICENSE">
+  <a href="https://github.com/bear-metal-apps/beariscope/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/betterbearmetalcode/beariscope?color=blue" alt="License"/>
   </a>
   <a href="https://flutter.dev/">
@@ -16,8 +16,8 @@
   </a>
 </p>
 
-> [!NOTE]
-> Beariscope is under active development. We're running it internally this season and plan to open it up to other teams next year.
+> [!IMPORTANT]
+> This specific repo has been archived. All code has been moved to our monorepo [bearings](https://github.com/bear-metal-2046/bearings).
 ---
 
 Beariscope is a FRC strategy app by Team 2046, Bear Metal.
